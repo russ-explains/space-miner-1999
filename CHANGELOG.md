@@ -1,3 +1,10 @@
+## v1.6.0
+- Added a dedicated **Level 5 victory scene** after completing the final escape.
+- Displays **CONGRATULATIONS!** and **PLANET 5 — MISSION COMPLETE!**
+- Added a large rocket ship beside the astronaut, approximately eight times his height.
+- Added a waving astronaut and a small friendly robot companion.
+- Kept the existing score and restart behaviour on the victory screen.
+
 ## v1.5.7
 - Planet 3–5 saucers now fire their original aimed shots **as well as** dropping pulsing mines.
 - Increased the mine explosion radius from 34 to 136 pixels (4×).
