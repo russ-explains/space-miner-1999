@@ -1,3 +1,7 @@
+## v1.6.4
+- Damped the escape-section collision rebound from 55% of the previous upward velocity to 22%.
+- This reduces the bounce-back by about 60%, giving the player substantially more control after hitting cavern sides or spikes.
+
 ## v1.6.3
 - Increased fuel gained from blue fuel blobs in the asteroid-flight section by 25%, from 6 to 7.5 fuel.
 - Other fuel sources and sections are unchanged.
