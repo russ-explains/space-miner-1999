@@ -1,3 +1,6 @@
+## v1.8.2
+- Updated the shield upgrade label to explicitly say **“(PRESS S)”** so players know how to activate it.
+
 ## v1.8.1
 - Players can now buy and carry up to **3 collision shields**.
 - Each shield still lasts **2 seconds** when activated with **S**, and one charge is consumed per activation.
