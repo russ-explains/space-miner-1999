@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.5.3';
+const VERSION='v1.5.4';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -763,11 +763,6 @@ function updateUfo(){
     }
     if(ufo && ufo.x<-80) ufo=null;
   }
-  saucerBombs.forEach(b=>{
-    const pulse=5+Math.sin(b.age*.65)*2.5;
-    ctx.strokeStyle='#ff9f43';ctx.fillStyle='#ff5a36';ctx.lineWidth=2;
-    ctx.beginPath();ctx.arc(b.x,b.y,pulse,0,Math.PI*2);ctx.stroke();ctx.fillRect(b.x-2,b.y-2,4,4);
-  });
   ebullets.forEach(b=>{b.x+=b.vx;b.y+=b.vy;b.life--;
     if(Math.abs(b.x-ship.x)<11&&Math.abs(b.y-ship.y)<14&&ship.inv===0&&state==='flight'){b.life=0;burst(ship.x,ship.y,14);damage('HULL DESTROYED — SAUCER FIRE','SAUCER FIRE')}
   });
@@ -1250,6 +1245,13 @@ function drawFlight(){
   asteroids.forEach(a=>drawRock(a,.8,a.ore?ORE:null));
   pickups.forEach(pk=>drawGem(pk.x,pk.y+Math.sin(pk.t*.1)*3,ORE));
   if(ufo) drawUfo(ufo);
+  // Planet 3 onward: saucers drop visible pink, pulsing bombs with a one-second fuse.
+  saucerBombs.forEach(b=>{
+    const pulse=5+Math.sin(b.age*.65)*2.5;
+    ctx.strokeStyle='#ff69d8';ctx.fillStyle='#ff3fbf';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(b.x,b.y,pulse,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.arc(b.x,b.y,2.5,0,Math.PI*2);ctx.fill();
+  });
   mono();bullets.forEach(b=>ctx.fillRect(b.x-4,b.y-1,9,2));
   ctx.fillStyle='#ff6bd6';ebullets.forEach(b=>ctx.fillRect(b.x-2,b.y-2,4,4));
   particles.forEach(pt=>{mono(pt.life/40);ctx.fillRect(pt.x,pt.y,2,2)});
