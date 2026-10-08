@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.5.1';
+const VERSION='v1.5.2';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -942,7 +942,7 @@ function updateSurface(){
   if(mineOxygen<=0){lose('OXYGEN DEPLETED — SUIT BREACHED',true);return;}
   if(mineOxygen<20&&stageTimer%45===0)sfx('alarm');
   if(actionPressed && bullets.filter(b=>!b.enemy).length<4+ship.laser){
-    const dir=ship.face;sfx('shoot');bullets.push({x:ship.x+dir*16,y:ship.y-5,vx:dir*(7+ship.laser*.8),vy:0,life:180});
+    const dir=ship.face;sfx('shoot');bullets.push({x:ship.x+dir*16,y:ship.y+3,vx:dir*(7+ship.laser*.8),vy:0,life:180});
   }
   bullets.forEach(b=>{b.x+=b.vx;b.y+=(b.vy||0);b.life--});
   bullets=bullets.filter(b=>b.life>0&&b.x>cameraX-60&&b.x<cameraX+W+60&&b.y>-80&&b.y<H+160);
