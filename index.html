@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.5.0';
+const VERSION='v1.5.1';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -177,7 +177,7 @@ let landerPeakScale=.35,landerRoughness=18,landerPeakCount=2,landerAsteroidCount
 let minePlatforms=[], mineHoles=[], mineUfo=null, backpackFuel=100, maxBackpackFuel=100;
 let mineOxygen=100, mineOxygenMax=100, minePlatformScroll=0, minePitHit=false;
 let mineShipFuel=0, mineShipFuelRequired=3;
-let dist=0,tripDist=1,scroll=FLY_BASE,nextRock=0,nextRing=0,section=0,beatT=0,beat=0,ufo=null;
+let dist=0,tripDist=1,scroll=FLY_BASE,nextRock=0,nextRing=0,section=0,beatT=0,beat=0,ufo=null,saucerBombs=[];
 let readyT=0,readyA='',readyB='';
 let entry=null,endWin=false;
 let crtOn=!store('SM4000_NOCRT');
@@ -322,7 +322,7 @@ function initStars(){
 }
 
 function setupFlight(respawn=false){
-  state='flight'; stageTimer=0; bullets=[];ebullets=[];aliens=[];drops=[];particles=[];ufo=null;
+  state='flight'; stageTimer=0; bullets=[];ebullets=[];aliens=[];drops=[];particles=[];ufo=null;saucerBombs=[];
   ship.x=W*.2;ship.y=H*.55;ship.vx=0;ship.vy=0;ship.angle=Math.PI/2;ship.av=0;
   const p=planets[planetIndex];
   if(!respawn){
@@ -748,8 +748,14 @@ function updateUfo(){
     ufo.y=ufo.baseY+Math.sin(ufo.t*.045)*60;
     if(ufo.t%22===0) beep(ufo.t%44?700:560,.08,'triangle',.018);
     if(--ufo.fireT<=0 && ufo.x<W){
-      const dx=ship.x-ufo.x,dy=ship.y-ufo.y,d=Math.hypot(dx,dy)||1,sp=3.1+planetIndex*.3;
-      ebullets.push({x:ufo.x,y:ufo.y,vx:dx/d*sp,vy:dy/d*sp,life:220});sfx('alien');
+      if(planetIndex>=2){
+        saucerBombs.push({x:ufo.x,y:ufo.y+12,vx:0,vy:.7,life:60,age:0});
+        sfx('alien');
+      } else {
+        const dx=ship.x-ufo.x,dy=ship.y-ufo.y,d=Math.hypot(dx,dy)||1,sp=3.1+planetIndex*.3;
+        ebullets.push({x:ufo.x,y:ufo.y,vx:dx/d*sp,vy:dy/d*sp,life:220});
+        sfx('alien');
+      }
       ufo.fireT=rnd(70,110)-planetIndex*8;
     }
     if(Math.abs(ship.x-ufo.x)<28 && Math.abs(ship.y-ufo.y)<20 && ship.inv===0){
@@ -757,10 +763,29 @@ function updateUfo(){
     }
     if(ufo && ufo.x<-80) ufo=null;
   }
+  saucerBombs.forEach(b=>{
+    const pulse=5+Math.sin(b.age*.65)*2.5;
+    ctx.strokeStyle='#ff9f43';ctx.fillStyle='#ff5a36';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(b.x,b.y,pulse,0,Math.PI*2);ctx.stroke();ctx.fillRect(b.x-2,b.y-2,4,4);
+  });
   ebullets.forEach(b=>{b.x+=b.vx;b.y+=b.vy;b.life--;
     if(Math.abs(b.x-ship.x)<11&&Math.abs(b.y-ship.y)<14&&ship.inv===0&&state==='flight'){b.life=0;burst(ship.x,ship.y,14);damage('HULL DESTROYED — SAUCER FIRE','SAUCER FIRE')}
   });
   ebullets=ebullets.filter(b=>b.life>0&&b.x>-20&&b.x<W+20&&b.y>-20&&b.y<H+20);
+
+  // Planets 3–5 use pulsing one-second fuse bombs instead of direct saucer shots.
+  saucerBombs.forEach(b=>{
+    b.age++;b.x+=b.vx-scroll;b.y+=b.vy;
+    if(b.age>=60){
+      const radius=34;
+      burst(b.x,b.y,14);
+      if(Math.hypot(ship.x-b.x,ship.y-b.y)<radius && ship.inv===0){
+        damage('HULL DESTROYED — SAUCER BOMB','SAUCER BOMB');
+      }
+      b.life=0;
+    }
+  });
+  saucerBombs=saucerBombs.filter(b=>b.life>0&&b.x>-60&&b.x<W+60&&b.y>-60&&b.y<H+60);
 }
 
 /* --------------------------------------------------------------- ESCAPE */
