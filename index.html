@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.5.7';
+const VERSION='v1.6.0';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1474,14 +1474,52 @@ function drawInitials(){
   mono(.7);text('▲ ▼ CHANGE LETTER   ▶ / ● NEXT   ◀ BACK',W/2,H*.7,W<520?11:14,'center');
 }
 
+function drawVictoryScene(){
+  const ground=H*.72;
+  // Huge rocket: roughly eight times the astronaut's height.
+  const rx=W*.63, ry=ground-150, rs=Math.min(1.25,W/700);
+  ctx.save();ctx.translate(rx,ry);
+  ctx.strokeStyle='#ddd';ctx.fillStyle='#111';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(0,-125*rs);ctx.quadraticCurveTo(38*rs,-95*rs,38*rs,-45*rs);ctx.lineTo(38*rs,55*rs);ctx.lineTo(24*rs,85*rs);ctx.lineTo(-24*rs,85*rs);ctx.lineTo(-38*rs,55*rs);ctx.lineTo(-38*rs,-45*rs);ctx.quadraticCurveTo(-38*rs,-95*rs,0,-125*rs);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#9bc7ff';ctx.beginPath();ctx.arc(0,-55*rs,17*rs,0,Math.PI*2);ctx.stroke();ctx.fill();
+  ctx.beginPath();ctx.moveTo(-38*rs,20*rs);ctx.lineTo(-62*rs,68*rs);ctx.lineTo(-36*rs,58*rs);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(38*rs,20*rs);ctx.lineTo(62*rs,68*rs);ctx.lineTo(36*rs,58*rs);ctx.stroke();
+  ctx.fillStyle='#ff7a2f';ctx.beginPath();ctx.moveTo(-17*rs,85*rs);ctx.lineTo(17*rs,85*rs);ctx.lineTo(9*rs,112*rs);ctx.lineTo(-9*rs,112*rs);ctx.closePath();ctx.fill();
+  ctx.restore();
+
+  // Astronaut beside the rocket, with a waving arm.
+  const ax=W*.30, ay=ground-30;
+  drawAstronaut(ax,ay,1);
+  ctx.strokeStyle='#fff';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(ax+10,ay-25);ctx.lineTo(ax+28,ay-48);ctx.lineTo(ax+40,ay-63);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ax+40,ay-63);ctx.lineTo(ax+36,ay-76);ctx.moveTo(ax+40,ay-63);ctx.lineTo(ax+50,ay-72);ctx.stroke();
+
+  // Small friendly robot beside the astronaut.
+  const bx=ax+58, by=ground-22;
+  ctx.strokeStyle='#7fffe6';ctx.fillStyle='#111';ctx.lineWidth=2;
+  ctx.strokeRect(bx-13,by-27,26,24);ctx.strokeRect(bx-16,by-3,32,24);
+  ctx.fillStyle='#ff69d8';ctx.fillRect(bx-7,by-19,4,4);ctx.fillRect(bx+3,by-19,4,4);
+  ctx.beginPath();ctx.moveTo(bx,by-27);ctx.lineTo(bx,by-36);ctx.stroke();ctx.fillRect(bx-2,by-38,4,4);
+  ctx.beginPath();ctx.moveTo(bx-16,by+3);ctx.lineTo(bx-27,by+10);ctx.moveTo(bx+16,by+3);ctx.lineTo(bx+27,by+10);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(bx-8,by+21);ctx.lineTo(bx-10,by+30);ctx.moveTo(bx+8,by+21);ctx.lineTo(bx+10,by+30);ctx.stroke();
+}
+
 function drawEnd(win){
   ctx.fillStyle='#050505';ctx.fillRect(0,0,W,H);
-  ctx.fillStyle=win?ORE:'#ff5050';arc(win?'BIG RED CONQUERED':'GAME OVER',W/2,H*.2,34);
-  if(!win){mono(.8);text(deathReason,W/2,H*.27,14,'center')}
+  if(win){
+    ctx.fillStyle=ORE;arc('CONGRATULATIONS!',W/2,H*.12,30);
+    mono();text('PLANET 5 — MISSION COMPLETE!',W/2,H*.18,15,'center');
+    drawVictoryScene();
+    text('SCORE '+pad6(score),W/2,H*.87,18,'center');
+    if(canRestart()&&(stageTimer>>5)%2===0){ctx.fillStyle='#fff';arc('PRESS ANY KEY',W/2,H*.94,13)}
+    return;
+  }
+  ctx.fillStyle='#ff5050';arc('GAME OVER',W/2,H*.2,34);
+  mono(.8);text(deathReason,W/2,H*.27,14,'center');
   mono();text('SCORE '+pad6(score),W/2,H*.35,22,'center');
   text('REACHED PLANET '+(planetIndex+1)+' / '+planets.length+' — '+planets[Math.min(planetIndex,planets.length-1)].name,W/2,H*.4,13,'center');
   drawTable(H*.5,true);
-  if(canRestart()&&(stageTimer>>5)%2===0){ctx.fillStyle='#fff';arc(win?'SPACE MINER STATUS: LEGEND':'PRESS ANY KEY',W/2,H*.85,14)}
+  if(canRestart()&&(stageTimer>>5)%2===0){ctx.fillStyle='#fff';arc('PRESS ANY KEY',W/2,H*.85,14)}
 }
 
 function drawMessage(){
