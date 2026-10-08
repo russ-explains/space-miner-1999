@@ -1,3 +1,6 @@
+## v1.8.7
+- Increased the **EXTRA LIFE +1** upgrade cost from **4 gems to 5 gems**.
+
 ## v1.8.6
 - Increased starting fuel for a new game from **30 to 36** (**20% more**).
 - Applied the same starting-fuel increase to the first-stage test shortcut.
