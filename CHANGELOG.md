@@ -1,3 +1,8 @@
+## v1.7.7
+- Doubled the saucer bomb blast radius from **408px to 816px**.
+- Added a large visible expanding blast effect to match the full damage radius.
+- The ship is now damaged anywhere inside that same **816px explosion radius**.
+
 ## v1.7.6
 - Changed the mining oxygen supply to **one oxygen tank per mining level**.
 - The single oxygen tank is now positioned towards the **right-hand side of the map** on every mining level.
