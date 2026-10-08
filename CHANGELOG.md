@@ -1,3 +1,9 @@
+## v1.7.9
+- Removed the oversized expanding pink saucer-bomb blast graphic from asteroid flight.
+- Bomb detonations now use a smaller burst of particles instead.
+- Tightened ship damage to a **34px radius** around the detonation, matching the small explosion effect.
+- Asteroids can still be destroyed within the larger blast area.
+
 ## v1.7.8
 - Made the mining oxygen tank clearly visible as a **small blue box with a white “O”**.
 - Kept exactly **one oxygen tank per mining level**.
