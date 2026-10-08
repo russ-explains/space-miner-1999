@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.2.2 — 2026-10-08
+### Changed
+- Increased starting jetpack fuel so the miner has more breathing room when reaching the upper platforms.
+- Jetpack fuel now slowly regenerates while the miner is exploring, preventing the player from becoming permanently stranded.
+- Once all **3 ship-fuel canisters** are collected, jetpack fuel immediately becomes full and remains full.
+- With all 3 ship-fuel canisters collected, the jetpack provides continuous lift without needing the jump key.
+- Falling through the bottom of the mining screen now causes hull damage, using the same damage system as mining-pit impacts.
+- The mining exit now requires all **3 F canisters**.
+
 ## v1.2.1 — 2026-10-08
 ### Fixed
 - Corrected Section 3 controls: **Arrow Up = jump**, **Space = fire**, **W = jetpack**.
