@@ -1,3 +1,8 @@
+## v1.7.3
+- Mining falls into holes now cause immediate hull damage as soon as the astronaut passes below the planet's normal surface level.
+- Removed the old deep-pit delay, so the astronaut no longer has to fall far down the hole before taking damage.
+- Existing bottom-of-screen fall damage remains as a safety net.
+
 ## v1.7.2
 - From Planet 3 onwards, roughly half of the mining aliens are now tougher two-hit variants.
 - Tough aliens have a slightly different, bulkier appearance.
