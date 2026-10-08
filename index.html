@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.7.6';
+const VERSION='v1.7.7';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -177,7 +177,7 @@ let landerPeakScale=.35,landerRoughness=18,landerPeakCount=2,landerAsteroidCount
 let minePlatforms=[], mineHoles=[], mineUfo=null, backpackFuel=100, maxBackpackFuel=100;
 let mineOxygen=100, mineOxygenMax=100, minePlatformScroll=0, minePitHit=false;
 let mineShipFuel=0, mineShipFuelRequired=3;
-let dist=0,tripDist=1,scroll=FLY_BASE,nextRock=0,nextRing=0,section=0,beatT=0,beat=0,ufo=null,saucerBombs=[];
+let dist=0,tripDist=1,scroll=FLY_BASE,nextRock=0,nextRing=0,section=0,beatT=0,beat=0,ufo=null,saucerBombs=[],saucerBlasts=[];
 let readyT=0,readyA='',readyB='';
 let entry=null,endWin=false;
 let crtOn=!store('SM4000_NOCRT');
@@ -334,7 +334,7 @@ function initStars(){
 }
 
 function setupFlight(respawn=false){
-  state='flight'; stageTimer=0; bullets=[];ebullets=[];aliens=[];drops=[];particles=[];ufo=null;saucerBombs=[];
+  state='flight'; stageTimer=0; bullets=[];ebullets=[];aliens=[];drops=[];particles=[];ufo=null;saucerBombs=[];saucerBlasts=[];
   ship.x=W*.2;ship.y=H*.55;ship.vx=0;ship.vy=0;ship.angle=Math.PI/2;ship.av=0;
   const p=planets[planetIndex];
   if(!respawn){
@@ -793,8 +793,9 @@ function updateUfo(){
     b.x+=b.vx-scroll;b.y+=b.vy;
     if(b.age>=120){
       // Large mine blast: about four times the previous radius.
-      const radius=408;
-      burst(b.x,b.y,84);
+      const radius=816;
+      saucerBlasts.push({x:b.x,y:b.y,t:28,radius});
+      burst(b.x,b.y,168);
       if(Math.hypot(ship.x-b.x,ship.y-b.y)<radius && ship.inv===0){
         damage('HULL DESTROYED — SAUCER BOMB','SAUCER BOMB');
       }
@@ -810,6 +811,8 @@ function updateUfo(){
     }
   });
   saucerBombs=saucerBombs.filter(b=>b.life>0&&b.x>-60&&b.x<W+60&&b.y>-60&&b.y<H+60);
+  saucerBlasts.forEach(g=>g.t--);
+  saucerBlasts=saucerBlasts.filter(g=>g.t>0);
 }
 
 /* --------------------------------------------------------------- ESCAPE */
@@ -1323,6 +1326,12 @@ function drawFlight(){
   pickups.forEach(pk=>drawGem(pk.x,pk.y+Math.sin(pk.t*.1)*3,ORE));
   if(ufo) drawUfo(ufo);
   // Planet 3 onward: saucers drop visible pink, pulsing bombs with a one-second fuse.
+  saucerBlasts.forEach(g=>{
+    const p=1-g.t/28, r=g.radius*p;
+    ctx.save();ctx.globalAlpha=(1-p)*.55;ctx.strokeStyle='#ff69d8';ctx.lineWidth=5;
+    ctx.beginPath();ctx.arc(g.x,g.y,r,0,Math.PI*2);ctx.stroke();
+    ctx.globalAlpha=(1-p)*.16;ctx.fillStyle='#ff3fbf';ctx.beginPath();ctx.arc(g.x,g.y,r,0,Math.PI*2);ctx.fill();ctx.restore();
+  });
   saucerBombs.forEach(b=>{
     const pulse=5+Math.sin(b.age*.65)*2.5;
     ctx.strokeStyle='#ff69d8';ctx.fillStyle='#ff3fbf';ctx.lineWidth=2;
