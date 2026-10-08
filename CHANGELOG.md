@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.9 — 2026-10-08
+### Changed
+- Made the mining-surface holes much more visually obvious with darker, deeper-looking openings and stronger highlighted rims.
+- Widened some of the holes so they are easier to recognise as hazards.
+- Falling through a hole continues to use the existing hull-damage system, costing **one hull point** rather than an entire life.
+
 ## v1.2.8 — 2026-10-08
 ### Changed
 - Increased jetpack lift from **0.24** to **0.34** per frame for a more definite upward thrust.
