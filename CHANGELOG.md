@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2.5 — 2026-10-08
+### Changed
+- Colliding with a green alien now removes **one hull point**, using the existing temporary invulnerability system.
+- Green aliens now occasionally make a short, fast dash of roughly **three alien lengths**, giving them a more deliberate movement pattern that has to be judged and shot.
+
 ## v1.2.4 — 2026-10-08
 ### Changed
 - Oxygen now drains at approximately **double the previous rate**, making oxygen collection and route planning much more urgent.
