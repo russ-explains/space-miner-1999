@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.6.8';
+const VERSION='v1.6.9';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -752,7 +752,7 @@ function updateUfo(){
       // Planet 3 onward: saucers keep their original shots AND drop a mine.
       ebullets.push({x:ufo.x,y:ufo.y,vx:dx/d*sp,vy:dy/d*sp,life:440});
       if(planetIndex>=2){
-        saucerBombs.push({x:ufo.x,y:ufo.y+12,vx:0,vy:.7,life:120,age:0});
+        saucerBombs.push({x:ufo.x,y:ufo.y+12,vx:0,vy:.7,life:240,age:0});
       }
       sfx('alien');
       ufo.fireT=rnd(70,110)-planetIndex*8;
@@ -778,10 +778,10 @@ function updateUfo(){
     b.vx+=(desiredX-b.vx)*.035;
     b.vy+=(desiredY-b.vy)*.035;
     b.x+=b.vx-scroll;b.y+=b.vy;
-    if(b.age>=60){
+    if(b.age>=120){
       // Large mine blast: about four times the previous radius.
-      const radius=136;
-      burst(b.x,b.y,28);
+      const radius=408;
+      burst(b.x,b.y,84);
       if(Math.hypot(ship.x-b.x,ship.y-b.y)<radius && ship.inv===0){
         damage('HULL DESTROYED — SAUCER BOMB','SAUCER BOMB');
       }
