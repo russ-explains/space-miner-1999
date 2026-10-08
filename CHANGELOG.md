@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.2.3 — 2026-10-08
+### Changed
+- Oxygen now drains approximately **30% faster** during mining.
+- Jetpack fuel consumption while holding **W** is approximately **30% lower**, giving the miner more lift per unit of fuel.
+- Collecting all 3 ship-fuel canisters still fills the jetpack to maximum, but **does not automatically activate the jetpack or launch the miner**.
+- After finding all 3 F canisters, the player can choose whether and when to use the fully charged jetpack.
+- Flying-saucer bombs now have enough lifetime to travel all the way down the mining area, making the saucer a continuing ground-level threat.
+- Saucer/enemy hits, falling through cracks, falling off-screen, and spike/pit impacts all use the hull-damage system and can ultimately cost a life.
+
 ## v1.2.2 — 2026-10-08
 ### Changed
 - Increased starting jetpack fuel so the miner has more breathing room when reaching the upper platforms.
