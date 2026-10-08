@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.5.0 — 2026-10-08
+### Changed
+- Increased asteroid-flight difficulty progressively across all five planets.
+- Planet 2 and later now have denser asteroid fields.
+- Planet 3 and later now use substantially larger asteroids, with size increasing further on later planets.
+- Asteroid density and size now scale progressively through Planets 1–5.
+
 ## v1.4.6 — 2026-10-08
 ### Changed
 - The normal game now starts the opening asteroid-flight section at **30% fuel**.
