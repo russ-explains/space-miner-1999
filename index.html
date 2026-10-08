@@ -227,6 +227,12 @@ addEventListener('keydown',e=>{
   initAudio();
   if(GAME_KEYS.includes(e.code)) e.preventDefault();
   if(e.code==='KeyC'&&!e.repeat){crtOn=!crtOn;crtEl.classList.toggle('off',!crtOn);store('SM4000_NOCRT',crtOn?0:1);return}
+  if(e.code==='KeyP'&&!e.repeat&&!isMenu()&&state!=='exploding'){
+    paused=!paused;
+    if(paused)setThrustSound(false);
+    sfx(paused?'buzz':'land');
+    return;
+  }
   if(isMenu()){ if(!e.repeat) menuKey(e.code); return; }
   keys[e.code]=true;
   if(e.code==='Space') actionPressed=true;
