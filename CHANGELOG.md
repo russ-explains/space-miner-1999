@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.6 — 2026-10-08
+### Changed
+- The normal game now starts the opening asteroid-flight section at **30% fuel**.
+- The **1** shortcut also starts the opening asteroid-flight section at **30% fuel**.
+- Fuel continues normally into later sections without being reset.
+
 ## v1.4.5 — 2026-10-08
 ### Changed
 - Pressing **2** again while already in the landing section now advances to the next planet's landing test.
