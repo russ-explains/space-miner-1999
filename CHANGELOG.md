@@ -1,3 +1,9 @@
+## v1.8.1
+- Players can now buy and carry up to **3 collision shields**.
+- Each shield still lasts **2 seconds** when activated with **S**, and one charge is consumed per activation.
+- The upgrade screen shows the current shield count and the maximum of 3.
+- The **U** testing shortcut grants 3 shields.
+
 ## v1.8.0
 - Kept exactly **one oxygen pickup per mining level**.
 - Positioned the blue box with the white **“O”** beside the third **F** ship-fuel pickup for easier discovery.
