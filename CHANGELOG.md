@@ -1,3 +1,9 @@
+## v1.7.5
+- Added a temporary **U-key test cheat** for gameplay testing.
+- Press **U** on any gameplay level to grant all current upgrades at their maximum levels: full fuel tank, full hull, maximum laser, maximum thrust, and a ready collision shield.
+- Added a **TEST UPGRADES** panel on the right side of the gameplay screen showing the active test upgrades.
+- This is intentionally a temporary development/testing feature and is marked for removal later.
+
 ## v1.7.4
 - Added a new **2-gem Collision Shield** upgrade on the ship-upgrade screen.
 - The shield is a one-use item that can be saved across planets and used on any gameplay section.
