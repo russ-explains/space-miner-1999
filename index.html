@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.5.4';
+const VERSION='v1.5.5';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -828,7 +828,7 @@ function updateTakeoff(){
 
   if(stageTimer>45 && takeoffAlt<cavernHeight){
     // Planets 4-5 have much narrower cavern passages, so give the player more time to climb.
-    const lavaRate=planetIndex>=4?0.45:planetIndex===3?0.50:(.72+planetIndex*.11)*1.2;
+    const lavaRate=planetIndex>=4?0.5175:planetIndex===3?0.50:(.72+planetIndex*.11)*1.2;
     lavaAlt+=lavaRate;
   }
   if(takeoffAlt-24<lavaAlt){lose('CAUGHT BY THE LAVA',true);return}
