@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.6.9';
+const VERSION='v1.7.0';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1029,8 +1029,15 @@ function updateSurface(){
       if(d.type==='shipfuel'){mineShipFuel=Math.min(mineShipFuelRequired,mineShipFuel+1);addScore(300,d.x-cameraX,d.y-30,true);sfx('fuel');msg='SHIP FUEL '+mineShipFuel+'/'+mineShipFuelRequired;msgT=70;if(mineShipFuel>=mineShipFuelRequired){backpackFuel=maxBackpackFuel;msg='ALL SHIP FUEL FOUND — JETPACK FULL';msgT=100;sfx('jingle');}}
     }
   }
-  if(ship.y>H+120){
-    if(!minePitHit && ship.inv===0){minePitHit=true;if(damage('FALLEN FROM PLANET SURFACE','FALL DAMAGE',false))return;ship.x=clamp(ship.x-70,80,surfaceWidth-80);ship.y=surfaceGroundY(ship.x)-32;ship.vy=0;ship.grounded=true;minePitHit=false;}
+  // Falling off the bottom of the mining screen causes the same one-hull damage as an alien impact.
+  if(ship.y>H+20){
+    if(!minePitHit && ship.inv===0){
+      minePitHit=true;
+      if(damage('FALLEN FROM PLANET SURFACE','FALL DAMAGE',false))return;
+      ship.x=clamp(ship.x-70,80,surfaceWidth-80);
+      ship.y=surfaceGroundY(ship.x)-32;
+      ship.vy=0;ship.grounded=true;minePitHit=false;
+    }
   }
   const exit=drops.find(d=>d.type==='ship');
   if(Math.abs(exit.x-ship.x)<42&&ship.grounded){
