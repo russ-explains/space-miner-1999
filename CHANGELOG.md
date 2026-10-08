@@ -1,3 +1,7 @@
+## v1.6.6
+- Further dampened escape-section collision rebound on all planets, reducing the retained vertical bounce from 22% to 10%.
+- Keeps spike and cavern-side impacts much more controllable, allowing the player to correct their trajectory immediately after a collision.
+
 ## v1.6.5
 - Asteroid-flight enemy shots now gently curve towards the player instead of travelling in a perfectly straight line.
 - Doubled their lifetime from 220 to 440 frames, giving them roughly twice the previous travel range.
