@@ -1,3 +1,7 @@
+## v1.8.6
+- Increased starting fuel for a new game from **30 to 36** (**20% more**).
+- Applied the same starting-fuel increase to the first-stage test shortcut.
+
 ## v1.8.5
 - Made landings more forgiving: landing pads are slightly wider, and the safe landing zone extends closer to each pad edge.
 - Relaxed safe touchdown limits for vertical speed, sideways speed, and ship angle a little.
