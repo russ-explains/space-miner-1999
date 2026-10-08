@@ -1,3 +1,8 @@
+## v1.6.9
+- Doubled the saucer bomb flight/fuse duration from 60 to 120 frames, giving the homing bombs roughly twice the travel distance.
+- Tripled the bomb blast radius from 136px to 408px.
+- Tripled the visual detonation burst size from 28 to 84.
+
 ## v1.6.8
 - Made escape-cavern side impacts almost non-bouncy on all planets.
 - Side collisions now clamp the ship back inside the cavern and retain only 5% of its horizontal velocity, with virtually no vertical rebound.
