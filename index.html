@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.8.5';
+const VERSION='v1.8.6';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -192,7 +192,7 @@ let actionPressed=false, upPressed=false, jetpackActive=false, endAt=-1e9, upSel
 function canRestart(){return performance.now()-endAt>700}
 function setupTestStage(n){
   paused=false; planetIndex=0; score=0; gems=0; banked=0; lives=4; nextLife=EXTRA_LIFE_EVERY; shieldCharges=0; shieldT=0;
-  const shortcutFuel=n===1?30:55;
+  const shortcutFuel=n===1?36:55;
   ship={fuel:shortcutFuel,maxFuel:100,hull:3,maxHull:3,laser:1,thrust:1,x:W*.22,y:H*.5,vx:0,vy:0,angle:0,av:0,grounded:false,inv:0,face:1};
   if(n===1) setupFlight();
   else if(n===2) setupLander();
@@ -309,7 +309,7 @@ document.querySelectorAll('[data-k]').forEach(b=>{
 function resetRun(){
   planetIndex=0;score=0;gems=0;banked=0;upSel=0;lives=4;nextLife=EXTRA_LIFE_EVERY; testUpgrades=false;
   runSeed=(Math.random()*1e9)|0;
-  ship={fuel:30,maxFuel:100,hull:3,maxHull:3,laser:1,thrust:1,x:W*.22,y:H*.5,vx:0,vy:0,angle:0,av:0,grounded:false,inv:0,face:1};
+  ship={fuel:36,maxFuel:100,hull:3,maxHull:3,laser:1,thrust:1,x:W*.22,y:H*.5,vx:0,vy:0,angle:0,av:0,grounded:false,inv:0,face:1};
   setupFlight();
 }
 
