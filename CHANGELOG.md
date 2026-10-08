@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.2.0 — 2026-10-08
+### Changed
+- Mining pits are now integrated into the planet surface as deep dips in the terrain.
+- Falling into a mining pit costs one hull/shield point rather than an entire life.
+- Mining jump is now **Space**, kept separate from the jetpack.
+- Mining jetpack is now **W**, with its own separate fuel supply and HUD gauge.
+- Mining jet fuel is displayed as **JET** rather than PACK.
+- Ship bullets now have a much longer lifetime and can travel down to the mining surface.
+- Added keyboard test shortcuts:
+  - **1** = flight
+  - **2** = lunar landing
+  - **3** = mining
+  - **4** = cavern escape
+- Added an on-screen mining control reminder for Space/W.
+
 All notable changes to Space Miner 1999 are recorded here.
 
 ## v1.1.2 — 2026-10-08
