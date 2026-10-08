@@ -1,3 +1,7 @@
+## v1.6.1
+- Increased oxygen drain in the Mining section from 0.048 to 0.060 per frame (25% faster).
+- Asteroid flight, landing, and cavern escape/lava sections are unchanged.
+
 ## v1.6.0
 - Added a dedicated **Level 5 victory scene** after completing the final escape.
 - Displays **CONGRATULATIONS!** and **PLANET 5 — MISSION COMPLETE!**
