@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.4.3';
+const VERSION='v1.4.4';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -240,7 +240,22 @@ addEventListener('keydown',e=>{
   if(GAME_KEYS.includes(e.code)) e.preventDefault();
   if(e.code==='KeyC'&&!e.repeat){crtOn=!crtOn;crtEl.classList.toggle('off',!crtOn);store('SM4000_NOCRT',crtOn?0:1);return}
   if(!e.repeat&&/^Digit[1-4]$/.test(e.code)){
-    setupTestStage(Number(e.code.slice(5)));
+    const shortcut=Number(e.code.slice(5));
+    if(shortcut===1 && state==='flight'){
+      if(planetIndex<planets.length-1){
+        planetIndex++;
+        setupFlight();
+      }
+      return;
+    }
+    if(shortcut===3 && state==='surface'){
+      if(planetIndex<planets.length-1){
+        planetIndex++;
+        setupSurface();
+      }
+      return;
+    }
+    setupTestStage(shortcut);
     return;
   }
   if(e.code==='KeyP'&&!e.repeat&&!isMenu()&&state!=='exploding'){
