@@ -1,3 +1,7 @@
+## v1.5.3
+- Slowed the rising lava significantly on Planets 4 and 5 in the cavern escape section to give more time to navigate the narrower passages.
+- Planets 1–3 keep their existing lava speed.
+
 # Changelog
 
 ## v1.5.2 — 2026-10-08
