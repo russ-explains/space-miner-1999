@@ -1,3 +1,8 @@
+## v1.6.8
+- Made escape-cavern side impacts almost non-bouncy on all planets.
+- Side collisions now clamp the ship back inside the cavern and retain only 5% of its horizontal velocity, with virtually no vertical rebound.
+- The ship receives only a very small corrective push away from the wall, keeping it controllable after an impact.
+
 ## v1.6.7
 - Restored normal saucer bullets to their original straight-line aimed behaviour.
 - Changed only the Planet 3–5 saucer bombs to gently curve towards the player.
