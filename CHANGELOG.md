@@ -1,3 +1,8 @@
+## v1.6.5
+- Asteroid-flight enemy shots now gently curve towards the player instead of travelling in a perfectly straight line.
+- Doubled their lifetime from 220 to 440 frames, giving them roughly twice the previous travel range.
+- The homing is deliberately gentle so the shots remain dodgeable.
+
 ## v1.6.4
 - Damped the escape-section collision rebound from 55% of the previous upward velocity to 22%.
 - This reduces the bounce-back by about 60%, giving the player substantially more control after hitting cavern sides or spikes.
