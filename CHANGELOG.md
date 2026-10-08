@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.2.6 — 2026-10-08
+### Changed
+- Section 4 lava now rises approximately **20% faster**, increasing the pressure of the escape sequence.
+
 ## v1.2.5 — 2026-10-08
 ### Changed
 - Colliding with a green alien now removes **one hull point**, using the existing temporary invulnerability system.
