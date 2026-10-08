@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.5.6';
+const VERSION='v1.5.7';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -748,14 +748,13 @@ function updateUfo(){
     ufo.y=ufo.baseY+Math.sin(ufo.t*.045)*60;
     if(ufo.t%22===0) beep(ufo.t%44?700:560,.08,'triangle',.018);
     if(--ufo.fireT<=0 && ufo.x<W){
+      const dx=ship.x-ufo.x,dy=ship.y-ufo.y,d=Math.hypot(dx,dy)||1,sp=3.1+planetIndex*.3;
+      // Planet 3 onward: saucers keep their original shots AND drop a mine.
+      ebullets.push({x:ufo.x,y:ufo.y,vx:dx/d*sp,vy:dy/d*sp,life:220});
       if(planetIndex>=2){
         saucerBombs.push({x:ufo.x,y:ufo.y+12,vx:0,vy:.7,life:60,age:0});
-        sfx('alien');
-      } else {
-        const dx=ship.x-ufo.x,dy=ship.y-ufo.y,d=Math.hypot(dx,dy)||1,sp=3.1+planetIndex*.3;
-        ebullets.push({x:ufo.x,y:ufo.y,vx:dx/d*sp,vy:dy/d*sp,life:220});
-        sfx('alien');
       }
+      sfx('alien');
       ufo.fireT=rnd(70,110)-planetIndex*8;
     }
     if(Math.abs(ship.x-ufo.x)<28 && Math.abs(ship.y-ufo.y)<20 && ship.inv===0){
@@ -772,11 +771,20 @@ function updateUfo(){
   saucerBombs.forEach(b=>{
     b.age++;b.x+=b.vx-scroll;b.y+=b.vy;
     if(b.age>=60){
-      const radius=34;
-      burst(b.x,b.y,14);
+      // Large mine blast: about four times the previous radius.
+      const radius=136;
+      burst(b.x,b.y,28);
       if(Math.hypot(ship.x-b.x,ship.y-b.y)<radius && ship.inv===0){
         damage('HULL DESTROYED — SAUCER BOMB','SAUCER BOMB');
       }
+      // Bombs also clear asteroids caught in the blast.
+      asteroids.forEach(a=>{
+        if(!a.dead && Math.hypot(a.x-b.x,a.y-b.y)<radius+a.r){
+          a.dead=true;
+          addScore(a.ore?250:100,a.x,a.y);
+          burst(a.x,a.y,8);
+        }
+      });
       b.life=0;
     }
   });
