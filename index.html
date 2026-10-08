@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.8.4';
+const VERSION='v1.8.5';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -356,7 +356,7 @@ function setupLander(){
 
   // Each planet gets a distinct, progressively harder landing landscape.
   const difficulty=planetIndex;
-  padHalf=Math.max(42,62-difficulty*4);
+  padHalf=Math.max(46,62-difficulty*3);
   let px=rnd(W*.2,W*.8);
   if(Math.abs(px-W*.5)<W*.15) px+=W*.15*(px<W*.5?-1:1);
   px=clamp(px,padHalf+24,W-padHalf-24);
@@ -927,21 +927,21 @@ function updateLander(){
     }
   }
 
-  const pad=pads.find(p=>Math.abs(ship.x-p.x)<p.half-10);
+  const pad=pads.find(p=>Math.abs(ship.x-p.x)<p.half-3);
   const groundY=pad?padY():terrainY(ship.x);
   if(ship.y+22>=groundY){
     const vertical=Math.abs(ship.vy),horizontal=Math.abs(ship.vx);
     const upright=Math.abs(Math.atan2(Math.sin(ship.angle),Math.cos(ship.angle)));
-    if(pad && vertical<.72 && horizontal<.50 && upright<.24){
-      const pts=(500+Math.round((1-vertical/.72)*250))*pad.mult;
+    if(pad && vertical<.9 && horizontal<.65 && upright<.30){
+      const pts=(500+Math.round((1-vertical/.9)*250))*pad.mult;
       addScore(pts,ship.x,ship.y-40);
       sfx('land');shake=3;
       ship.angle=0;ship.av=0;
       setupSurface();
       if(pad.mult>1){msg='x'+pad.mult+' BONUS PAD — '+pts+' POINTS';msgT=130}
     } else if(!pad) lose('BAD LANDING — CRASHED ON ROUGH GROUND',true);
-    else if(vertical>=.72) lose('BAD LANDING — DESCENT TOO FAST',true);
-    else if(horizontal>=.50) lose('BAD LANDING — TOO MUCH SIDEWAYS SPEED',true);
+    else if(vertical>=.9) lose('BAD LANDING — DESCENT TOO FAST',true);
+    else if(horizontal>=.65) lose('BAD LANDING — TOO MUCH SIDEWAYS SPEED',true);
     else lose('BAD LANDING — SHIP NOT LEVEL',true);
   }
 }
