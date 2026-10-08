@@ -1,3 +1,10 @@
+## v1.7.4
+- Added a new **2-gem Collision Shield** upgrade on the ship-upgrade screen.
+- The shield is a one-use item that can be saved across planets and used on any gameplay section.
+- Press **S** to activate it; the shield lasts **2 seconds** and blocks collision/impact damage during that time.
+- Collision protection covers asteroid impacts, saucer/alien impacts, mining-pit falls and cavern impacts, but does not block enemy/projectile damage.
+- Added a visible shield effect and HUD status showing when it is ready or active.
+
 ## v1.7.3
 - Mining falls into holes now cause immediate hull damage as soon as the astronaut passes below the planet's normal surface level.
 - Removed the old deep-pit delay, so the astronaut no longer has to fall far down the hole before taking damage.
