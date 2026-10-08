@@ -1,3 +1,8 @@
+## v1.7.8
+- Made the mining oxygen tank clearly visible as a **small blue box with a white “O”**.
+- Kept exactly **one oxygen tank per mining level**.
+- Moved its position slightly further right, to about **82% across the mining map**.
+
 ## v1.7.7
 - Doubled the saucer bomb blast radius from **408px to 816px**.
 - Added a large visible expanding blast effect to match the full damage radius.
