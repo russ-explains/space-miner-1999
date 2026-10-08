@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.2.5';
+const VERSION='v1.2.6';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -747,7 +747,7 @@ function updateTakeoff(){
     }
   }
 
-  if(stageTimer>45 && takeoffAlt<cavernHeight) lavaAlt+=.72+planetIndex*.11;
+  if(stageTimer>45 && takeoffAlt<cavernHeight) lavaAlt+=(.72+planetIndex*.11)*1.2;
   if(takeoffAlt-24<lavaAlt){lose('CAUGHT BY THE LAVA',true);return}
   if(ship.fuel<=0 && takeoffAlt<cavernHeight*.92 && takeoffV<=0){lose('OUT OF FUEL — TRAPPED IN THE CAVERN');return}
 
