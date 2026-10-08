@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.6.2';
+const VERSION='v1.6.3';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -667,8 +667,8 @@ function updateFlight(){
   gasRings.forEach(g=>{
     g.x+=g.vx-scroll;g.wobble+=.025;
     if(!g.taken && Math.hypot(ship.x-g.x,ship.y-g.y)<g.r+15){
-      g.taken=true;ship.fuel=Math.min(ship.maxFuel,ship.fuel+6);
-      addScore(25,g.x,g.y);sfx('fuel');msg='+6 FUEL';msgT=45;
+      g.taken=true;ship.fuel=Math.min(ship.maxFuel,ship.fuel+7.5);
+      addScore(25,g.x,g.y);sfx('fuel');msg='+7.5 FUEL';msgT=45;
     }
   });
   gasRings=gasRings.filter(g=>!g.taken && g.x>-80);
