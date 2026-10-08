@@ -1,3 +1,7 @@
+## v1.6.3
+- Increased fuel gained from blue fuel blobs in the asteroid-flight section by 25%, from 6 to 7.5 fuel.
+- Other fuel sources and sections are unchanged.
+
 ## v1.6.2
 - Fixed the Level 5 escape completion so the final **CONGRATULATIONS!** victory screen is shown when testing Level 5 with the shortcut.
 - Final Planet 5 completion now uses the same victory path as a normal run.
