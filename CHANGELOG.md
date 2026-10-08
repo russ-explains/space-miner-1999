@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.5 — 2026-10-08
+### Changed
+- Pressing **2** again while already in the landing section now advances to the next planet's landing test.
+- Pressing **4** again while already in the cavern escape section now advances to the next planet's cavern escape test.
+- All four section shortcuts now support quick planet-to-planet testing.
+
 ## v1.4.4 — 2026-10-08
 ### Changed
 - Pressing **1** again while already in asteroid flight now advances to the next planet's flight section.
