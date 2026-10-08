@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.5.2 — 2026-10-08
+### Fixed
+- Lowered the mining-section gun's bullet path so shots line up better with the aliens.
+- The adjustment affects the mining gun only; firing speed and damage remain unchanged.
+
 ## v1.5.1 — 2026-10-08
 ### Added
 - On Planets **3–5**, the flying saucer now drops small pulsing bombs.
