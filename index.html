@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.7.3';
+const VERSION='v1.7.4';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -186,12 +186,12 @@ let titleRocks=[],demoT=0;
 
 /* ---------------------------------------------------------------- INPUT */
 const keys={};
-const GAME_KEYS=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','Enter','KeyW','Digit1','Digit2','Digit3','Digit4'];
+const GAME_KEYS=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','Enter','KeyW','KeyS','Digit1','Digit2','Digit3','Digit4'];
 const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.- ';
-let actionPressed=false, upPressed=false, jetpackActive=false, endAt=-1e9, upSel=0, paused=false;
+let actionPressed=false, upPressed=false, jetpackActive=false, endAt=-1e9, upSel=0, paused=false, shieldOwned=false, shieldT=0;
 function canRestart(){return performance.now()-endAt>700}
 function setupTestStage(n){
-  paused=false; planetIndex=0; score=0; gems=0; banked=0; lives=3; nextLife=EXTRA_LIFE_EVERY;
+  paused=false; planetIndex=0; score=0; gems=0; banked=0; lives=3; nextLife=EXTRA_LIFE_EVERY; shieldOwned=false; shieldT=0;
   const shortcutFuel=n===1?30:55;
   ship={fuel:shortcutFuel,maxFuel:100,hull:3,maxHull:3,laser:1,thrust:1,x:W*.22,y:H*.5,vx:0,vy:0,angle:0,av:0,grounded:false,inv:0,face:1};
   if(n===1) setupFlight();
@@ -270,6 +270,11 @@ addEventListener('keydown',e=>{
       return;
     }
     setupTestStage(shortcut);
+    return;
+  }
+  if(e.code==='KeyS'&&!e.repeat&&!isMenu()&&state!=='exploding'){
+    if(shieldOwned&&shieldT<=0){shieldOwned=false;shieldT=120;sfx('gem');msg='SHIELD ACTIVE — 2 SECONDS';msgT=70;}
+    else if(shieldT<=0){sfx('buzz');}
     return;
   }
   if(e.code==='KeyP'&&!e.repeat&&!isMenu()&&state!=='exploding'){
@@ -519,7 +524,8 @@ function endRun(win){
 }
 
 /* --------------------------------------------------------------- DAMAGE */
-function damage(deathText,hitText,boom=true){
+function damage(deathText,hitText,boom=true,collision=false){
+  if(collision&&shieldT>0) return false;
   if(ship.inv>0) return false;
   ship.hull--; ship.inv=75; shake=9; flash=.35; sfx('hit');
   if(ship.hull<=0){ lose(deathText,boom); return true; }
@@ -726,7 +732,7 @@ function updateFlight(){
       ship.vx+=(dx/d)*2.2;ship.vy+=(dy/d)*2.2;
       if(ship.inv===0){
         splitAsteroid(a,ship.vx,ship.vy);burst(ship.x,ship.y,20);
-        damage('HULL DESTROYED — ASTEROID IMPACT','ASTEROID HIT');
+        damage('HULL DESTROYED — ASTEROID IMPACT','ASTEROID HIT',true,true);
       }
     }
   }
@@ -758,7 +764,7 @@ function updateUfo(){
       ufo.fireT=rnd(70,110)-planetIndex*8;
     }
     if(Math.abs(ship.x-ufo.x)<28 && Math.abs(ship.y-ufo.y)<20 && ship.inv===0){
-      burst(ship.x,ship.y,20);if(damage('HULL DESTROYED — SAUCER COLLISION','SAUCER HIT')&&state!=='flight')return;
+      burst(ship.x,ship.y,20);if(damage('HULL DESTROYED — SAUCER COLLISION','SAUCER HIT',true,true)&&state!=='flight')return;
     }
     if(ufo && ufo.x<-80) ufo=null;
   }
@@ -841,7 +847,7 @@ function updateTakeoff(){
     takeoffV*=.99;
     if(ship.inv===0){
       burst(ship.x,ship.y,18);
-      if(damage('HULL DESTROYED — CAVERN IMPACT','CAVERN IMPACT') && state!=='takeoff') return;
+      if(damage('HULL DESTROYED — CAVERN IMPACT','CAVERN IMPACT',true,true) && state!=='takeoff') return;
     }
   }
 
@@ -906,7 +912,7 @@ function updateLander(){
       ship.vx+=(dx/d)*.42;ship.vy+=(dy/d)*.18;
       if(ship.inv===0){
         a.vx*=-1;a.vy+=rnd(-.04,.04);burst(ship.x,ship.y,14);
-        if(damage('HULL DESTROYED — ASTEROID DURING LANDING','ASTEROID CLIP') && state!=='lander') return;
+        if(damage('HULL DESTROYED — ASTEROID DURING LANDING','ASTEROID CLIP',true,true) && state!=='lander') return;
       }
     }
   }
@@ -963,7 +969,7 @@ function updateSurface(){
       ship.grounded=false;
       if(!minePitHit && ship.inv===0){
         minePitHit=true;
-        if(damage('MINING PIT IMPACT','PIT HIT',false))return;
+        if(damage('MINING PIT IMPACT','PIT HIT',false,true))return;
         ship.x=clamp(ship.x-70,80,surfaceWidth-80);
         ship.y=surfaceGroundY(ship.x)-32; ship.vy=0; ship.grounded=true;
         minePitHit=false;
@@ -989,7 +995,7 @@ function updateSurface(){
     if(Math.abs(a.x-ship.x)<18 && Math.abs(a.y-(ship.y+18))<18 && ship.inv===0){
       ship.vx += (ship.x<a.x?-1:1)*2.5;
       ship.vy=-2.2;
-      if(damage('ALIEN IMPACT — SUIT BREACHED','ALIEN HIT',false))return;
+      if(damage('ALIEN IMPACT — SUIT BREACHED','ALIEN HIT',false,true))return;
     }
     if(a.t%(120-planetIndex*10)===0&&Math.abs(a.x-ship.x)<420){sfx('alien');bullets.push({enemy:true,x:a.x,y:a.y-8,vx:(ship.x<a.x?-1:1)*(2.4+planetIndex*.3),vy:0,life:180});}
   });
@@ -1025,7 +1031,7 @@ function updateSurface(){
   // A fall that reaches the bottom outside the defined holes is also a one-hull impact.
   if(ship.y>H+20 && !minePitHit && ship.inv===0){
     minePitHit=true;
-    if(damage('FALLEN FROM PLANET SURFACE','FALL DAMAGE',false))return;
+    if(damage('FALLEN FROM PLANET SURFACE','FALL DAMAGE',false,true))return;
     ship.x=clamp(ship.x-70,80,surfaceWidth-80);
     ship.y=surfaceGroundY(ship.x)-32;
     ship.vy=0;ship.grounded=true;minePitHit=false;
@@ -1043,7 +1049,8 @@ function upgradeLayout(){
     {type:'fuel',  label:'FUEL TANK +20',cost:2},
     {type:'hull',  label:'REPAIR HULL +1',cost:2},
     {type:'laser', label:'LASER +1',cost:3},
-    {type:'thrust',label:'THRUST +',cost:3}
+    {type:'thrust',label:'THRUST +',cost:3},
+    {type:'shield',label:'2 SEC COLLISION SHIELD',cost:2}
   ].map((r,i)=>({...r,y:H*.38+i*(rh+8)}));
   const launchY=H*.38+rows.length*(rh+8)+12;
   return {bw,bx,rh,rows,launch:{x:bx,y:launchY,w:bw,h:rh}};
@@ -1054,6 +1061,7 @@ function canBuy(type){
   if(type==='hull') return banked>=2 && ship.hull<ship.maxHull;
   if(type==='laser') return banked>=3 && ship.laser<4;
   if(type==='thrust') return banked>=3 && ship.thrust<2.4;
+  if(type==='shield') return banked>=2 && !shieldOwned && shieldT<=0;
   return false;
 }
 function buy(type){
@@ -1063,6 +1071,7 @@ function buy(type){
   if(type==='hull'){banked-=2;ship.hull++}
   if(type==='laser'){banked-=3;ship.laser++}
   if(type==='thrust'){banked-=3;ship.thrust=Math.min(2.4,ship.thrust+.35)}
+  if(type==='shield'){banked-=2;shieldOwned=true;shieldT=0}
   sfx('gem');
 }
 
@@ -1080,6 +1089,13 @@ c.addEventListener('pointerdown',e=>{
 
 /* -------------------------------------------------------------- DRAWING */
 function blinking(){return ship.inv>0 && (ship.inv>>2)%2===1}
+function drawShieldEffect(x,y){
+  if(shieldT<=0)return;
+  const pulse=38+Math.sin(shieldT*.25)*3;
+  ctx.save();ctx.strokeStyle='#7fffe6';ctx.globalAlpha=.55+.25*Math.sin(shieldT*.3);ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.arc(x,y,pulse,0,Math.PI*2);ctx.stroke();
+  ctx.globalAlpha=.12;ctx.fillStyle='#7fffe6';ctx.fill();ctx.restore();
+}
 
 function drawShip(x,y,s=1,angle=0,thrusting=false,leftJet=false,rightJet=false,player=false){
   if(player && (hideShip||blinking())) return;
@@ -1247,6 +1263,8 @@ function drawHUD(){
   for(let i=0;i<ship.maxHull;i++){ if(i<ship.hull) ctx.fillRect(x+i*13,66,10,8); else ctx.strokeRect(x+i*13,66,10,8)}
   x+=ship.maxHull*13+16;
   ctx.fillStyle=ORE;text('GEMS '+gems+(banked?'+'+banked:''),x,74,small?11:13);
+  if(shieldT>0){ctx.fillStyle='#7fffe6';text('SHIELD '+(shieldT/60).toFixed(1)+'s',W/2,64,small?10:12,'center');}
+  else if(shieldOwned){ctx.fillStyle='#7fffe6';text('SHIELD READY • S',W/2,64,small?10:12,'center');}
   if(state==='surface'||explosionScene==='surface'&&state==='exploding'){ bar(W-(small?90:140),66,small?72:120,mineOxygen/100,'O2',mineOxygen<25&&(stageTimer>>3)%2); bar(W-(small?90:140),88,small?72:120,backpackFuel/maxBackpackFuel,'JET',backpackFuel<20&&(stageTimer>>3)%2); }
 }
 
@@ -1296,6 +1314,7 @@ function drawFlight(){
   ctx.fillStyle='#ff6bd6';ebullets.forEach(b=>ctx.fillRect(b.x-2,b.y-2,4,4));
   particles.forEach(pt=>{mono(pt.life/40);ctx.fillRect(pt.x,pt.y,2,2)});
   drawShip(ship.x,ship.y,1,ship.angle,keys.ArrowUp&&ship.fuel>0&&state==='flight',false,false,true);
+  drawShieldEffect(ship.x,ship.y);
   drawHUD();
   // Distance to the planet, arcade-style.
   const prog=clamp(dist/tripDist,0,1);
@@ -1359,6 +1378,7 @@ function drawTakeoff(){
   drawCavern();
   particles.forEach(pt=>{mono(pt.life/40);ctx.fillRect(pt.x,pt.y,2,2)});
   drawShip(ship.x,ship.y,1.05,ship.angle,keys.ArrowUp&&ship.fuel>0&&state==='takeoff',keys.ArrowLeft,keys.ArrowRight,true);
+  drawShieldEffect(ship.x,ship.y);
   drawHUD();
   const gap=Math.max(0,(takeoffAlt-lavaAlt)|0);
   ctx.fillStyle=gap<200&&(stageTimer>>3)%2?'#ff6b6b':'rgba(245,245,245,1)';
@@ -1374,6 +1394,7 @@ function drawLander(){
   asteroids.forEach(a=>drawRock(a,.8));
   particles.forEach(pt=>{mono(pt.life/40);ctx.fillRect(pt.x,pt.y,2,2)});
   drawShip(ship.x,ship.y,1.1,ship.angle,keys.ArrowUp&&ship.fuel>0&&state==='lander',keys.ArrowLeft,keys.ArrowRight,true);
+  drawShieldEffect(ship.x,ship.y);
   const main=pads[0];
   if(main && Math.abs(ship.x-main.x)>main.half){mono(.6);text('PAD',main.x,padY()-14,11,'center')}
   drawHUD();
@@ -1415,6 +1436,7 @@ function drawSurface(){
   if(mineUfo){ctx.save();ctx.translate(mineUfo.x,mineUfo.y);ctx.strokeStyle='#ff6bd6';ctx.fillStyle='#160018';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,34,10,0,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(0,-2,14,Math.PI,0);ctx.stroke();ctx.fillStyle='#ff6bd6';ctx.fillRect(-22,5,44,3);ctx.restore();}
   bullets.forEach(b=>{if(b.enemy)ctx.fillStyle='#ff6bd6';else mono();ctx.fillRect(b.x-cameraX,b.y,b.enemy?5:9,2)});
   drawAstronaut(ship.x-cameraX,ship.y+18,ship.face);
+  drawShieldEffect(ship.x-cameraX,ship.y+18);
   particles.forEach(pt=>{mono(pt.life/55);ctx.fillRect(pt.x-cameraX,pt.y,2,2)});
   drawHUD();mono();text('GEMS '+gems+'  •  SHIP FUEL '+mineShipFuel+'/'+mineShipFuelRequired,W/2,122,13,'center');
   ctx.fillStyle='#7fffe6';text('↑: JUMP   TAP ↑ AGAIN: JETPACK   SPACE: FIRE   •   O2 + JET FUEL + 3× FUEL CANISTERS',W/2,H-34,11,'center');
@@ -1441,6 +1463,8 @@ function drawUpgrade(){
     if(r.type==='refuel'&&ship.fuel>=ship.maxFuel-1) info='FULL';
     if(r.type==='laser'&&ship.laser>=4) info='MAX';
     if(r.type==='thrust'&&ship.thrust>=2.4) info='MAX';
+    if(r.type==='shield'&&shieldOwned) info='READY';
+    if(r.type==='shield'&&shieldT>0) info='ACTIVE';
     text(info,L.bx+L.bw-14,r.y+L.rh/2+6,13,'right');
     ctx.globalAlpha=1;
   });
@@ -1583,6 +1607,7 @@ function update(){
   particles=particles.filter(p=>p.life>0);
   popups.forEach(p=>{p.y-=.6;p.t--});popups=popups.filter(p=>p.t>0);
   if(ship.inv>0 && readyT<=0) ship.inv--;
+  if(shieldT>0 && readyT<=0) shieldT--;
   if(msgT>0) msgT--;
   shake*=.85; if(shake<.3) shake=0;
   flash*=.85; if(flash<.02) flash=0;
