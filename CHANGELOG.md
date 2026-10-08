@@ -1,3 +1,9 @@
+## v1.7.2
+- From Planet 3 onwards, roughly half of the mining aliens are now tougher two-hit variants.
+- Tough aliens have a slightly different, bulkier appearance.
+- After the first shot, their upper body is removed, leaving the legs/body base visible; a second shot destroys them.
+- Planets 1–2 keep the original one-hit aliens.
+
 ## v1.7.1
 - Removed alien jumping and dashing from the mining section.
 - Aliens now simply patrol left and right along their platforms and turn around at the edges.
