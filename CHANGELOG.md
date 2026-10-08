@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.3 — 2026-10-08
+### Changed
+- The **1** level-1 test shortcut now starts at **30% fuel**.
+- This only affects the level-1 shortcut; normal new games still start at 55% fuel.
+- Fuel continues normally through later sections without being reset.
+
 ## v1.4.2 — 2026-10-08
 ### Fixed
 - Corrected the normal new-game reset so the asteroid-flight section now genuinely starts at **55% fuel**, rather than the previous 100%.
