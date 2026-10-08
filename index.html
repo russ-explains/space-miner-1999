@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.8.6';
+const VERSION='v1.8.7';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1061,7 +1061,7 @@ function upgradeLayout(){
     {type:'laser', label:'LASER +1',cost:3},
     {type:'thrust',label:'THRUST +',cost:3},
     {type:'shield',label:'2 SEC COLLISION SHIELD (PRESS S)',cost:2},
-    {type:'life',label:'EXTRA LIFE +1',cost:4}
+    {type:'life',label:'EXTRA LIFE +1',cost:5}
   ].map((r,i)=>({...r,y:startY+i*(rh+rowGap)}));
   const launchY=startY+rows.length*(rh+rowGap)+8;
   return {bw,bx,rh,rows,launch:{x:bx,y:launchY,w:bw,h:rh}};
@@ -1073,7 +1073,7 @@ function canBuy(type){
   if(type==='laser') return banked>=3 && ship.laser<4;
   if(type==='thrust') return banked>=3 && ship.thrust<2.4;
   if(type==='shield') return banked>=2 && shieldCharges<3;
-  if(type==='life') return banked>=4;
+  if(type==='life') return banked>=5;
   return false;
 }
 function buy(type){
@@ -1084,7 +1084,7 @@ function buy(type){
   if(type==='laser'){banked-=3;ship.laser++}
   if(type==='thrust'){banked-=3;ship.thrust=Math.min(2.4,ship.thrust+.35)}
   if(type==='shield'){banked-=2;shieldCharges++}
-  if(type==='life'){banked-=4;lives++;sfx('extra');msg='EXTRA LIFE!';msgT=90;}
+  if(type==='life'){banked-=5;lives++;sfx('extra');msg='EXTRA LIFE!';msgT=90;}
   sfx('gem');
 }
 
