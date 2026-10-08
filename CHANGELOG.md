@@ -1,3 +1,6 @@
+## v1.8.4
+- Increased starting lives from **3 to 4**, including when starting a new run or restarting.
+
 ## v1.8.3
 - Added an **EXTRA LIFE +1** upgrade for **4 gems**.
 - Buying it immediately adds one life and displays an **EXTRA LIFE!** message.
