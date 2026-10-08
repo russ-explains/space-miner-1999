@@ -1,3 +1,7 @@
+## v1.7.6
+- Changed the mining oxygen supply to **one oxygen tank per mining level**.
+- The single oxygen tank is now positioned towards the **right-hand side of the map** on every mining level.
+
 ## v1.7.5
 - Added a temporary **U-key test cheat** for gameplay testing.
 - Press **U** on any gameplay level to grant all current upgrades at their maximum levels: full fuel tank, full hull, maximum laser, maximum thrust, and a ready collision shield.
