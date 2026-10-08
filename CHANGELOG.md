@@ -1,3 +1,7 @@
+## v1.8.0
+- Kept exactly **one oxygen pickup per mining level**.
+- Positioned the blue box with the white **“O”** beside the third **F** ship-fuel pickup for easier discovery.
+
 ## v1.7.9
 - Removed the oversized expanding pink saucer-bomb blast graphic from asteroid flight.
 - Bomb detonations now use a smaller burst of particles instead.
