@@ -1,3 +1,8 @@
+## v1.7.1
+- Removed alien jumping and dashing from the mining section.
+- Aliens now simply patrol left and right along their platforms and turn around at the edges.
+- Alien collisions, health, and shooting behaviour remain unchanged.
+
 ## v1.7.0
 - Mining/jetpack falls now trigger hull damage as soon as the astronaut drops just beyond the bottom of the screen.
 - Uses the existing fall-damage system, removing one hull point just like an alien impact and resetting the astronaut safely back onto the surface.
