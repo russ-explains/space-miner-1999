@@ -442,7 +442,9 @@ function setupSurface(){
   });
   for(let i=0;i<p.gems;i++) drops.push({type:'ore',x:520+i*(surfaceWidth-900)/Math.max(1,p.gems-1),y:0,hp:2+Math.floor(planetIndex/2),taken:false});
   for(let i=0;i<3;i++){const pl=minePlatforms[(i*2+1)%minePlatforms.length];drops.push({type:'backpack',x:pl.x+pl.w*.5,y:pl.y-24,taken:false});}
-  // Exactly one oxygen tank per mining level, placed beside the third ship-fuel (F) pickup.\n  const oxygenPlatform=minePlatforms[Math.min(8,minePlatforms.length-1)];\n  drops.push({type:'oxygen',x:oxygenPlatform.x+oxygenPlatform.w*.78,y:oxygenPlatform.y-24,taken:false});
+  // Exactly one oxygen tank per mining level, placed beside the third ship-fuel (F) pickup.
+  const oxygenPlatform=minePlatforms[Math.min(8,minePlatforms.length-1)];
+  drops.push({type:'oxygen',x:oxygenPlatform.x+oxygenPlatform.w*.78,y:oxygenPlatform.y-24,taken:false});
   const sf1=minePlatforms[0], sf2=minePlatforms[Math.min(4,minePlatforms.length-1)];
   drops.push({type:'shipfuel',x:sf1.x+sf1.w*.25,y:sf1.y-24,taken:false});
   drops.push({type:'shipfuel',x:sf2.x+sf2.w*.65,y:sf2.y-24,taken:false});
