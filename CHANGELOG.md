@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.4.0 — 2026-10-08
+### Changed
+- Landing landscapes are now progressively harder from planet to planet.
+- Planet 1 keeps a relatively gentle surface.
+- Planet 2 now has **medium peaks** and increased asteroid traffic.
+- Planet 3 introduces **high peaks**, with later planets becoming progressively taller and tighter.
+- Landing pads remain deliberately flatter so the increased terrain difficulty is challenging without making successful landings arbitrary.
+- Asteroid counts and maximum sizes increase with each planet.
+
 ## v1.3.0 — 2026-10-08
 ### Changed
 - Lowered the miner's on-screen position so his feet now line up with the green aliens' feet on the same platform surface.
