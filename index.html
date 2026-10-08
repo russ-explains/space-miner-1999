@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.2.8';
+const VERSION='v1.2.9';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -371,7 +371,7 @@ function setupSurface(){
     const w=130+(i%3)*22;
     minePlatforms.push({x:x,w,y:surfaceTerrainY(x)-105-(i%2)*55,h:10,upper:true});
     if(i%3!==1) minePlatforms.push({x:x+90,w:80,y:surfaceTerrainY(x+90)-205,h:10,upper:true});
-    mineHoles.push({x:x+150,w:55+(i%2)*18});
+    mineHoles.push({x:x+150,w:(i%4===0?92:i%2===0?72:58)});
   }
   aliens=Array.from({length:p.aliens},(_,i)=>{
     const pl=minePlatforms[i%minePlatforms.length];
@@ -1262,7 +1262,17 @@ function drawSurface(){
   for(let i=0;i<50;i++){ctx.globalAlpha=.15+(i%4)*.08;mono();ctx.fillRect(((i*137-cameraX*.1)%W+W+260)%(W+260)-120,(i*71)%(H*.5),1.5,1.5)}ctx.globalAlpha=1;
   ctx.beginPath();ctx.moveTo(0,H);for(let x=0;x<=W+12;x+=12)ctx.lineTo(x,surfaceGroundY(cameraX+x));ctx.lineTo(W,H);ctx.closePath();ctx.fillStyle='#0b0b0b';ctx.fill();
   ctx.strokeStyle=p.tint;ctx.lineWidth=2;ctx.beginPath();for(let x=0;x<=W+12;x+=12)x?ctx.lineTo(x,surfaceGroundY(cameraX+x)):ctx.moveTo(x,surfaceGroundY(cameraX));ctx.stroke();
-  mineHoles.forEach(h=>{const x=h.x-cameraX;if(x>-80&&x<W+80){ctx.strokeStyle=p.tint;ctx.globalAlpha=.8;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,surfaceTerrainY(h.x));ctx.quadraticCurveTo(x+h.w*.5,surfaceTerrainY(h.x)+72,x+h.w,surfaceTerrainY(h.x));ctx.stroke();ctx.globalAlpha=1;}});
+  mineHoles.forEach(h=>{const x=h.x-cameraX;if(x>-100&&x<W+100){
+    const rimY=surfaceTerrainY(h.x);
+    const depth=82;
+    ctx.fillStyle='#020202';ctx.globalAlpha=.95;
+    ctx.beginPath();ctx.moveTo(x,rimY);ctx.quadraticCurveTo(x+h.w*.5,rimY+depth,x+h.w,rimY);ctx.lineTo(x+h.w,rimY+8);ctx.lineTo(x,rimY+8);ctx.closePath();ctx.fill();
+    ctx.strokeStyle=p.tint;ctx.globalAlpha=.95;ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(x,rimY);ctx.quadraticCurveTo(x+h.w*.5,rimY+depth,x+h.w,rimY);ctx.stroke();
+    ctx.globalAlpha=.5;ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(x+6,rimY+3);ctx.quadraticCurveTo(x+h.w*.5,rimY+depth-10,x+h.w-6,rimY+3);ctx.stroke();
+    ctx.globalAlpha=1;
+  }});
   minePlatforms.forEach(pl=>{const x=pl.x-cameraX;if(x>-160&&x<W+160){ctx.strokeStyle=p.tint;ctx.lineWidth=3;ctx.fillStyle='rgba(245,245,245,.08)';ctx.fillRect(x,pl.y,pl.w,pl.h);ctx.strokeRect(x,pl.y,pl.w,pl.h);}});
   drops.forEach(d=>{if(d.taken)return;const x=d.x-cameraX;if(x<-60||x>W+60)return;
     if(d.type==='gem')drawGem(x,d.y,ORE);
