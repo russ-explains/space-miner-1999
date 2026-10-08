@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.2.1 — 2026-10-08
+### Fixed
+- Corrected Section 3 controls: **Arrow Up = jump**, **Space = fire**, **W = jetpack**.
+- Reduced the mining jump height slightly.
+- Mining now starts with a small amount of jetpack fuel, enough to reach the first couple of upper platform levels.
+
+### Added
+- Added distinct **J** jetpack-fuel pickups and **F** ship-fuel canisters.
+- Added a limited **ship-fuel objective**: collect both F canisters before returning to the ship to begin take-off.
+- Added additional oxygen pickups so oxygen remains a limited resource that must be managed while exploring.
+- Mining HUD now shows ship-fuel progress alongside the oxygen and jetpack gauges.
+
 ## v1.2.0 — 2026-10-08
 ### Changed
 - Mining pits are now integrated into the planet surface as deep dips in the terrain.
