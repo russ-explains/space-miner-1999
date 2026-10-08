@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.7.2';
+const VERSION='v1.7.3';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -958,9 +958,10 @@ function updateSurface(){
   if(platform){ship.y=platform.y-32;ship.vy=0;ship.grounded=true;} else if(ship.y>=ground){
     const inHole=mineHoles.some(h=>ship.x>h.x&&ship.x<h.x+h.w);
     if(inHole){
+      // Going below the planet's normal surface level means the astronaut has fallen into a hole.
+      // Treat that immediately as a one-hull fall/impact.
       ship.grounded=false;
-      const pitBottom=surfaceGroundY(ship.x)-32;
-      if(ship.y>pitBottom+38 && !minePitHit && ship.inv===0){
+      if(!minePitHit && ship.inv===0){
         minePitHit=true;
         if(damage('MINING PIT IMPACT','PIT HIT',false))return;
         ship.x=clamp(ship.x-70,80,surfaceWidth-80);
@@ -1021,15 +1022,13 @@ function updateSurface(){
       if(d.type==='shipfuel'){mineShipFuel=Math.min(mineShipFuelRequired,mineShipFuel+1);addScore(300,d.x-cameraX,d.y-30,true);sfx('fuel');msg='SHIP FUEL '+mineShipFuel+'/'+mineShipFuelRequired;msgT=70;if(mineShipFuel>=mineShipFuelRequired){backpackFuel=maxBackpackFuel;msg='ALL SHIP FUEL FOUND — JETPACK FULL';msgT=100;sfx('jingle');}}
     }
   }
-  // Falling off the bottom of the mining screen causes the same one-hull damage as an alien impact.
-  if(ship.y>H+20){
-    if(!minePitHit && ship.inv===0){
-      minePitHit=true;
-      if(damage('FALLEN FROM PLANET SURFACE','FALL DAMAGE',false))return;
-      ship.x=clamp(ship.x-70,80,surfaceWidth-80);
-      ship.y=surfaceGroundY(ship.x)-32;
-      ship.vy=0;ship.grounded=true;minePitHit=false;
-    }
+  // A fall that reaches the bottom outside the defined holes is also a one-hull impact.
+  if(ship.y>H+20 && !minePitHit && ship.inv===0){
+    minePitHit=true;
+    if(damage('FALLEN FROM PLANET SURFACE','FALL DAMAGE',false))return;
+    ship.x=clamp(ship.x-70,80,surfaceWidth-80);
+    ship.y=surfaceGroundY(ship.x)-32;
+    ship.vy=0;ship.grounded=true;minePitHit=false;
   }
   const exit=drops.find(d=>d.type==='ship');
   if(Math.abs(exit.x-ship.x)<42&&ship.grounded){
