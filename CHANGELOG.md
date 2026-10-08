@@ -1,3 +1,8 @@
+## v1.5.6
+- Added a gentle lava catch-up mechanic to the escape section.
+- If the lava drops too far below the visible screen, it receives a small boost to keep it close to the bottom edge.
+- This keeps the lava visible often enough to create tension without making it suddenly jump onto the player.
+
 ## v1.5.5
 - Increased lava flow speed by 15% on Planets 4 and 5 in the cavern escape section.
 - Planet 4–5 lava remains slower than the original late-planet speed to account for the narrower passages.
