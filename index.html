@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.8.2';
+const VERSION='v1.8.3';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1053,16 +1053,17 @@ function updateSurface(){
   }
 }
 function upgradeLayout(){
-  const bw=Math.min(380,W*.86),bx=(W-bw)/2,rh=Math.min(54,H*.072);
+  const bw=Math.min(380,W*.86),bx=(W-bw)/2,rh=Math.min(46,H*.064),rowGap=6,startY=H*.30;
   const rows=[
     {type:'refuel',label:'REFUEL TO FULL',cost:1},
     {type:'fuel',  label:'FUEL TANK +20',cost:2},
     {type:'hull',  label:'REPAIR HULL +1',cost:2},
     {type:'laser', label:'LASER +1',cost:3},
     {type:'thrust',label:'THRUST +',cost:3},
-    {type:'shield',label:'2 SEC COLLISION SHIELD (PRESS S)',cost:2}
-  ].map((r,i)=>({...r,y:H*.38+i*(rh+8)}));
-  const launchY=H*.38+rows.length*(rh+8)+12;
+    {type:'shield',label:'2 SEC COLLISION SHIELD (PRESS S)',cost:2},
+    {type:'life',label:'EXTRA LIFE +1',cost:4}
+  ].map((r,i)=>({...r,y:startY+i*(rh+rowGap)}));
+  const launchY=startY+rows.length*(rh+rowGap)+8;
   return {bw,bx,rh,rows,launch:{x:bx,y:launchY,w:bw,h:rh}};
 }
 function canBuy(type){
@@ -1072,6 +1073,7 @@ function canBuy(type){
   if(type==='laser') return banked>=3 && ship.laser<4;
   if(type==='thrust') return banked>=3 && ship.thrust<2.4;
   if(type==='shield') return banked>=2 && shieldCharges<3;
+  if(type==='life') return banked>=4;
   return false;
 }
 function buy(type){
@@ -1082,6 +1084,7 @@ function buy(type){
   if(type==='laser'){banked-=3;ship.laser++}
   if(type==='thrust'){banked-=3;ship.thrust=Math.min(2.4,ship.thrust+.35)}
   if(type==='shield'){banked-=2;shieldCharges++}
+  if(type==='life'){banked-=4;lives++;sfx('extra');msg='EXTRA LIFE!';msgT=90;}
   sfx('gem');
 }
 
