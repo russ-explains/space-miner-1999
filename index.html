@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.7.4';
+const VERSION='v1.7.5';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -186,9 +186,9 @@ let titleRocks=[],demoT=0;
 
 /* ---------------------------------------------------------------- INPUT */
 const keys={};
-const GAME_KEYS=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','Enter','KeyW','KeyS','Digit1','Digit2','Digit3','Digit4'];
+const GAME_KEYS=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','Enter','KeyW','KeyS','KeyU','Digit1','Digit2','Digit3','Digit4'];
 const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.- ';
-let actionPressed=false, upPressed=false, jetpackActive=false, endAt=-1e9, upSel=0, paused=false, shieldOwned=false, shieldT=0;
+let actionPressed=false, upPressed=false, jetpackActive=false, endAt=-1e9, upSel=0, paused=false, shieldOwned=false, shieldT=0, testUpgrades=false;
 function canRestart(){return performance.now()-endAt>700}
 function setupTestStage(n){
   paused=false; planetIndex=0; score=0; gems=0; banked=0; lives=3; nextLife=EXTRA_LIFE_EVERY; shieldOwned=false; shieldT=0;
@@ -272,6 +272,13 @@ addEventListener('keydown',e=>{
     setupTestStage(shortcut);
     return;
   }
+  if(e.code==='KeyU'&&!e.repeat&&!isMenu()&&state!=='exploding'){
+    testUpgrades=true;
+    ship.maxFuel=180;ship.fuel=ship.maxFuel;ship.maxHull=3;ship.hull=ship.maxHull;ship.laser=4;ship.thrust=2.4;
+    shieldOwned=true;shieldT=0;
+    msg='TEST UPGRADES ENABLED';msgT=90;sfx('extra');
+    return;
+  }
   if(e.code==='KeyS'&&!e.repeat&&!isMenu()&&state!=='exploding'){
     if(shieldOwned&&shieldT<=0){shieldOwned=false;shieldT=120;sfx('gem');msg='SHIELD ACTIVE — 2 SECONDS';msgT=70;}
     else if(shieldT<=0){sfx('buzz');}
@@ -300,7 +307,7 @@ document.querySelectorAll('[data-k]').forEach(b=>{
 
 /* ---------------------------------------------------------------- RUN */
 function resetRun(){
-  planetIndex=0;score=0;gems=0;banked=0;upSel=0;lives=3;nextLife=EXTRA_LIFE_EVERY;
+  planetIndex=0;score=0;gems=0;banked=0;upSel=0;lives=3;nextLife=EXTRA_LIFE_EVERY; testUpgrades=false;
   runSeed=(Math.random()*1e9)|0;
   ship={fuel:30,maxFuel:100,hull:3,maxHull:3,laser:1,thrust:1,x:W*.22,y:H*.5,vx:0,vy:0,angle:0,av:0,grounded:false,inv:0,face:1};
   setupFlight();
@@ -1266,6 +1273,18 @@ function drawHUD(){
   if(shieldT>0){ctx.fillStyle='#7fffe6';text('SHIELD '+(shieldT/60).toFixed(1)+'s',W/2,64,small?10:12,'center');}
   else if(shieldOwned){ctx.fillStyle='#7fffe6';text('SHIELD READY • S',W/2,64,small?10:12,'center');}
   if(state==='surface'||explosionScene==='surface'&&state==='exploding'){ bar(W-(small?90:140),66,small?72:120,mineOxygen/100,'O2',mineOxygen<25&&(stageTimer>>3)%2); bar(W-(small?90:140),88,small?72:120,backpackFuel/maxBackpackFuel,'JET',backpackFuel<20&&(stageTimer>>3)%2); }
+  if(testUpgrades && !['title','gameover','win','initials','upgrade'].includes(state)) drawTestUpgrades();
+}
+
+function drawTestUpgrades(){
+  const x=W-18, y=122, lh=17;
+  ctx.fillStyle='rgba(0,0,0,.58)';ctx.fillRect(W-190,108,174,118);
+  ctx.fillStyle='#7fffe6';arc('TEST UPGRADES',x-87,y-4,11,'center',164);
+  mono(.9);text('FUEL TANK  +80',x,y+17,11,'right');
+  text('HULL  MAX',x,y+34,11,'right');
+  text('LASER  MAX',x,y+51,11,'right');
+  text('THRUST  MAX',x,y+68,11,'right');
+  text(shieldT>0?'SHIELD  ACTIVE':'SHIELD  READY',x,y+85,11,'right');
 }
 
 function drawPopups(){
