@@ -1,3 +1,7 @@
+## v1.8.5
+- Made landings more forgiving: landing pads are slightly wider, and the safe landing zone extends closer to each pad edge.
+- Relaxed safe touchdown limits for vertical speed, sideways speed, and ship angle a little.
+
 ## v1.8.4
 - Increased starting lives from **3 to 4**, including when starting a new run or restarting.
 
