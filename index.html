@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.8.3';
+const VERSION='v1.8.4';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -165,7 +165,7 @@ function loadTable(){
 let table=loadTable();
 
 let state='title',planetIndex=0,score=0,high=Math.max(store('SM4000_HI'),table[0].s),bestPlanet=store('SM4000_BEST'),gems=0,banked=0;
-let lives=3,nextLife=EXTRA_LIFE_EVERY;
+let lives=4,nextLife=EXTRA_LIFE_EVERY;
 let ship={};
 let stars=[],shootingStars=[],asteroids=[],gasRings=[],pickups=[],planet={r:90},bullets=[],ebullets=[],aliens=[],drops=[],particles=[],popups=[];
 let cameraX=0, surfaceWidth=2400, msg='', msgT=0, stageTimer=0, deathReason='';
@@ -191,7 +191,7 @@ const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.- ';
 let actionPressed=false, upPressed=false, jetpackActive=false, endAt=-1e9, upSel=0, paused=false, shieldCharges=0, shieldT=0, testUpgrades=false;
 function canRestart(){return performance.now()-endAt>700}
 function setupTestStage(n){
-  paused=false; planetIndex=0; score=0; gems=0; banked=0; lives=3; nextLife=EXTRA_LIFE_EVERY; shieldCharges=0; shieldT=0;
+  paused=false; planetIndex=0; score=0; gems=0; banked=0; lives=4; nextLife=EXTRA_LIFE_EVERY; shieldCharges=0; shieldT=0;
   const shortcutFuel=n===1?30:55;
   ship={fuel:shortcutFuel,maxFuel:100,hull:3,maxHull:3,laser:1,thrust:1,x:W*.22,y:H*.5,vx:0,vy:0,angle:0,av:0,grounded:false,inv:0,face:1};
   if(n===1) setupFlight();
@@ -307,7 +307,7 @@ document.querySelectorAll('[data-k]').forEach(b=>{
 
 /* ---------------------------------------------------------------- RUN */
 function resetRun(){
-  planetIndex=0;score=0;gems=0;banked=0;upSel=0;lives=3;nextLife=EXTRA_LIFE_EVERY; testUpgrades=false;
+  planetIndex=0;score=0;gems=0;banked=0;upSel=0;lives=4;nextLife=EXTRA_LIFE_EVERY; testUpgrades=false;
   runSeed=(Math.random()*1e9)|0;
   ship={fuel:30,maxFuel:100,hull:3,maxHull:3,laser:1,thrust:1,x:W*.22,y:H*.5,vx:0,vy:0,angle:0,av:0,grounded:false,inv:0,face:1};
   setupFlight();
