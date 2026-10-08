@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.4.4';
+const VERSION='v1.4.5';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -252,6 +252,20 @@ addEventListener('keydown',e=>{
       if(planetIndex<planets.length-1){
         planetIndex++;
         setupSurface();
+      }
+      return;
+    }
+    if(shortcut===2 && state==='lander'){
+      if(planetIndex<planets.length-1){
+        planetIndex++;
+        setupLander();
+      }
+      return;
+    }
+    if(shortcut===4 && state==='takeoff'){
+      if(planetIndex<planets.length-1){
+        planetIndex++;
+        setupTakeoff();
       }
       return;
     }
