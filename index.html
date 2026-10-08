@@ -382,6 +382,8 @@ function setupSurface(){
   const sf1=minePlatforms[0], sf2=minePlatforms[Math.min(4,minePlatforms.length-1)];
   drops.push({type:'shipfuel',x:sf1.x+sf1.w*.25,y:sf1.y-24,taken:false});
   drops.push({type:'shipfuel',x:sf2.x+sf2.w*.65,y:sf2.y-24,taken:false});
+  const sf3=minePlatforms[Math.min(8,minePlatforms.length-1)];
+  drops.push({type:'shipfuel',x:sf3.x+sf3.w*.5,y:sf3.y-24,taken:false});
   drops.push({type:'ship',x:110,y:0,taken:false});
   respawnSurface();
 }
