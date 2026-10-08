@@ -1,3 +1,7 @@
+## v1.5.5
+- Increased lava flow speed by 15% on Planets 4 and 5 in the cavern escape section.
+- Planet 4–5 lava remains slower than the original late-planet speed to account for the narrower passages.
+
 ## v1.5.4
 - Fixed Planet 3–5 saucer bombs not being visible: the bomb drawing was happening during the update phase and was then cleared by the main flight render.
 - Saucer bombs are now clearly **pink and pulsing** and remain on screen during their one-second fuse.
