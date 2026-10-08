@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.6.3';
+const VERSION='v1.6.4';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -829,7 +829,7 @@ function updateTakeoff(){
     ship.vx=(mid-ship.x)*.045;
     ship.x=clamp(ship.x,b.left+margin,b.right-margin);
     if(ship.inv===0){
-      takeoffV*=.55;burst(ship.x,ship.y,18);
+      takeoffV*=.22;burst(ship.x,ship.y,18);
       if(damage('HULL DESTROYED — CAVERN IMPACT','CAVERN IMPACT') && state!=='takeoff') return;
     }
   }
