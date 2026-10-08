@@ -1,3 +1,7 @@
+## v1.6.2
+- Fixed the Level 5 escape completion so the final **CONGRATULATIONS!** victory screen is shown when testing Level 5 with the shortcut.
+- Final Planet 5 completion now uses the same victory path as a normal run.
+
 ## v1.6.1
 - Increased oxygen drain in the Mining section from 0.048 to 0.060 per frame (25% faster).
 - Asteroid flight, landing, and cavern escape/lava sections are unchanged.
