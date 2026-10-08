@@ -1,3 +1,7 @@
+## v1.7.0
+- Mining/jetpack falls now trigger hull damage as soon as the astronaut drops just beyond the bottom of the screen.
+- Uses the existing fall-damage system, removing one hull point just like an alien impact and resetting the astronaut safely back onto the surface.
+
 ## v1.6.9
 - Doubled the saucer bomb flight/fuse duration from 60 to 120 frames, giving the homing bombs roughly twice the travel distance.
 - Tripled the bomb blast radius from 136px to 408px.
