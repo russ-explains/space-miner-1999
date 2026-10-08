@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.7.0';
+const VERSION='v1.7.1';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -980,19 +980,11 @@ function updateSurface(){
   bullets=bullets.filter(b=>b.life>0&&b.x>cameraX-60&&b.x<cameraX+W+60&&b.y>-80&&b.y<H+160);
   aliens.forEach(a=>{
     a.t++; const pl=a.platform; a.y=pl.y-13;
-    a.nextDash--;
-    if(a.nextDash<=0 && a.dashT<=0){
-      a.dashT=11;
-      a.dashDir=Math.random()<.5?-1:1;
-      a.nextDash=150+rnd(40,190);
-    }
-    if(Math.abs(a.x-ship.x)<230 && a.dashT<=0) a.dir=a.x<ship.x?1:-1;
-    const normalSpeed=.45+planetIndex*.08;
-    const dashSpeed=6.0+planetIndex*.35;
-    const moveDir=a.dashT>0?a.dashDir:a.dir;
-    const moveSpeed=a.dashT>0?dashSpeed:normalSpeed;
-    a.x=clamp(a.x+moveDir*moveSpeed,pl.x+8,pl.x+pl.w-8);
-    if(a.dashT>0)a.dashT--;
+    // Aliens simply patrol backwards and forwards along their platform.
+    const patrolSpeed=.65+planetIndex*.08;
+    a.x+=a.dir*patrolSpeed;
+    if(a.x<=pl.x+8){a.x=pl.x+8;a.dir=1;}
+    if(a.x>=pl.x+pl.w-8){a.x=pl.x+pl.w-8;a.dir=-1;}
     if(Math.abs(a.x-ship.x)<18 && Math.abs(a.y-(ship.y+18))<18 && ship.inv===0){
       ship.vx += (ship.x<a.x?-1:1)*2.5;
       ship.vy=-2.2;
