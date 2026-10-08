@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.8.1';
+const VERSION='v1.8.2';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1060,7 +1060,7 @@ function upgradeLayout(){
     {type:'hull',  label:'REPAIR HULL +1',cost:2},
     {type:'laser', label:'LASER +1',cost:3},
     {type:'thrust',label:'THRUST +',cost:3},
-    {type:'shield',label:'2 SEC COLLISION SHIELD (MAX 3)',cost:2}
+    {type:'shield',label:'2 SEC COLLISION SHIELD (PRESS S)',cost:2}
   ].map((r,i)=>({...r,y:H*.38+i*(rh+8)}));
   const launchY=H*.38+rows.length*(rh+8)+12;
   return {bw,bx,rh,rows,launch:{x:bx,y:launchY,w:bw,h:rh}};
