@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.1.0';
+const VERSION='v1.1.1';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -186,7 +186,7 @@ let titleRocks=[],demoT=0;
 const keys={};
 const GAME_KEYS=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','Enter'];
 const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.- ';
-let actionPressed=false, endAt=-1e9, upSel=0;
+let actionPressed=false, endAt=-1e9, upSel=0, paused=false;
 function canRestart(){return performance.now()-endAt>700}
 function isMenu(){return ['title','gameover','win','upgrade','initials'].includes(state)}
 
@@ -1351,7 +1351,7 @@ function draw(){
   else if(state==='win')drawEnd(true);
   if(!isMenu()){drawPopups();drawMessage();drawReady();}
   ctx.restore();
-  if(flash){ctx.fillStyle='rgba(255,255,255,'+(flash*.3)+')';ctx.fillRect(0,0,W,H)}
+  if(flash){ctx.fillStyle='rgba(255,255,255,'+(flash*.3)+')';ctx.fillRect(0,0,W,H)}\n  if(paused){ ctx.fillStyle='rgba(0,0,0,.62)';ctx.fillRect(0,0,W,H); ctx.fillStyle='#ffd36b';arc('PAUSED',W/2,H*.42,34); mono(); text('PRESS P TO CONTINUE',W/2,H*.50,16,'center'); }
   postFX();
 }
 const STEP=1000/60; let acc=0,last=performance.now();
