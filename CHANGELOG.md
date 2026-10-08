@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.2.7 — 2026-10-08
+### Changed
+- Tightened mining-planet enemy hit detection so alien and saucer-bomb hits require a much closer visual contact.
+- Corrected green alien positioning so their feet sit directly on their platform surface instead of appearing to float.
+- Removed **W** as the jetpack control.
+- Mining now uses a single **Up Arrow** control: tap once to jump, release, then tap Up again while airborne to engage the jetpack; hold Up to continue burning jetpack fuel.
+- Jetpack fuel only drains while the jetpack is actively engaged.
+
 ## v1.2.6 — 2026-10-08
 ### Changed
 - Section 4 lava now rises approximately **20% faster**, increasing the pressure of the escape sequence.
