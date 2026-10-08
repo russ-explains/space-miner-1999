@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.0 — 2026-10-08
+### Changed
+- Lowered the miner's on-screen position so his feet now line up with the green aliens' feet on the same platform surface.
+- Adjusted alien collision detection to use the miner's corrected visual position.
+- Alien contact now requires a close horizontal and vertical overlap, while still costing **one hull point** through the existing damage system.
+
 ## v1.2.9 — 2026-10-08
 ### Changed
 - Made the mining-surface holes much more visually obvious with darker, deeper-looking openings and stronger highlighted rims.
