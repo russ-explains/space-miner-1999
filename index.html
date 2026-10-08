@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.2.1';
+const VERSION='v1.2.2';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -175,7 +175,7 @@ let cavernNodes=[],cavernSpikes=[],runSeed=1;
 let pads=[],padHalf=62,o2=100;
 let minePlatforms=[], mineHoles=[], mineUfo=null, backpackFuel=100, maxBackpackFuel=100;
 let mineOxygen=100, mineOxygenMax=100, minePlatformScroll=0, minePitHit=false;
-let mineShipFuel=0, mineShipFuelRequired=2;
+let mineShipFuel=0, mineShipFuelRequired=3;
 let dist=0,tripDist=1,scroll=FLY_BASE,nextRock=0,nextRing=0,section=0,beatT=0,beat=0,ufo=null;
 let readyT=0,readyA='',readyB='';
 let entry=null,endWin=false;
@@ -361,8 +361,8 @@ function surfaceGroundY(worldX){
 function setupSurface(){
   state='surface';stageTimer=0; bullets=[];aliens=[];drops=[];particles=[];
   const p=planets[planetIndex];
-  mineOxygenMax=100; mineOxygen=100; maxBackpackFuel=100; backpackFuel=32;
-  mineShipFuel=0; mineShipFuelRequired=2;
+  mineOxygenMax=100; mineOxygen=100; maxBackpackFuel=100; backpackFuel=45;
+  mineShipFuel=0; mineShipFuelRequired=3;
   minePlatformScroll=0; mineUfo={x:W*.78,y:90,vx:-1.15,t:0,fire:90,hp:12};
   mineHoles=[]; minePlatforms=[]; minePitHit=false;
   const gap=260;
@@ -820,7 +820,10 @@ function updateSurface(){
   if(move) ship.face=move;
   ship.vx += move*.34; ship.vx *= ship.grounded?.72:.94; ship.vx=clamp(ship.vx,-speed,speed);
   if(keys.ArrowUp && ship.grounded){ship.vy=-5.2-planetIndex*.07;ship.grounded=false;beep(300,.08,'square',.02,200);}
+  if(mineShipFuel>=mineShipFuelRequired){backpackFuel=maxBackpackFuel;}
   if(keys.KeyW && backpackFuel>0 && !ship.grounded){ship.vy-=.24;backpackFuel=Math.max(0,backpackFuel-.9);}
+  else if(mineShipFuel<mineShipFuelRequired && backpackFuel<maxBackpackFuel){backpackFuel=Math.min(maxBackpackFuel,backpackFuel+.035);}
+  if(mineShipFuel>=mineShipFuelRequired && !ship.grounded){ship.vy-=.24;}
   ship.vy+=.23+planetIndex*.012; ship.x=clamp(ship.x+ship.vx,30,surfaceWidth-30); ship.y+=ship.vy;
   const ground=surfaceGroundY(ship.x)-32;
   let platform=null;
@@ -880,11 +883,11 @@ function updateSurface(){
       if(d.type==='gem'){gems++;addScore(200,d.x-cameraX,d.y-30,true);sfx('gem');msg='+ GEM ('+gems+' THIS PLANET)';msgT=45;}
       if(d.type==='backpack'){backpackFuel=maxBackpackFuel;addScore(80,d.x-cameraX,d.y-30,true);sfx('fuel');msg='+ BACKPACK FUEL';msgT=55;}
       if(d.type==='oxygen'){mineOxygen=Math.min(mineOxygenMax,mineOxygen+45);o2=mineOxygen;addScore(100,d.x-cameraX,d.y-30,true);sfx('fuel');msg='+ OXYGEN';msgT=55;}
-      if(d.type==='shipfuel'){mineShipFuel=Math.min(mineShipFuelRequired,mineShipFuel+1);addScore(300,d.x-cameraX,d.y-30,true);sfx('fuel');msg='SHIP FUEL '+mineShipFuel+'/'+mineShipFuelRequired;msgT=70;}
+      if(d.type==='shipfuel'){mineShipFuel=Math.min(mineShipFuelRequired,mineShipFuel+1);addScore(300,d.x-cameraX,d.y-30,true);sfx('fuel');msg='SHIP FUEL '+mineShipFuel+'/'+mineShipFuelRequired;msgT=70;if(mineShipFuel>=mineShipFuelRequired){backpackFuel=maxBackpackFuel;msg='ALL SHIP FUEL FOUND — JETPACK FULL';msgT=100;sfx('jingle');}}
     }
   }
   if(ship.y>H+120){
-    if(!minePitHit && ship.inv===0){minePitHit=true;if(damage('MINING PIT IMPACT','PIT HIT',false))return;ship.x=clamp(ship.x-70,80,surfaceWidth-80);ship.y=surfaceGroundY(ship.x)-32;ship.vy=0;ship.grounded=true;minePitHit=false;}
+    if(!minePitHit && ship.inv===0){minePitHit=true;if(damage('FALLEN FROM PLANET SURFACE','FALL DAMAGE',false))return;ship.x=clamp(ship.x-70,80,surfaceWidth-80);ship.y=surfaceGroundY(ship.x)-32;ship.vy=0;ship.grounded=true;minePitHit=false;}
   }
   const exit=drops.find(d=>d.type==='ship');
   if(Math.abs(exit.x-ship.x)<42&&ship.grounded){
@@ -1239,7 +1242,7 @@ function drawSurface(){
   drawAstronaut(ship.x-cameraX,ship.y,ship.face);
   particles.forEach(pt=>{mono(pt.life/55);ctx.fillRect(pt.x-cameraX,pt.y,2,2)});
   drawHUD();mono();text('GEMS '+gems+'  •  SHIP FUEL '+mineShipFuel+'/'+mineShipFuelRequired,W/2,122,13,'center');
-  ctx.fillStyle='#7fffe6';text('↑: JUMP   SPACE: FIRE   W: JETPACK   •   O2 + JET FUEL + FUEL CANISTERS',W/2,H-34,11,'center');
+  ctx.fillStyle='#7fffe6';text('↑: JUMP   SPACE: FIRE   W: JETPACK   •   O2 + JET FUEL + 3× FUEL CANISTERS',W/2,H-34,11,'center');
 }
 function drawUpgrade(){
   ctx.fillStyle='#050505';ctx.fillRect(0,0,W,H);mono();
