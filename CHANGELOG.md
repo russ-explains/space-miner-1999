@@ -1,3 +1,9 @@
+## v1.5.7
+- Planet 3–5 saucers now fire their original aimed shots **as well as** dropping pulsing mines.
+- Increased the mine explosion radius from 34 to 136 pixels (4×).
+- Mine explosions can now destroy asteroids caught in the blast and award their normal asteroid score.
+- Planets 1–2 retain their original saucer-shot behaviour.
+
 ## v1.5.6
 - Added a gentle lava catch-up mechanic to the escape section.
 - If the lava drops too far below the visible screen, it receives a small boost to keep it close to the bottom edge.
