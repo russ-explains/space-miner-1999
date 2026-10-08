@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.4.2 — 2026-10-08
+### Fixed
+- Corrected the normal new-game reset so the asteroid-flight section now genuinely starts at **55% fuel**, rather than the previous 100%.
+
+
 ## v1.4.1 — 2026-10-08
 ### Changed
 - The opening asteroid-flight section now starts with the ship's fuel at **55%**, just over half full.
