@@ -1,3 +1,8 @@
+## v1.8.3
+- Added an **EXTRA LIFE +1** upgrade for **4 gems**.
+- Buying it immediately adds one life and displays an **EXTRA LIFE!** message.
+- Adjusted upgrade spacing to fit the additional option.
+
 ## v1.8.2
 - Updated the shield upgrade label to explicitly say **“(PRESS S)”** so players know how to activate it.
 
