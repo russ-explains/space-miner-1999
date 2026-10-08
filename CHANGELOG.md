@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.2.8 — 2026-10-08
+### Changed
+- Increased jetpack lift from **0.24** to **0.34** per frame for a more definite upward thrust.
+- Reduced jetpack fuel consumption by **30%**, from 0.63 to 0.441 per frame.
+- Added a small visible backpack/jetpack to the miner.
+- Added animated jet propulsion beneath the backpack while the jetpack is firing.
+
 ## v1.2.7 — 2026-10-08
 ### Changed
 - Tightened mining-planet enemy hit detection so alien and saucer-bomb hits require a much closer visual contact.
