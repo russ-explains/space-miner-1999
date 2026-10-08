@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.4.6';
+const VERSION='v1.5.0';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -642,8 +642,15 @@ function updateFlight(){
   if(remaining>W*1.1){
     nextRock-=scroll;
     if(nextRock<=0){
-      const gap=[240,150,95][Math.min(sec,2)]*(1-planetIndex*.07);
-      asteroids.push(makeAsteroid(W+40,rnd(100,H-40),Math.random()<.17,sec===2));
+      // Asteroid fields get denser on every planet. Planet 2+ has more rocks,
+      // while Planet 3+ also introduces noticeably larger asteroids.
+      const density=Math.max(.58,1-planetIndex*.10);
+      const gap=[240,150,95][Math.min(sec,2)]*density;
+      const a=makeAsteroid(W+40,rnd(100,H-40),Math.random()<.17,sec===2);
+      const sizeScale=planetIndex>=2 ? 1+(planetIndex-1)*.15 : 1+planetIndex*.04;
+      a.r*=sizeScale;
+      a.mass=a.r*a.r;
+      asteroids.push(a);
       nextRock=gap*rnd(.6,1.4);
     }
     nextRing-=scroll;
