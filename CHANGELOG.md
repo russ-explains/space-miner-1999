@@ -1,3 +1,9 @@
+## v1.6.7
+- Restored normal saucer bullets to their original straight-line aimed behaviour.
+- Changed only the Planet 3–5 saucer bombs to gently curve towards the player.
+- Doubled the bombs' fuse/travel lifetime from 60 to 120 frames, giving them roughly twice the travel range.
+- Kept the large 136px bomb blast radius unchanged.
+
 ## v1.6.6
 - Further dampened escape-section collision rebound on all planets, reducing the retained vertical bounce from 22% to 10%.
 - Keeps spike and cavern-side impacts much more controllable, allowing the player to correct their trajectory immediately after a collision.
