@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.2.0';
+const VERSION='v1.2.1';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -175,6 +175,7 @@ let cavernNodes=[],cavernSpikes=[],runSeed=1;
 let pads=[],padHalf=62,o2=100;
 let minePlatforms=[], mineHoles=[], mineUfo=null, backpackFuel=100, maxBackpackFuel=100;
 let mineOxygen=100, mineOxygenMax=100, minePlatformScroll=0, minePitHit=false;
+let mineShipFuel=0, mineShipFuelRequired=2;
 let dist=0,tripDist=1,scroll=FLY_BASE,nextRock=0,nextRing=0,section=0,beatT=0,beat=0,ufo=null;
 let readyT=0,readyA='',readyB='';
 let entry=null,endWin=false;
@@ -360,7 +361,8 @@ function surfaceGroundY(worldX){
 function setupSurface(){
   state='surface';stageTimer=0; bullets=[];aliens=[];drops=[];particles=[];
   const p=planets[planetIndex];
-  mineOxygenMax=100; mineOxygen=100; maxBackpackFuel=100; backpackFuel=100;
+  mineOxygenMax=100; mineOxygen=100; maxBackpackFuel=100; backpackFuel=32;
+  mineShipFuel=0; mineShipFuelRequired=2;
   minePlatformScroll=0; mineUfo={x:W*.78,y:90,vx:-1.15,t:0,fire:90,hp:12};
   mineHoles=[]; minePlatforms=[]; minePitHit=false;
   const gap=260;
@@ -376,7 +378,10 @@ function setupSurface(){
   });
   for(let i=0;i<p.gems;i++) drops.push({type:'ore',x:520+i*(surfaceWidth-900)/Math.max(1,p.gems-1),y:0,hp:2+Math.floor(planetIndex/2),taken:false});
   for(let i=0;i<3;i++){const pl=minePlatforms[(i*2+1)%minePlatforms.length];drops.push({type:'backpack',x:pl.x+pl.w*.5,y:pl.y-24,taken:false});}
-  for(let i=0;i<2;i++){const pl=minePlatforms[(i*3+2)%minePlatforms.length];drops.push({type:'oxygen',x:pl.x+pl.w*.25,y:pl.y-24,taken:false});}
+  for(let i=0;i<3;i++){const pl=minePlatforms[(i*3+2)%minePlatforms.length];drops.push({type:'oxygen',x:pl.x+pl.w*.25,y:pl.y-24,taken:false});}
+  const sf1=minePlatforms[0], sf2=minePlatforms[Math.min(4,minePlatforms.length-1)];
+  drops.push({type:'shipfuel',x:sf1.x+sf1.w*.25,y:sf1.y-24,taken:false});
+  drops.push({type:'shipfuel',x:sf2.x+sf2.w*.65,y:sf2.y-24,taken:false});
   drops.push({type:'ship',x:110,y:0,taken:false});
   respawnSurface();
 }
@@ -814,7 +819,7 @@ function updateSurface(){
   const move=(keys.ArrowRight?1:0)-(keys.ArrowLeft?1:0);
   if(move) ship.face=move;
   ship.vx += move*.34; ship.vx *= ship.grounded?.72:.94; ship.vx=clamp(ship.vx,-speed,speed);
-  if(keys.Space && ship.grounded){ship.vy=-5.8-planetIndex*.08;ship.grounded=false;beep(300,.08,'square',.02,200);}
+  if(keys.ArrowUp && ship.grounded){ship.vy=-5.2-planetIndex*.07;ship.grounded=false;beep(300,.08,'square',.02,200);}
   if(keys.KeyW && backpackFuel>0 && !ship.grounded){ship.vy-=.24;backpackFuel=Math.max(0,backpackFuel-.9);}
   ship.vy+=.23+planetIndex*.012; ship.x=clamp(ship.x+ship.vx,30,surfaceWidth-30); ship.y+=ship.vy;
   const ground=surfaceGroundY(ship.x)-32;
@@ -875,6 +880,7 @@ function updateSurface(){
       if(d.type==='gem'){gems++;addScore(200,d.x-cameraX,d.y-30,true);sfx('gem');msg='+ GEM ('+gems+' THIS PLANET)';msgT=45;}
       if(d.type==='backpack'){backpackFuel=maxBackpackFuel;addScore(80,d.x-cameraX,d.y-30,true);sfx('fuel');msg='+ BACKPACK FUEL';msgT=55;}
       if(d.type==='oxygen'){mineOxygen=Math.min(mineOxygenMax,mineOxygen+45);o2=mineOxygen;addScore(100,d.x-cameraX,d.y-30,true);sfx('fuel');msg='+ OXYGEN';msgT=55;}
+      if(d.type==='shipfuel'){mineShipFuel=Math.min(mineShipFuelRequired,mineShipFuel+1);addScore(300,d.x-cameraX,d.y-30,true);sfx('fuel');msg='SHIP FUEL '+mineShipFuel+'/'+mineShipFuelRequired;msgT=70;}
     }
   }
   if(ship.y>H+120){
@@ -882,8 +888,8 @@ function updateSurface(){
   }
   const exit=drops.find(d=>d.type==='ship');
   if(Math.abs(exit.x-ship.x)<42&&ship.grounded){
-    if(aliens.length===0||gems>=2){addScore(Math.round(mineOxygen)*10);completePlanet();return;}
-    else if(msgT<=0&&stageTimer>60){msg='NEED '+(2-gems)+' MORE GEM'+(2-gems>1?'S':'')+' — OR CLEAR ALL ALIENS';msgT=80;}
+    if(mineShipFuel>=mineShipFuelRequired){addScore(Math.round(mineOxygen)*10+mineShipFuel*300);completePlanet();return;}
+    else if(msgT<=0&&stageTimer>60){msg='NEED '+(mineShipFuelRequired-mineShipFuel)+' MORE SHIP FUEL — FIND THE F CANISTERS';msgT=90;}
   }
 }
 function upgradeLayout(){
@@ -1221,8 +1227,9 @@ function drawSurface(){
   minePlatforms.forEach(pl=>{const x=pl.x-cameraX;if(x>-160&&x<W+160){ctx.strokeStyle=p.tint;ctx.lineWidth=3;ctx.fillStyle='rgba(245,245,245,.08)';ctx.fillRect(x,pl.y,pl.w,pl.h);ctx.strokeRect(x,pl.y,pl.w,pl.h);}});
   drops.forEach(d=>{if(d.taken)return;const x=d.x-cameraX;if(x<-60||x>W+60)return;
     if(d.type==='gem')drawGem(x,d.y,ORE);
-    if(d.type==='backpack'){ctx.strokeStyle='#7fffe6';ctx.fillStyle='#7fffe6';ctx.lineWidth=2;ctx.strokeRect(x-9,d.y-10,18,20);text('P',x,d.y+5,11,'center');}
+    if(d.type==='backpack'){ctx.strokeStyle='#7fffe6';ctx.fillStyle='#7fffe6';ctx.lineWidth=2;ctx.strokeRect(x-9,d.y-10,18,20);text('J',x,d.y+5,11,'center');}
     if(d.type==='oxygen'){ctx.strokeStyle='#b5ffff';ctx.fillStyle='#b5ffff';ctx.lineWidth=2;ctx.strokeRect(x-9,d.y-10,18,20);text('O2',x,d.y+4,9,'center');}
+    if(d.type==='shipfuel'){ctx.strokeStyle='#ffb347';ctx.fillStyle='#ffb347';ctx.lineWidth=2;ctx.strokeRect(x-10,d.y-11,20,22);arc('F',x,d.y+7,15,'center',20);}
     if(d.type==='ore'){if(!d.shape){d.shape=Array.from({length:9},()=>rnd(.75,1.15));d.rot=rnd(0,6)}const gy=surfaceGroundY(d.x);drawRock({x,y:gy-12,r:15,rot:d.rot,shape:d.shape},.85,ORE);}
     if(d.type==='ship'){drawShip(x,surfaceGroundY(d.x)-38,1.6,0,false);}
   });
@@ -1231,8 +1238,8 @@ function drawSurface(){
   bullets.forEach(b=>{if(b.enemy)ctx.fillStyle='#ff6bd6';else mono();ctx.fillRect(b.x-cameraX,b.y,b.enemy?5:9,2)});
   drawAstronaut(ship.x-cameraX,ship.y,ship.face);
   particles.forEach(pt=>{mono(pt.life/55);ctx.fillRect(pt.x-cameraX,pt.y,2,2)});
-  drawHUD();mono();text('GEMS '+gems+'/2  •  ALIENS '+aliens.length,W/2,122,13,'center');
-  ctx.fillStyle='#7fffe6';text('SPACE: JUMP   W: JETPACK   •   UPPER PLATFORMS: O2 + JET FUEL',W/2,H-34,11,'center');
+  drawHUD();mono();text('GEMS '+gems+'  •  SHIP FUEL '+mineShipFuel+'/'+mineShipFuelRequired,W/2,122,13,'center');
+  ctx.fillStyle='#7fffe6';text('↑: JUMP   SPACE: FIRE   W: JETPACK   •   O2 + JET FUEL + FUEL CANISTERS',W/2,H-34,11,'center');
 }
 function drawUpgrade(){
   ctx.fillStyle='#050505';ctx.fillRect(0,0,W,H);mono();
