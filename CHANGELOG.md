@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.5.1 — 2026-10-08
+### Added
+- On Planets **3–5**, the flying saucer now drops small pulsing bombs.
+- Each bomb has an approximately **1-second fuse** before exploding.
+- Explosions have a small blast radius and can damage the ship if it is nearby.
+- Planets 1–2 retain the existing saucer projectile behaviour.
+
 ## v1.5.0 — 2026-10-08
 ### Changed
 - Increased asteroid-flight difficulty progressively across all five planets.
