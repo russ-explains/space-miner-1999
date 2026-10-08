@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.7.1';
+const VERSION='v1.7.2';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -426,7 +426,7 @@ function setupSurface(){
   }
   aliens=Array.from({length:p.aliens},(_,i)=>{
     const pl=minePlatforms[i%minePlatforms.length];
-    return {x:pl.x+pl.w*.5,y:pl.y-13,w:26,h:32,hp:1+Math.floor(planetIndex/2),dir:i%2?-1:1,t:rnd(0,200),platform:pl,dashT:0,dashDir:i%2?-1:1,nextDash:90+rnd(40,180)};
+    const tough=planetIndex>=2&&i%2===0; return {x:pl.x+pl.w*.5,y:pl.y-13,w:26,h:32,hp:tough?2:1,dir:i%2?-1:1,t:rnd(0,200),platform:pl,tough};
   });
   for(let i=0;i<p.gems;i++) drops.push({type:'ore',x:520+i*(surfaceWidth-900)/Math.max(1,p.gems-1),y:0,hp:2+Math.floor(planetIndex/2),taken:false});
   for(let i=0;i<3;i++){const pl=minePlatforms[(i*2+1)%minePlatforms.length];drops.push({type:'backpack',x:pl.x+pl.w*.5,y:pl.y-24,taken:false});}
@@ -1209,10 +1209,19 @@ function drawAstronaut(x,y,face){
   }
   ctx.restore();
 }
-function drawAlien(x,y,t){
-  ctx.save();ctx.translate(x,y);ctx.strokeStyle='#8dff8d';ctx.fillStyle='#8dff8d';ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(0,-12,9,Math.PI,0);ctx.lineTo(9,2);ctx.lineTo(-9,2);ctx.closePath();ctx.stroke();
-  ctx.fillRect(-4,-12,2,2);ctx.fillRect(2,-12,2,2);
+function drawAlien(x,y,t,tough,damaged){
+  ctx.save();ctx.translate(x,y);ctx.strokeStyle=tough?'#7fffe6':'#8dff8d';ctx.fillStyle=tough?'#7fffe6':'#8dff8d';ctx.lineWidth=2;
+  if(tough&&!damaged){
+    // Tough alien: a slightly bulkier head/body silhouette.
+    ctx.beginPath();ctx.arc(0,-12,10,Math.PI,0);ctx.lineTo(11,4);ctx.lineTo(-11,4);ctx.closePath();ctx.stroke();
+    ctx.fillRect(-5,-12,2,2);ctx.fillRect(3,-12,2,2);
+  } else if(!damaged){
+    ctx.beginPath();ctx.arc(0,-12,9,Math.PI,0);ctx.lineTo(9,2);ctx.lineTo(-9,2);ctx.closePath();ctx.stroke();
+    ctx.fillRect(-4,-12,2,2);ctx.fillRect(2,-12,2,2);
+  } else {
+    // After the first hit, the tough alien loses its entire upper body.
+    line(-9,2,9,2,2);
+  }
   // Two-frame walk, Space Invaders style.
   if((t>>4)%2){line(-7,2,-11,12);line(7,2,11,12);line(-4,2,-5,13);line(4,2,5,13)}
   else{line(-7,2,-9,12);line(7,2,9,12);line(-4,2,-2,13);line(4,2,2,13)}
@@ -1403,7 +1412,7 @@ function drawSurface(){
     if(d.type==='ore'){if(!d.shape){d.shape=Array.from({length:9},()=>rnd(.75,1.15));d.rot=rnd(0,6)}const gy=surfaceGroundY(d.x);drawRock({x,y:gy-12,r:15,rot:d.rot,shape:d.shape},.85,ORE);}
     if(d.type==='ship'){drawShip(x,surfaceGroundY(d.x)-38,1.6,0,false);}
   });
-  aliens.forEach(a=>{const x=a.x-cameraX;if(x>-40&&x<W+40)drawAlien(x,a.y,a.t)});
+  aliens.forEach(a=>{const x=a.x-cameraX;if(x>-40&&x<W+40)drawAlien(x,a.y,a.t,a.tough,a.tough&&a.hp===1)});
   if(mineUfo){ctx.save();ctx.translate(mineUfo.x,mineUfo.y);ctx.strokeStyle='#ff6bd6';ctx.fillStyle='#160018';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,34,10,0,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(0,-2,14,Math.PI,0);ctx.stroke();ctx.fillStyle='#ff6bd6';ctx.fillRect(-22,5,44,3);ctx.restore();}
   bullets.forEach(b=>{if(b.enemy)ctx.fillStyle='#ff6bd6';else mono();ctx.fillRect(b.x-cameraX,b.y,b.enemy?5:9,2)});
   drawAstronaut(ship.x-cameraX,ship.y+18,ship.face);
