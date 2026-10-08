@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.4.4 — 2026-10-08
+### Changed
+- Pressing **1** again while already in asteroid flight now advances to the next planet's flight section.
+- Pressing **3** again while already mining now advances to the next planet's mining section.
+- These shortcut advances preserve the current run resources rather than resetting the ship's fuel.
+- The shortcuts stop advancing once the final planet is reached.
+
 ## v1.4.3 — 2026-10-08
 ### Changed
 - The **1** level-1 test shortcut now starts at **30% fuel**.
