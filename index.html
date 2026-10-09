@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.9';
+const VERSION='v1.9.10';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -442,14 +442,14 @@ function setupSurface(){
     const pl=minePlatforms[i%minePlatforms.length];
     const tough=planetIndex>=2&&i%2===0; return {x:pl.x+pl.w*.5,y:pl.y-13,w:26,h:32,hp:tough?2:1,dir:i%2?-1:1,t:rnd(0,200),platform:pl,tough};
   });
-  // Place gem-bearing ore in the safe ground gaps BETWEEN pits, never inside a pit.
+  // Place gem-bearing ore only in safe ground gaps BETWEEN consecutive pits.
+  // Deliberately exclude the approach before the first pit and the ground after the last.
   const safeGaps=[];
-  let gapStart=100;
-  for(const h of mineHoles){
-    if(h.x-gapStart>36) safeGaps.push({start:gapStart,end:h.x});
-    gapStart=h.x+h.w;
+  for(let i=0;i<mineHoles.length-1;i++){
+    const start=mineHoles[i].x+mineHoles[i].w;
+    const end=mineHoles[i+1].x;
+    if(end-start>36) safeGaps.push({start,end});
   }
-  if(surfaceWidth-100-gapStart>36) safeGaps.push({start:gapStart,end:surfaceWidth-100});
   for(let i=0;i<p.gems;i++){
     const gap=safeGaps[Math.min(safeGaps.length-1,Math.floor((i+.5)*safeGaps.length/p.gems))];
     if(gap) drops.push({type:'ore',x:gap.start+(gap.end-gap.start)*.5,y:0,hp:2+Math.floor(planetIndex/2),taken:false});
