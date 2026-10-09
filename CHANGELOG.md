@@ -1,3 +1,6 @@
+## v1.9.26
+- Changed saucer bomb blasts so they split large asteroids down by one size tier instead of destroying asteroids outright; smaller fragments are left alone.
+
 ## v1.9.25
 - Added gentle landing-pad attraction while the 2-second collision shield is active, helping guide the ship towards the nearest pad during descent without taking over steering.
 
