@@ -1,3 +1,8 @@
+## v1.9.8
+- Moved gem-bearing yellow ore rocks into safe ground gaps between mining pits so they no longer spawn inside pit openings.
+- Strengthened pit-contact detection to cover both rim impacts and falling into the opening; pit impacts remove one hull point even during normal hit-invulnerability, while an active collision shield still blocks damage.
+- The astronaut is moved clear after pit contact to prevent repeated damage from a single fall.
+
 ## v1.9.7
 - Changed planetary mining pits to have bright red rims and red inner highlights so they stand out clearly.
 - Pit contact now removes one hull point even during ordinary hit-invulnerability; an active collision shield still blocks the damage and moves the astronaut clear of the pit.
