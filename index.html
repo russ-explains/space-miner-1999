@@ -364,7 +364,7 @@ function setupLander(){
   const bh=Math.max(22,padHalf*.58);
   let bx=px<W/2?rnd(W*.68,W*.9):rnd(W*.1,W*.32);
   bx=clamp(bx,bh+16,W-bh-16);
-  if(Math.abs(bx-px)>padHalf+bh+50) pads.push({x:bx,half:bh,mult:3});
+  if(Math.abs(bx-px)>padHalf+bh+50) pads.push({x:bx,half:bh,mult:3,gemTaken:false});
 
   // Terrain peaks rise with each planet: low on Planet 1, medium on Planet 2,
   // high on Planet 3, then increasingly tall and tighter on later worlds.
@@ -942,10 +942,12 @@ function updateLander(){
       // An active shield can stabilise a rough touchdown, but only on a landing pad.
       const pts=(shieldLanding?500:500+Math.round((1-vertical/.9)*250))*pad.mult;
       addScore(pts,ship.x,ship.y-40);
+      let bonusGem=false;
+      if(pad.mult>1 && !pad.gemTaken){pad.gemTaken=true;gems++;addScore(200,ship.x,ship.y-58);sfx('gem');bonusGem=true;}
       sfx('land');shake=3;
       ship.angle=0;ship.av=0;
       setupSurface();
-      if(pad.mult>1){msg='x'+pad.mult+' BONUS PAD — '+pts+' POINTS';msgT=130}
+      if(pad.mult>1){msg=bonusGem?'BONUS PAD GEM! +1  •  x'+pad.mult+' PAD':'x'+pad.mult+' BONUS PAD — '+pts+' POINTS';msgT=130}
       else if(shieldLanding){msg='SHIELD-ASSISTED LANDING';msgT=100}
     } else if(!pad) lose('BAD LANDING — CRASHED ON ROUGH GROUND',true);
     else if(vertical>=.9) lose('BAD LANDING — DESCENT TOO FAST',true);
@@ -1223,7 +1225,7 @@ function drawLanderGround(){
     mono();ctx.fillRect(pd.x-pd.half,padY(),pd.half*2,7);
     line(pd.x-pd.half+7,padY()+7,pd.x-pd.half+17,padY()+18);line(pd.x+pd.half-7,padY()+7,pd.x+pd.half-17,padY()+18);
     if((stageTimer>>4)%2){ctx.fillStyle=pd.mult>1?ORE:p.tint;ctx.fillRect(pd.x-pd.half-2,padY()-6,4,4);ctx.fillRect(pd.x+pd.half-2,padY()-6,4,4)}
-    if(pd.mult>1){ctx.fillStyle=ORE;text('x'+pd.mult,pd.x,padY()+34,13,'center')}
+    if(pd.mult>1){drawGem(pd.x,padY()-12,ORE);ctx.fillStyle=ORE;text('x'+pd.mult,pd.x,padY()+34,13,'center')}
   }
 }
 
