@@ -1,3 +1,7 @@
+## v1.9.1
+- An active 2-second shield now assists a landing when the ship touches down inside a landing pad, even if its angle or touchdown speed is outside the normal safe limits.
+- Shield-assisted landings award the standard 500-point base (multiplied by any bonus-pad multiplier) and show a brief message; the shield does not make rough-ground landings safe.
+
 ## v1.9.0
 - Laser shots now change colour as the weapon is upgraded: **Level 1 white**, **Level 2 yellow**, **Level 3 orange**, **Level 4 red**.
 - Applied the colour progression to both asteroid-flight and mining gameplay; enemy shots keep their existing colour.
