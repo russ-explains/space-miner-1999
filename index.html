@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.17';
+const VERSION='v1.9.18';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1582,7 +1582,7 @@ function drawSurface(){
     if(d.type==='oxygen'){ctx.strokeStyle='#62c8ff';ctx.fillStyle='#1676b8';ctx.lineWidth=2;ctx.fillRect(x-9,d.y-10,18,20);ctx.strokeRect(x-9,d.y-10,18,20);ctx.fillStyle='#fff';text('O',x,d.y+5,13,'center');}
     if(d.type==='shipfuel'){ctx.strokeStyle='#ffb347';ctx.fillStyle='#ffb347';ctx.lineWidth=2;ctx.strokeRect(x-10,d.y-11,20,22);arc('F',x,d.y+7,15,'center',20);}
     if(d.type==='ore'){if(!d.shape){d.shape=Array.from({length:9},()=>rnd(.75,1.15));d.rot=rnd(0,6)}const gy=surfaceGroundY(d.x);drawRock({x,y:gy-12,r:15,rot:d.rot,shape:d.shape},.85,ORE);}
-    if(d.type==='ship'){drawShip(x,surfaceGroundY(d.x)-38,1.6,0,false);}
+    if(d.type==='ship'){drawShip(x,surfaceGroundY(d.x)-38,1.6,0,false,false,false,true);}
   });
   aliens.forEach(a=>{const x=a.x-cameraX;if(x>-40&&x<W+40)drawAlien(x,a.y,a.t,a.tough,a.tough&&a.hp===1)});
   if(mineUfo){ctx.save();ctx.translate(mineUfo.x,mineUfo.y);ctx.strokeStyle='#ff6bd6';ctx.fillStyle='#160018';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,34,10,0,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(0,-2,14,Math.PI,0);ctx.stroke();ctx.fillStyle='#ff6bd6';ctx.fillRect(-22,5,44,3);ctx.restore();}
