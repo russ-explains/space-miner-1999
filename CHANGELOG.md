@@ -1,3 +1,6 @@
+## v1.9.19
+- Added the I key as a test shortcut to open the normal between-level upgrade screen during gameplay.
+
 ## v1.9.18
 - Made the ship shown on the planet surface use the player's current ship design, including the twin-thruster and maximum-upgrade variants.
 
