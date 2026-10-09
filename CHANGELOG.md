@@ -1,3 +1,6 @@
+## v1.9.17
+- Added test controls during gameplay: press T to increase thruster level up to maximum, and L to increase laser level up to maximum. Ship artwork updates immediately as levels change.
+
 ## v1.9.16
 - Added a slimmer version of the original ship with two small rear engines when the player buys the first thruster upgrade.
 - Preserved the original ship before upgrades, the triangular Level 1 design for laser-only upgrades, and the Level 2 design for maximum laser and thruster upgrades.
