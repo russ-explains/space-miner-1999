@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.25';
+const VERSION='v1.9.26';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -874,10 +874,11 @@ function updateUfo(){
       if(Math.hypot(ship.x-b.x,ship.y-b.y)<shipBlastRadius && ship.inv===0){
         damage('HULL DESTROYED — SAUCER BOMB','SAUCER BOMB');
       }
-      // Bombs also clear asteroids caught in the blast.
+      // Bombs only damage the largest asteroid tier, splitting each hit
+      // asteroid down by one size step rather than clearing it completely.
       asteroids.forEach(a=>{
-        if(!a.dead && Math.hypot(a.x-b.x,a.y-b.y)<asteroidBlastRadius+a.r){
-          a.dead=true;
+        if(!a.dead && a.r>=15 && Math.hypot(a.x-b.x,a.y-b.y)<asteroidBlastRadius+a.r){
+          splitAsteroid(a,b.vx,b.vy);
           addScore(a.ore?250:100,a.x,a.y);
           burst(a.x,a.y,8);
         }
