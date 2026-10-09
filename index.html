@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.7';
+const VERSION='v1.9.8';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -442,7 +442,18 @@ function setupSurface(){
     const pl=minePlatforms[i%minePlatforms.length];
     const tough=planetIndex>=2&&i%2===0; return {x:pl.x+pl.w*.5,y:pl.y-13,w:26,h:32,hp:tough?2:1,dir:i%2?-1:1,t:rnd(0,200),platform:pl,tough};
   });
-  for(let i=0;i<p.gems;i++) drops.push({type:'ore',x:520+i*(surfaceWidth-900)/Math.max(1,p.gems-1),y:0,hp:2+Math.floor(planetIndex/2),taken:false});
+  // Place gem-bearing ore in the safe ground gaps BETWEEN pits, never inside a pit.
+  const safeGaps=[];
+  let gapStart=100;
+  for(const h of mineHoles){
+    if(h.x-gapStart>36) safeGaps.push({start:gapStart,end:h.x});
+    gapStart=h.x+h.w;
+  }
+  if(surfaceWidth-100-gapStart>36) safeGaps.push({start:gapStart,end:surfaceWidth-100});
+  for(let i=0;i<p.gems;i++){
+    const gap=safeGaps[Math.min(safeGaps.length-1,Math.floor((i+.5)*safeGaps.length/p.gems))];
+    if(gap) drops.push({type:'ore',x:gap.start+(gap.end-gap.start)*.5,y:0,hp:2+Math.floor(planetIndex/2),taken:false});
+  }
   for(let i=0;i<3;i++){const pl=minePlatforms[(i*2+1)%minePlatforms.length];drops.push({type:'backpack',x:pl.x+pl.w*.5,y:pl.y-24,taken:false});}
   // Exactly one oxygen tank per mining level, placed beside the third ship-fuel (F) pickup.
   const oxygenPlatform=minePlatforms[Math.min(8,minePlatforms.length-1)];
@@ -983,26 +994,26 @@ function updateSurface(){
   for(const pl of minePlatforms){if(ship.x>pl.x&&ship.x<pl.x+pl.w&&Math.abs((ship.y+32)-pl.y)<28&&ship.vy>=0){platform=pl;break}}
   // Treat the visible black pit openings as hazards: contact with the opening
   // costs one hull point, then places the astronaut safely beside the pit.
-  const pit=mineHoles.find(h=>ship.x+12>h.x&&ship.x-12<h.x+h.w);
-  if(pit && ship.y+32>=surfaceTerrainY(ship.x)-2 && !platform){
+  const pit=mineHoles.find(h=>ship.x+14>h.x&&ship.x-14<h.x+h.w);
+  // Detect contact with the rim or any fall into the opening, not just the
+  // original terrain height; the pit floor is deliberately much lower.
+  const pitContact=pit && ship.y+32>=surfaceTerrainY(ship.x)-3 && ship.y<=surfaceTerrainY(ship.x)+100;
+  if(pitContact && !platform){
     ship.grounded=false;
     if(!minePitHit){
       minePitHit=true;
-      // Pit impacts always cost one hull, even during ordinary hit
-      // invulnerability. An active collision shield still blocks the hit.
-      const hullBefore=ship.hull;
+      // Pit collision bypasses ordinary hit-invulnerability so every actual
+      // impact costs a hull point. Only an active collision shield blocks it.
       if(shieldT<=0){
         ship.hull--;ship.inv=75;shake=9;flash=.35;sfx('hit');
         if(ship.hull<=0){lose('MINING PIT IMPACT',false);return;}
         msg='PIT HIT — HULL '+ship.hull;msgT=70;
       }
       if(state!=='surface')return;
-      // Always pull the astronaut clear of the opening, including when shielded.
-      if(ship.hull<hullBefore || shieldT>0 || ship.inv>0){
-        const leftEdge=pit.x-38,rightEdge=pit.x+pit.w+38;
-        ship.x=clamp(ship.x<pit.x+pit.w*.5?leftEdge:rightEdge,80,surfaceWidth-80);
-        ship.y=surfaceGroundY(ship.x)-32;ship.vy=0;ship.grounded=true;
-      }
+      // Knock the astronaut clear so one pit cannot drain all hull in a single fall.
+      const leftEdge=pit.x-42,rightEdge=pit.x+pit.w+42;
+      ship.x=clamp(ship.x<pit.x+pit.w*.5?leftEdge:rightEdge,80,surfaceWidth-80);
+      ship.y=surfaceGroundY(ship.x)-32;ship.vy=0;ship.grounded=true;
       minePitHit=false;
     }
   } else if(platform){
