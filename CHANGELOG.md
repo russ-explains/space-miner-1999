@@ -1,3 +1,6 @@
+## v1.9.27
+- Made the active 2-second shield block all hull/suit damage, including saucer bullets, saucer bombs, enemy fire, and collision impacts.
+
 ## v1.9.26
 - Changed saucer bomb blasts so they split large asteroids down by one size tier instead of destroying asteroids outright; smaller fragments are left alone.
 
