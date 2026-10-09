@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.8.8';
+const VERSION='v1.8.9';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -887,6 +887,8 @@ function updateTakeoff(){
       completePlanet();
     } else {
       planetIndex++;
+      // Start the next asteroid field with at least half a tank, but never top up fuel above that threshold.
+      ship.fuel=Math.max(ship.fuel,ship.maxFuel*.5);
       setupFlight();
     }
   }
