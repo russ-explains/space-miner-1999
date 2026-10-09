@@ -1,3 +1,6 @@
+## v1.9.11
+- Reduced the laser/gun upgrade and thruster upgrade costs from 3 gems to 2 gems each.
+
 ## v1.9.10
 - Restricted gem-bearing ore to safe ground gaps between consecutive mining pits, so no gem asteroid spawns before the first pit or beyond the last pit.
 
