@@ -1,3 +1,7 @@
+## v1.9.2
+- Added a visible upgrade gem to the small **x3 bonus landing pad**.
+- Successfully landing on that pad collects the gem and adds it to the player's unbanked gems; merely passing over it does not collect it.
+
 ## v1.9.1
 - An active 2-second shield now assists a landing when the ship touches down inside a landing pad, even if its angle or touchdown speed is outside the normal safe limits.
 - Shield-assisted landings award the standard 500-point base (multiplied by any bonus-pad multiplier) and show a brief message; the shield does not make rough-ground landings safe.
