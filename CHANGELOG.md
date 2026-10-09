@@ -1,3 +1,7 @@
+## v1.9.29
+- Disabled debug cheat shortcuts: number keys 1–4, T/L/U upgrade cheats, and I to open the upgrade screen mid-stage.
+- Removed the upgrade-screen test instructions and test-upgrade display.
+
 ## v1.9.28
 - Saucer bombs now detonate immediately when they touch the ship, as well as when their fuse expires.
 - The explosion removes one hull point if it reaches the ship, unless the active 2-second shield protects it.
