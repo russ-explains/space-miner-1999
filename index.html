@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.8.9';
+const VERSION='v1.9.0';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1339,7 +1339,8 @@ function drawFlight(){
     ctx.beginPath();ctx.arc(b.x,b.y,pulse,0,Math.PI*2);ctx.stroke();
     ctx.beginPath();ctx.arc(b.x,b.y,2.5,0,Math.PI*2);ctx.fill();
   });
-  mono();bullets.forEach(b=>ctx.fillRect(b.x-4,b.y-1,9,2));
+  ctx.fillStyle=ship.laser>=4?'#ff3030':ship.laser===3?'#ff8c24':ship.laser===2?'#ffe34d':'#fff';
+  bullets.forEach(b=>ctx.fillRect(b.x-4,b.y-1,9,2));
   ctx.fillStyle='#ff6bd6';ebullets.forEach(b=>ctx.fillRect(b.x-2,b.y-2,4,4));
   particles.forEach(pt=>{mono(pt.life/40);ctx.fillRect(pt.x,pt.y,2,2)});
   drawShip(ship.x,ship.y,1,ship.angle,keys.ArrowUp&&ship.fuel>0&&state==='flight',false,false,true);
@@ -1483,7 +1484,7 @@ function drawSurface(){
   });
   aliens.forEach(a=>{const x=a.x-cameraX;if(x>-40&&x<W+40)drawAlien(x,a.y,a.t,a.tough,a.tough&&a.hp===1)});
   if(mineUfo){ctx.save();ctx.translate(mineUfo.x,mineUfo.y);ctx.strokeStyle='#ff6bd6';ctx.fillStyle='#160018';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,34,10,0,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(0,-2,14,Math.PI,0);ctx.stroke();ctx.fillStyle='#ff6bd6';ctx.fillRect(-22,5,44,3);ctx.restore();}
-  bullets.forEach(b=>{if(b.enemy)ctx.fillStyle='#ff6bd6';else mono();ctx.fillRect(b.x-cameraX,b.y,b.enemy?5:9,2)});
+  bullets.forEach(b=>{if(b.enemy)ctx.fillStyle='#ff6bd6';else ctx.fillStyle=ship.laser>=4?'#ff3030':ship.laser===3?'#ff8c24':ship.laser===2?'#ffe34d':'#fff';ctx.fillRect(b.x-cameraX,b.y,b.enemy?5:9,2)});
   drawAstronaut(ship.x-cameraX,ship.y+18,ship.face);
   drawShieldEffect(ship.x-cameraX,ship.y+18);
   particles.forEach(pt=>{mono(pt.life/55);ctx.fillRect(pt.x-cameraX,pt.y,2,2)});
