@@ -1,3 +1,6 @@
+## v1.9.5
+- Corrected planetary pit damage so an active collision shield protects the astronaut from black-pit impacts, just as it protects against other collisions.
+
 ## v1.9.4
 - Contact with the visible black pit openings on planetary mining surfaces now costs one hull point.
 - The astronaut is moved safely to the near edge after pit contact to prevent falling through the level; pit damage is not blocked by the collision shield.
