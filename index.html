@@ -1377,17 +1377,6 @@ function drawHUD(){
   if(state==='surface'||explosionScene==='surface'&&state==='exploding'){ bar(W-(small?90:140),66,small?72:120,mineOxygen/100,'O2',mineOxygen<25&&(stageTimer>>3)%2); bar(W-(small?90:140),88,small?72:120,backpackFuel/maxBackpackFuel,'JET',backpackFuel<20&&(stageTimer>>3)%2); }
 }
 
-function drawTestUpgrades(){
-  const x=W-18, y=122, lh=17;
-  ctx.fillStyle='rgba(0,0,0,.58)';ctx.fillRect(W-190,108,174,118);
-  ctx.fillStyle='#7fffe6';arc('TEST UPGRADES',x-87,y-4,11,'center',164);
-  mono(.9);text('FUEL TANK  +80',x,y+17,11,'right');
-  text('HULL  MAX',x,y+34,11,'right');
-  text('LASER  MAX',x,y+51,11,'right');
-  text('THRUST  MAX',x,y+68,11,'right');
-  text(shieldT>0?'SHIELD  ACTIVE':'SHIELD  READY',x,y+85,11,'right');
-}
-
 function drawPopups(){
   for(const p of popups){ctx.globalAlpha=Math.min(1,p.t/20);ctx.fillStyle=ORE;text(p.txt,p.world?p.x-cameraX:p.x,p.y,13,'center')}
   ctx.globalAlpha=1;
