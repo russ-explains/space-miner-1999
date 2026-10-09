@@ -1,3 +1,6 @@
+## v1.9.25
+- Added gentle landing-pad attraction while the 2-second collision shield is active, helping guide the ship towards the nearest pad during descent without taking over steering.
+
 ## v1.9.24
 - Increased starting ship fuel from 36 to 41.4 units (15% more).
 - Slowed mining-planet oxygen drain by 30% on level 1, 20% on level 2, and 10% on level 3 and every level thereafter.
