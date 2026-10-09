@@ -1,3 +1,7 @@
+## v1.9.23
+- Enabled T, L and U ship-upgrade test controls directly on the upgrade screen, so players can cycle thrusters, cycle lasers, or max all upgrades while previewing the result.
+- The upgrade screen ship preview now uses the player's current upgrade combination, and the test keys are listed on screen.
+
 ## v1.9.22
 - Reworked player ship visuals so laser and thruster upgrades combine instead of overriding one another.
 - Added distinct classic arcade silhouettes for five thruster tiers, from the slim interceptor through twin-engine, broad freighter, swept-wing and heavy gunship designs.
