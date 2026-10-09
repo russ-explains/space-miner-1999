@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.29';
+const VERSION='v1.9.30';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -967,14 +967,16 @@ function updateSurface(){
   ship.vx += move*.34; ship.vx *= ship.grounded?.72:.94; ship.vx=clamp(ship.vx,-speed,speed);
   if(upPressed){
     if(ship.grounded){
-      ship.vy=-5.2-planetIndex*.07;ship.grounded=false;jetpackActive=false;
+      // A stronger initial hop makes it easier to reach the first platform.
+      ship.vy=-5.8-planetIndex*.07;ship.grounded=false;jetpackActive=false;
       beep(300,.08,'square',.02,200);
     } else {
       jetpackActive=true;
     }
   }
   if(jetpackActive && keys.ArrowUp && backpackFuel>0 && !ship.grounded){
-    ship.vy-=.34;backpackFuel=Math.max(0,backpackFuel-.441);
+    // Stronger sustained lift, with a modestly slower fuel burn for better control.
+    ship.vy-=.46;backpackFuel=Math.max(0,backpackFuel-.38);
     if(backpackFuel<=0)jetpackActive=false;
   } else if(!keys.ArrowUp || !jetpackActive){
     if(backpackFuel<maxBackpackFuel)backpackFuel=Math.min(maxBackpackFuel,backpackFuel+.035);
