@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.15';
+const VERSION='v1.9.16';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1168,9 +1168,29 @@ function drawShip(x,y,s=1,angle=0,thrusting=false,leftJet=false,rightJet=false,p
     }
     ctx.restore();return;
   }
-  // After the first upgrade, use the simpler triangular Level 1 design.
+  // First thruster upgrade: a slimmer version of the original ship with
+  // twin rear engines, inspired by the supplied side-view design.
+  if(player && ship.thrust>1){
+    ctx.beginPath();
+    ctx.moveTo(0,-20);ctx.lineTo(7,-12);ctx.lineTo(8,5);ctx.lineTo(5,13);
+    ctx.lineTo(-5,13);ctx.lineTo(-8,5);ctx.lineTo(-7,-12);ctx.closePath();ctx.stroke();
+    // Keep the original cockpit detail and slim wing struts.
+    ctx.beginPath();ctx.arc(0,-5,3.5,Math.PI,0);ctx.stroke();
+    line(0,-20,0,-25,1.5);
+    line(-5,5,-15,18,1.5);line(5,5,15,18,1.5);
+    line(-15,18,-18,19,1.5);line(15,18,18,19,1.5);
+    ctx.strokeRect(-7,12,5,5);ctx.strokeRect(2,12,5,5);
+    if(thrusting){
+      ctx.strokeStyle='#ffb347';ctx.lineWidth=1.5;
+      for(const ex of [-4.5,4.5]){
+        ctx.beginPath();ctx.moveTo(ex,17);ctx.lineTo(ex,25+rnd(2,5));ctx.lineTo(ex+1.5,17);ctx.stroke();
+      }
+    }
+    ctx.restore();return;
+  }
+  // A laser-only upgrade uses the simpler triangular Level 1 design.
   // Keep the original ship unchanged until an upgrade is purchased.
-  if(player && (ship.laser>1 || ship.thrust>1)){
+  if(player && ship.laser>1){
     ctx.beginPath();
     ctx.moveTo(0,-24);ctx.lineTo(13,8);ctx.lineTo(21,24);ctx.lineTo(7,20);
     ctx.lineTo(-7,20);ctx.lineTo(-21,24);ctx.lineTo(-13,8);ctx.closePath();ctx.stroke();
