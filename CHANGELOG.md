@@ -1,3 +1,7 @@
+## v1.9.24
+- Increased starting ship fuel from 36 to 41.4 units (15% more).
+- Slowed mining-planet oxygen drain by 30% on level 1, 20% on level 2, and 10% on level 3 and every level thereafter.
+
 ## v1.9.23
 - Enabled T, L and U ship-upgrade test controls directly on the upgrade screen, so players can cycle thrusters, cycle lasers, or max all upgrades while previewing the result.
 - The upgrade screen ship preview now uses the player's current upgrade combination, and the test keys are listed on screen.
