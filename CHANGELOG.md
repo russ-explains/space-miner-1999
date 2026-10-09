@@ -1,3 +1,6 @@
+## v1.9.9
+- Animated the victory-screen black-and-white starfield with a continuous diagonal scroll, evoking classic ZX Spectrum-era arcade games.
+
 ## v1.9.8
 - Moved gem-bearing yellow ore rocks into safe ground gaps between mining pits so they no longer spawn inside pit openings.
 - Strengthened pit-contact detection to cover both rim impacts and falling into the opening; pit impacts remove one hull point even during normal hit-invulnerability, while an active collision shield still blocks damage.
