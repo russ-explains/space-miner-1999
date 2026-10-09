@@ -1,3 +1,7 @@
+## v1.9.28
+- Saucer bombs now detonate immediately when they touch the ship, as well as when their fuse expires.
+- The explosion removes one hull point if it reaches the ship, unless the active 2-second shield protects it.
+
 ## v1.9.27
 - Made the active 2-second shield block all hull/suit damage, including saucer bullets, saucer bombs, enemy fire, and collision impacts.
 
