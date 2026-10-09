@@ -165,7 +165,7 @@ function loadTable(){
 let table=loadTable();
 
 let state='title',planetIndex=0,score=0,high=Math.max(store('SM4000_HI'),table[0].s),bestPlanet=store('SM4000_BEST'),gems=0,banked=0;
-let lives=4,nextLife=EXTRA_LIFE_EVERY;
+let lives=4,nextLife=EXTRA_LIFE_EVERY,lifeUpgradeBought=false;
 let ship={};
 let stars=[],shootingStars=[],asteroids=[],gasRings=[],pickups=[],planet={r:90},bullets=[],ebullets=[],aliens=[],drops=[],particles=[],popups=[];
 let cameraX=0, surfaceWidth=2400, msg='', msgT=0, stageTimer=0, deathReason='';
@@ -191,7 +191,7 @@ const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.- ';
 let actionPressed=false, upPressed=false, jetpackActive=false, endAt=-1e9, upSel=0, paused=false, shieldCharges=0, shieldT=0, testUpgrades=false;
 function canRestart(){return performance.now()-endAt>700}
 function setupTestStage(n){
-  paused=false; planetIndex=0; score=0; gems=0; banked=0; lives=4; nextLife=EXTRA_LIFE_EVERY; shieldCharges=0; shieldT=0;
+  paused=false; planetIndex=0; score=0; gems=0; banked=0; lives=4; nextLife=EXTRA_LIFE_EVERY; lifeUpgradeBought=false; shieldCharges=0; shieldT=0;
   const shortcutFuel=n===1?36:55;
   ship={fuel:shortcutFuel,maxFuel:100,hull:3,maxHull:3,laser:1,thrust:1,x:W*.22,y:H*.5,vx:0,vy:0,angle:0,av:0,grounded:false,inv:0,face:1};
   if(n===1) setupFlight();
@@ -307,7 +307,7 @@ document.querySelectorAll('[data-k]').forEach(b=>{
 
 /* ---------------------------------------------------------------- RUN */
 function resetRun(){
-  planetIndex=0;score=0;gems=0;banked=0;upSel=0;lives=4;nextLife=EXTRA_LIFE_EVERY; testUpgrades=false;
+  planetIndex=0;score=0;gems=0;banked=0;upSel=0;lives=4;nextLife=EXTRA_LIFE_EVERY;lifeUpgradeBought=false; testUpgrades=false;
   runSeed=(Math.random()*1e9)|0;
   ship={fuel:36,maxFuel:100,hull:3,maxHull:3,laser:1,thrust:1,x:W*.22,y:H*.5,vx:0,vy:0,angle:0,av:0,grounded:false,inv:0,face:1};
   setupFlight();
@@ -1071,7 +1071,7 @@ function upgradeLayout(){
     {type:'laser', label:'LASER +1',cost:3},
     {type:'thrust',label:'THRUST +',cost:3},
     {type:'shield',label:'2 SEC COLLISION SHIELD (PRESS S)',cost:2},
-    {type:'life',label:'EXTRA LIFE +1',cost:5}
+    {type:'life',label:'EXTRA LIFE +1',cost:6}
   ].map((r,i)=>({...r,y:startY+i*(rh+rowGap)}));
   const launchY=startY+rows.length*(rh+rowGap)+8;
   return {bw,bx,rh,rows,launch:{x:bx,y:launchY,w:bw,h:rh}};
@@ -1083,7 +1083,7 @@ function canBuy(type){
   if(type==='laser') return banked>=3 && ship.laser<4;
   if(type==='thrust') return banked>=3 && ship.thrust<2.4;
   if(type==='shield') return banked>=2 && shieldCharges<3;
-  if(type==='life') return banked>=5;
+  if(type==='life') return banked>=6 && !lifeUpgradeBought;
   return false;
 }
 function buy(type){
@@ -1094,7 +1094,7 @@ function buy(type){
   if(type==='laser'){banked-=3;ship.laser++}
   if(type==='thrust'){banked-=3;ship.thrust=Math.min(2.4,ship.thrust+.35)}
   if(type==='shield'){banked-=2;shieldCharges++}
-  if(type==='life'){banked-=5;lives++;sfx('extra');msg='EXTRA LIFE!';msgT=90;}
+  if(type==='life'){banked-=6;lives++;lifeUpgradeBought=true;sfx('extra');msg='EXTRA LIFE!';msgT=90;}
   sfx('gem');
 }
 
@@ -1521,6 +1521,7 @@ function drawUpgrade(){
     if(r.type==='thrust'&&ship.thrust>=2.4) info='MAX';
     if(r.type==='shield') info=shieldCharges>=3?'MAX 3':shieldCharges+' / 3';
     if(r.type==='shield'&&shieldT>0) info='ACTIVE';
+    if(r.type==='life'&&lifeUpgradeBought) info='USED';
     text(info,L.bx+L.bw-14,r.y+L.rh/2+6,13,'right');
     ctx.globalAlpha=1;
   });
