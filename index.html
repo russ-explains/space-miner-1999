@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.8';
+const VERSION='v1.9.9';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1638,15 +1638,16 @@ function drawVictoryScene(){
 function drawEnd(win){
   ctx.fillStyle='#050505';ctx.fillRect(0,0,W,H);
   if(win){
-    // Classic arcade starfield: crisp white pixels, with a few brighter stars.
+    // ZX Spectrum-style scrolling starfield: crisp monochrome pixels drifting diagonally.
     for(let i=0;i<180;i++){
-      const x=(i*137.5+23)%W;
-      const y=(i*83.7+17)%H;
+      const speed=.35+(i%7)*.16;
+      const x=((i*137.5+23-stageTimer*speed*.42)%W+W)%W;
+      const y=(i*83.7+17+stageTimer*speed*1.35)%H;
       const bright=.25+((i*7)%10)/14;
       const size=i%13===0?2:1;
       ctx.globalAlpha=bright;
-      ctx.fillStyle='#fff';ctx.fillRect(x,y,size,size);
-      if(i%19===0){ctx.globalAlpha=bright*.45;ctx.fillRect(x-2,y,5,1)}
+      ctx.fillStyle='#fff';ctx.fillRect(Math.round(x),Math.round(y),size,size);
+      if(i%19===0){ctx.globalAlpha=bright*.45;ctx.fillRect(Math.round(x)-2,Math.round(y),5,1)}
     }
     ctx.globalAlpha=1;
     ctx.fillStyle='#fff';
