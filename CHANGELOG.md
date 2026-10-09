@@ -1,3 +1,7 @@
+## v1.9.4
+- Contact with the visible black pit openings on planetary mining surfaces now costs one hull point.
+- The astronaut is moved safely to the near edge after pit contact to prevent falling through the level; pit damage is not blocked by the collision shield.
+
 ## v1.9.3
 - Increased the **EXTRA LIFE +1** upgrade cost to **6 gems**.
 - The purchased extra-life upgrade can now be bought only once per game; after purchase, the upgrade displays **USED** and stays unavailable until a new run starts.
