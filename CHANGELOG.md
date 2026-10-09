@@ -1,3 +1,7 @@
+## v1.9.3
+- Increased the **EXTRA LIFE +1** upgrade cost to **6 gems**.
+- The purchased extra-life upgrade can now be bought only once per game; after purchase, the upgrade displays **USED** and stays unavailable until a new run starts.
+
 ## v1.9.2
 - Added a visible upgrade gem to the small **x3 bonus landing pad**.
 - Successfully landing on that pad collects the gem and adds it to the player's unbanked gems; merely passing over it does not collect it.
