@@ -1,3 +1,7 @@
+## v1.9.30
+- Improved the planetary jetpack with a stronger initial hop and stronger sustained lift.
+- Reduced jetpack fuel consumption slightly so players can stay airborne longer.
+
 ## v1.9.29
 - Disabled debug cheat shortcuts: number keys 1–4, T/L/U upgrade cheats, and I to open the upgrade screen mid-stage.
 - Removed the upgrade-screen test instructions and test-upgrade display.
