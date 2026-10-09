@@ -1,3 +1,7 @@
+## v1.8.9
+- After a successful escape, players now begin the next asteroid field with at least **50% fuel**.
+- If fuel is already above half a tank, it is left unchanged; the rule uses the ship's current maximum fuel capacity.
+
 ## v1.8.8
 - Raised mining platforms progressively on each planet after level 1, by an additional **28px per level**.
 - Restyled platforms with thicker, jagged rocky undersides and asteroid-like surface details while keeping the top landing/walking edge flat.
