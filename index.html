@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.6';
+const VERSION='v1.9.7';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -988,12 +988,17 @@ function updateSurface(){
     ship.grounded=false;
     if(!minePitHit){
       minePitHit=true;
+      // Pit impacts always cost one hull, even during ordinary hit
+      // invulnerability. An active collision shield still blocks the hit.
       const hullBefore=ship.hull;
-      damage('MINING PIT IMPACT','PIT HIT',false,true);
+      if(shieldT<=0){
+        ship.hull--;ship.inv=75;shake=9;flash=.35;sfx('hit');
+        if(ship.hull<=0){lose('MINING PIT IMPACT',false);return;}
+        msg='PIT HIT — HULL '+ship.hull;msgT=70;
+      }
       if(state!=='surface')return;
-      // If the shield or temporary invulnerability prevented damage, still
-      // keep the astronaut from falling through the planet.
-      if(ship.hull<hullBefore || ship.inv>0){
+      // Always pull the astronaut clear of the opening, including when shielded.
+      if(ship.hull<hullBefore || shieldT>0 || ship.inv>0){
         const leftEdge=pit.x-38,rightEdge=pit.x+pit.w+38;
         ship.x=clamp(ship.x<pit.x+pit.w*.5?leftEdge:rightEdge,80,surfaceWidth-80);
         ship.y=surfaceGroundY(ship.x)-32;ship.vy=0;ship.grounded=true;
@@ -1462,10 +1467,12 @@ function drawSurface(){
     const depth=82;
     ctx.fillStyle='#020202';ctx.globalAlpha=.95;
     ctx.beginPath();ctx.moveTo(x,rimY);ctx.quadraticCurveTo(x+h.w*.5,rimY+depth,x+h.w,rimY);ctx.lineTo(x+h.w,rimY+8);ctx.lineTo(x,rimY+8);ctx.closePath();ctx.fill();
-    ctx.strokeStyle=p.tint;ctx.globalAlpha=.95;ctx.lineWidth=3;
+    ctx.strokeStyle='#ff3030';ctx.globalAlpha=1;ctx.lineWidth=3;
     ctx.beginPath();ctx.moveTo(x,rimY);ctx.quadraticCurveTo(x+h.w*.5,rimY+depth,x+h.w,rimY);ctx.stroke();
-    ctx.globalAlpha=.5;ctx.lineWidth=1;
+    ctx.globalAlpha=.9;ctx.lineWidth=2;
     ctx.beginPath();ctx.moveTo(x+6,rimY+3);ctx.quadraticCurveTo(x+h.w*.5,rimY+depth-10,x+h.w-6,rimY+3);ctx.stroke();
+    ctx.globalAlpha=.35;ctx.fillStyle='#ff2020';
+    ctx.fillRect(x,rimY-2,h.w,3);
     ctx.globalAlpha=1;
   }});
   minePlatforms.forEach((pl,i)=>{
