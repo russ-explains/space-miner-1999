@@ -936,13 +936,17 @@ function updateLander(){
   if(ship.y+22>=groundY){
     const vertical=Math.abs(ship.vy),horizontal=Math.abs(ship.vx);
     const upright=Math.abs(Math.atan2(Math.sin(ship.angle),Math.cos(ship.angle)));
-    if(pad && vertical<.9 && horizontal<.65 && upright<.30){
-      const pts=(500+Math.round((1-vertical/.9)*250))*pad.mult;
+    const safeLanding=vertical<.9 && horizontal<.65 && upright<.30;
+    const shieldLanding=!!pad && shieldT>0 && !safeLanding;
+    if(pad && (safeLanding || shieldT>0)){
+      // An active shield can stabilise a rough touchdown, but only on a landing pad.
+      const pts=(shieldLanding?500:500+Math.round((1-vertical/.9)*250))*pad.mult;
       addScore(pts,ship.x,ship.y-40);
       sfx('land');shake=3;
       ship.angle=0;ship.av=0;
       setupSurface();
       if(pad.mult>1){msg='x'+pad.mult+' BONUS PAD — '+pts+' POINTS';msgT=130}
+      else if(shieldLanding){msg='SHIELD-ASSISTED LANDING';msgT=100}
     } else if(!pad) lose('BAD LANDING — CRASHED ON ROUGH GROUND',true);
     else if(vertical>=.9) lose('BAD LANDING — DESCENT TOO FAST',true);
     else if(horizontal>=.65) lose('BAD LANDING — TOO MUCH SIDEWAYS SPEED',true);
