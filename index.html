@@ -42,13 +42,38 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.20';
+const VERSION='v1.9.21';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
 
 /* ---------------------------------------------------------------- AUDIO */
-let audioCtx=null, thrustNode=null, noiseBuf=null;
+let audioCtx=null, thrustNode=null, noiseBuf=null, workshopNode=null;
+function setWorkshopSound(on){
+  if(!audioCtx)return;
+  if(on){
+    if(workshopNode)return;
+    const src=audioCtx.createBufferSource();src.buffer=getNoise();src.loop=true;
+    const filter=audioCtx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=520;filter.Q.value=.7;
+    const gain=audioCtx.createGain();gain.gain.value=.018;
+    src.connect(filter);filter.connect(gain);gain.connect(audioCtx.destination);src.start();
+    const osc=audioCtx.createOscillator(),drillFilter=audioCtx.createBiquadFilter(),drillGain=audioCtx.createGain();
+    osc.type='sawtooth';osc.frequency.value=95;
+    drillFilter.type='lowpass';drillFilter.frequency.value=280;
+    drillGain.gain.value=.008;
+    osc.connect(drillFilter);drillFilter.connect(drillGain);drillGain.connect(audioCtx.destination);osc.start();
+    workshopNode={src,gain,osc,drillGain};
+  }else if(workshopNode){
+    const w=workshopNode;workshopNode=null;
+    const now=audioCtx.currentTime;
+    w.gain.gain.setTargetAtTime(0,now,.06);w.drillGain.gain.setTargetAtTime(0,now,.06);
+    w.src.stop(now+.3);w.osc.stop(now+.3);
+  }
+}
+function workshopHammer(){
+  if(!audioCtx)return;
+  noise(.055,.025,1800);beep(170,.045,'square',.012,-35);
+}
 function initAudio(){
   if(!audioCtx){
     const AC=window.AudioContext||window.webkitAudioContext;
@@ -490,7 +515,7 @@ function respawnSurface(){
   ready(planets[planetIndex].name,'OXYGEN LIMITED  •  JET TO UPPER PLATFORMS');
 }
 
-function setupUpgrade(){state='upgrade';stageTimer=0;upSel=0;}
+function setupUpgrade(){state='upgrade';stageTimer=0;upSel=0;initAudio();setWorkshopSound(true);}
 
 function buildCavern(){
   const R=rng(runSeed+planetIndex*977);
@@ -1761,6 +1786,8 @@ function drawReady(){
 /* ----------------------------------------------------------------- LOOP */
 function update(){
   if(paused){ actionPressed=false; return; }
+  if(state!=='upgrade')setWorkshopSound(false);
+  else if(audioCtx && stageTimer%52===0)workshopHammer();
   if(pitFlashT>0)pitFlashT--;
   if(readyT>0){readyT--;}
   else if(state==='flight')updateFlight();
