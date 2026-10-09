@@ -989,7 +989,7 @@ function updateSurface(){
     if(!minePitHit){
       minePitHit=true;
       const hullBefore=ship.hull;
-      damage('MINING PIT IMPACT','PIT HIT',false,false);
+      damage('MINING PIT IMPACT','PIT HIT',false,true);
       if(state!=='surface')return;
       // If the shield or temporary invulnerability prevented damage, still
       // keep the astronaut from falling through the planet.
