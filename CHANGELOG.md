@@ -1,3 +1,7 @@
+## v1.9.6
+- Simplified the victory screen to **CONGRATS YOU MADE IT** over a classic arcade starfield.
+- Replaced the victory artwork and score display with **PRESS ANY KEY TO PLAY AGAIN**.
+
 ## v1.9.5
 - Corrected planetary pit damage so an active collision shield protects the astronaut from black-pit impacts, just as it protects against other collisions.
 
