@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.27';
+const VERSION='v1.9.28';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -868,13 +868,15 @@ function updateUfo(){
     b.vx+=(desiredX-b.vx)*.035;
     b.vy+=(desiredY-b.vy)*.035;
     b.x+=b.vx-scroll;b.y+=b.vy;
-    if(b.age>=120){
-      // Keep the ship's collision area tight to the small on-screen explosion.
+    // A bomb detonates early if it physically touches the ship, or when its
+    // one-second fuse expires. The blast can only remove one hull point.
+    const shipContact=Math.hypot(ship.x-b.x,ship.y-b.y)<18;
+    if(b.age>=120 || shipContact){
       const shipBlastRadius=34;
       const asteroidBlastRadius=408;
       burst(b.x,b.y,28);
-      if(Math.hypot(ship.x-b.x,ship.y-b.y)<shipBlastRadius && ship.inv===0){
-        if(shieldT<=0) damage('HULL DESTROYED — SAUCER BOMB','SAUCER BOMB');
+      if(Math.hypot(ship.x-b.x,ship.y-b.y)<shipBlastRadius && ship.inv===0 && shieldT<=0){
+        damage('HULL DESTROYED — SAUCER BOMB','SAUCER BOMB');
       }
       // Bombs only damage the largest asteroid tier, splitting each hit
       // asteroid down by one size step rather than clearing it completely.
