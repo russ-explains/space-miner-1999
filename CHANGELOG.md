@@ -1,3 +1,7 @@
+## v1.9.15
+- Added the Level 2 maximum-upgrade ship design when both laser and thruster upgrades are maxed: red wing laser emitters, twin engine nozzles, and matching twin/triple thrust effects.
+- The original ship remains unchanged before upgrades, and the simpler triangular Level 1 design remains in use until both upgrade types reach maximum.
+
 ## v1.9.14
 - Kept the existing player ship unchanged until the first laser or thruster upgrade is purchased.
 - After either upgrade, the player ship switches to the simple triangular white wireframe design; non-player ships and previews keep their existing drawing.
