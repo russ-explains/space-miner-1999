@@ -1,3 +1,6 @@
+## v1.9.12
+- Added a brief burst of tiny flickering pixel flames around the astronaut when a red mining pit hit causes damage; the effect lasts about one second.
+
 ## v1.9.11
 - Reduced the laser/gun upgrade and thruster upgrade costs from 3 gems to 2 gems each.
 
