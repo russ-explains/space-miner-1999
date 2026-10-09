@@ -1,3 +1,6 @@
+## v1.9.10
+- Restricted gem-bearing ore to safe ground gaps between consecutive mining pits, so no gem asteroid spawns before the first pit or beyond the last pit.
+
 ## v1.9.9
 - Animated the victory-screen black-and-white starfield with a continuous diagonal scroll, evoking classic ZX Spectrum-era arcade games.
 
