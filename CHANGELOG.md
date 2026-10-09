@@ -1,3 +1,7 @@
+## v1.9.16
+- Added a slimmer version of the original ship with two small rear engines when the player buys the first thruster upgrade.
+- Preserved the original ship before upgrades, the triangular Level 1 design for laser-only upgrades, and the Level 2 design for maximum laser and thruster upgrades.
+
 ## v1.9.15
 - Added the Level 2 maximum-upgrade ship design when both laser and thruster upgrades are maxed: red wing laser emitters, twin engine nozzles, and matching twin/triple thrust effects.
 - The original ship remains unchanged before upgrades, and the simpler triangular Level 1 design remains in use until both upgrade types reach maximum.
