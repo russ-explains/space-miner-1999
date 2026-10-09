@@ -1,3 +1,8 @@
+## v1.9.22
+- Reworked player ship visuals so laser and thruster upgrades combine instead of overriding one another.
+- Added distinct classic arcade silhouettes for five thruster tiers, from the slim interceptor through twin-engine, broad freighter, swept-wing and heavy gunship designs.
+- Laser tiers now add progressively larger red weapon details on top of whichever hull matches the current thruster level. The original ship remains unchanged before any upgrade.
+
 ## v1.9.21
 - Added subtle workshop ambience to the upgrade screen: quiet distant drill-like noise and a soft periodic hammering sound, using the existing Web Audio system.
 - Workshop ambience stops when leaving the upgrade screen and does not add a separate game-loop timer.
