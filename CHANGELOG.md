@@ -1,3 +1,7 @@
+## v1.9.20
+- Made the supplied triangular ship design appear whenever the player has any laser upgrade, unless the maximum-upgrade Level 2 design takes priority.
+- Kept the slim twin-thruster design for thruster upgrades when no laser upgrade has been purchased.
+
 ## v1.9.19
 - Added the I key as a test shortcut to open the normal between-level upgrade screen during gameplay.
 
