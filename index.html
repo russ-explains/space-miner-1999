@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.0';
+const VERSION='v1.9.6';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1620,11 +1620,26 @@ function drawVictoryScene(){
 function drawEnd(win){
   ctx.fillStyle='#050505';ctx.fillRect(0,0,W,H);
   if(win){
-    ctx.fillStyle=ORE;arc('CONGRATULATIONS!',W/2,H*.12,30);
-    mono();text('PLANET 5 — MISSION COMPLETE!',W/2,H*.18,15,'center');
-    drawVictoryScene();
-    text('SCORE '+pad6(score),W/2,H*.87,18,'center');
-    if(canRestart()&&(stageTimer>>5)%2===0){ctx.fillStyle='#fff';arc('PRESS ANY KEY',W/2,H*.94,13)}
+    // Classic arcade starfield: crisp white pixels, with a few brighter stars.
+    for(let i=0;i<180;i++){
+      const x=(i*137.5+23)%W;
+      const y=(i*83.7+17)%H;
+      const bright=.25+((i*7)%10)/14;
+      const size=i%13===0?2:1;
+      ctx.globalAlpha=bright;
+      ctx.fillStyle='#fff';ctx.fillRect(x,y,size,size);
+      if(i%19===0){ctx.globalAlpha=bright*.45;ctx.fillRect(x-2,y,5,1)}
+    }
+    ctx.globalAlpha=1;
+    ctx.fillStyle='#fff';
+    arc('CONGRATS YOU MADE IT',W/2,H*.44,W<520?22:30,'center',W*.94);
+    if(canRestart()&&(stageTimer>>5)%2===0){
+      ctx.fillStyle=ORE;
+      arc('PRESS ANY KEY TO PLAY AGAIN',W/2,H*.59,W<520?10:14,'center',W*.94);
+    } else {
+      ctx.fillStyle=ORE;
+      arc('PRESS ANY KEY TO PLAY AGAIN',W/2,H*.59,W<520?10:14,'center',W*.94);
+    }
     return;
   }
   ctx.fillStyle='#ff5050';arc('GAME OVER',W/2,H*.2,34);
