@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.22';
+const VERSION='v1.9.23';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -295,6 +295,23 @@ addEventListener('keydown',e=>{
       return;
     }
     setupTestStage(shortcut);
+    return;
+  }
+  // Ship design testing controls also work directly on the upgrade screen.
+  if(!e.repeat&&state==='upgrade'&&e.code==='KeyT'){
+    ship.thrust=Math.min(2.4,Math.round((ship.thrust+.35)*100)/100);
+    msg=ship.thrust>=2.4?'THRUSTERS MAX':'THRUSTERS '+ship.thrust.toFixed(1);msgT=75;sfx('gem');
+    return;
+  }
+  if(!e.repeat&&state==='upgrade'&&e.code==='KeyL'){
+    ship.laser=Math.min(4,ship.laser+1);
+    msg=ship.laser>=4?'LASERS MAX':'LASER LEVEL '+ship.laser;msgT=75;sfx('gem');
+    return;
+  }
+  if(!e.repeat&&state==='upgrade'&&e.code==='KeyU'){
+    testUpgrades=true;
+    ship.maxFuel=180;ship.fuel=ship.maxFuel;ship.maxHull=3;ship.hull=ship.maxHull;ship.laser=4;ship.thrust=2.4;
+    shieldCharges=3;shieldT=0;msg='ALL UPGRADES MAX';msgT=75;sfx('extra');
     return;
   }
   // Test shortcut: I opens the normal between-level upgrade screen.
@@ -1641,7 +1658,7 @@ function drawUpgrade(){
   const L=upgradeLayout();
   ctx.fillStyle=ORE;arc('SHIP UPGRADE',W/2,H*.09,26);
   mono();text('BANKED GEMS: '+banked,W/2,H*.09+32,16,'center');
-  drawShip(L.bx+40,H*.25,2,0,false);
+  drawShip(L.bx+40,H*.25,2,0,false,false,false,true);
   const sx=L.bx+100;
   text('HULL '+ship.hull+' / '+ship.maxHull,sx,H*.2,15);
   text('FUEL '+(ship.fuel|0)+' / '+ship.maxFuel,sx,H*.2+22,15);
@@ -1668,6 +1685,7 @@ function drawUpgrade(){
   ctx.strokeStyle=ORE;ctx.lineWidth=3;ctx.strokeRect(l.x,l.y,l.w,l.h);ctx.fillStyle='rgba(255,211,107,.12)';ctx.fillRect(l.x,l.y,l.w,l.h);
   ctx.fillStyle=ORE;arc('LAUNCH > '+planets[planetIndex+1].name,W/2,l.y+l.h/2+7,16,'center',l.w-16);
   mono(.6);text(W<520?'TAP, OR ↑↓ + SPACE / ENTER':'UP/DOWN SELECT • SPACE BUY • ENTER LAUNCH • OR TAP',W/2,l.y+l.h+24,11,'center');
+  ctx.fillStyle='#7fffe6';text('TEST SHIP: T = THRUST  •  L = LASER  •  U = MAX ALL',W/2,l.y+l.h+43,11,'center');
   ctx.globalAlpha=.65;text(VERSION,W-18,H-18,12,'right');ctx.globalAlpha=1;
 }
 
