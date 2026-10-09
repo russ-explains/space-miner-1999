@@ -1,3 +1,6 @@
+## v1.9.13
+- Replaced the mining-pit flame effect with a lightweight red/yellow astronaut colour flash that alternates briefly and returns to the normal suit colour after one second.
+
 ## v1.9.12
 - Added a brief burst of tiny flickering pixel flames around the astronaut when a red mining pit hit causes damage; the effect lasts about one second.
 
