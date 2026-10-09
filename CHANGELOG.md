@@ -1,3 +1,7 @@
+## v1.9.0
+- Laser shots now change colour as the weapon is upgraded: **Level 1 white**, **Level 2 yellow**, **Level 3 orange**, **Level 4 red**.
+- Applied the colour progression to both asteroid-flight and mining gameplay; enemy shots keep their existing colour.
+
 ## v1.8.9
 - After a successful escape, players now begin the next asteroid field with at least **50% fuel**.
 - If fuel is already above half a tank, it is left unchanged; the rule uses the ship's current maximum fuel capacity.
