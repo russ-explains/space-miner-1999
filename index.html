@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.8.7';
+const VERSION='v1.8.8';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -430,10 +430,12 @@ function setupSurface(){
   minePlatformScroll=0; mineUfo={x:W*.78,y:90,vx:-1.15,t:0,fire:90,hp:12};
   mineHoles=[]; minePlatforms=[]; minePitHit=false;
   const gap=260;
+  // Keep level 1 familiar, then raise the mining platforms progressively on later planets.
+  const levelRise=Math.max(0,planetIndex)*28;
   for(let x=300,i=0;x<surfaceWidth-420;x+=gap,i++){
     const w=130+(i%3)*22;
-    minePlatforms.push({x:x,w,y:surfaceTerrainY(x)-105-(i%2)*55,h:10,upper:true});
-    if(i%3!==1) minePlatforms.push({x:x+90,w:80,y:surfaceTerrainY(x+90)-205,h:10,upper:true});
+    minePlatforms.push({x:x,w,y:surfaceTerrainY(x)-105-(i%2)*55-levelRise,h:10,upper:true});
+    if(i%3!==1) minePlatforms.push({x:x+90,w:80,y:surfaceTerrainY(x+90)-205-levelRise,h:10,upper:true});
     mineHoles.push({x:x+150,w:(i%4===0?92:i%2===0?72:58)});
   }
   aliens=Array.from({length:p.aliens},(_,i)=>{
@@ -1448,7 +1450,27 @@ function drawSurface(){
     ctx.beginPath();ctx.moveTo(x+6,rimY+3);ctx.quadraticCurveTo(x+h.w*.5,rimY+depth-10,x+h.w-6,rimY+3);ctx.stroke();
     ctx.globalAlpha=1;
   }});
-  minePlatforms.forEach(pl=>{const x=pl.x-cameraX;if(x>-160&&x<W+160){ctx.strokeStyle=p.tint;ctx.lineWidth=3;ctx.fillStyle='rgba(245,245,245,.08)';ctx.fillRect(x,pl.y,pl.w,pl.h);ctx.strokeRect(x,pl.y,pl.w,pl.h);}});
+  minePlatforms.forEach((pl,i)=>{
+    const x=pl.x-cameraX;
+    if(x<-160||x>W+160)return;
+    // Flat top keeps the platforms fair to land and walk on; the underside is jagged like asteroid rock.
+    const depth=13+(i%3)*3,step=12,seed=i*7+Math.floor(pl.x*.03);
+    ctx.beginPath();ctx.moveTo(x,pl.y+2);ctx.lineTo(x+pl.w,pl.y+2);
+    for(let k=Math.ceil(pl.w/step);k>=0;k--){
+      const px=x+Math.min(pl.w,k*step);
+      const jag=5+((Math.sin(seed+k*2.17)+1)*.5)*depth;
+      ctx.lineTo(px,pl.y+jag);
+    }
+    ctx.closePath();ctx.fillStyle='rgba(115,115,115,.22)';ctx.fill();
+    ctx.strokeStyle=p.tint;ctx.lineWidth=2;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x,pl.y);ctx.lineTo(x+pl.w,pl.y);ctx.stroke();
+    ctx.globalAlpha=.45;ctx.lineWidth=1;
+    for(let k=1;k<Math.floor(pl.w/28);k++){
+      const cx=x+k*28,cy=pl.y+5+((Math.sin(seed+k*3.1)+1)*.5)*depth;
+      ctx.beginPath();ctx.moveTo(cx-4,cy);ctx.lineTo(cx+2,cy+3);ctx.lineTo(cx+6,cy-1);ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+  });
   drops.forEach(d=>{if(d.taken)return;const x=d.x-cameraX;if(x<-60||x>W+60)return;
     if(d.type==='gem')drawGem(x,d.y,ORE);
     if(d.type==='backpack'){ctx.strokeStyle='#7fffe6';ctx.fillStyle='#7fffe6';ctx.lineWidth=2;ctx.strokeRect(x-9,d.y-10,18,20);text('J',x,d.y+5,11,'center');}
