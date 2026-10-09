@@ -1,3 +1,7 @@
+## v1.9.14
+- Kept the existing player ship unchanged until the first laser or thruster upgrade is purchased.
+- After either upgrade, the player ship switches to the simple triangular white wireframe design; non-player ships and previews keep their existing drawing.
+
 ## v1.9.13
 - Replaced the mining-pit flame effect with a lightweight red/yellow astronaut colour flash that alternates briefly and returns to the normal suit colour after one second.
 
