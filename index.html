@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.18';
+const VERSION='v1.9.19';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -186,7 +186,7 @@ let titleRocks=[],demoT=0;
 
 /* ---------------------------------------------------------------- INPUT */
 const keys={};
-const GAME_KEYS=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','Enter','KeyW','KeyS','KeyU','KeyT','KeyL','Digit1','Digit2','Digit3','Digit4'];
+const GAME_KEYS=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','Enter','KeyW','KeyS','KeyU','KeyT','KeyL','KeyI','Digit1','Digit2','Digit3','Digit4'];
 const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.- ';
 let actionPressed=false, upPressed=false, jetpackActive=false, endAt=-1e9, upSel=0, paused=false, shieldCharges=0, shieldT=0, testUpgrades=false;
 function canRestart(){return performance.now()-endAt>700}
@@ -270,6 +270,12 @@ addEventListener('keydown',e=>{
       return;
     }
     setupTestStage(shortcut);
+    return;
+  }
+  // Test shortcut: I opens the normal between-level upgrade screen.
+  if(!e.repeat&&e.code==='KeyI'&&!isMenu()&&state!=='exploding'){
+    setupUpgrade();
+    sfx('land');
     return;
   }
   // Test-only ship upgrade controls: press T to cycle thruster levels,
