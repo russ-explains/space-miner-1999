@@ -1,3 +1,6 @@
+## v1.9.18
+- Made the ship shown on the planet surface use the player's current ship design, including the twin-thruster and maximum-upgrade variants.
+
 ## v1.9.17
 - Added test controls during gameplay: press T to increase thruster level up to maximum, and L to increase laser level up to maximum. Ship artwork updates immediately as levels change.
 
