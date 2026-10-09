@@ -1,3 +1,7 @@
+## v1.9.7
+- Changed planetary mining pits to have bright red rims and red inner highlights so they stand out clearly.
+- Pit contact now removes one hull point even during ordinary hit-invulnerability; an active collision shield still blocks the damage and moves the astronaut clear of the pit.
+
 ## v1.9.6
 - Simplified the victory screen to **CONGRATS YOU MADE IT** over a classic arcade starfield.
 - Replaced the victory artwork and score display with **PRESS ANY KEY TO PLAY AGAIN**.
