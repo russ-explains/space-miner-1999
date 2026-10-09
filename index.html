@@ -981,20 +981,29 @@ function updateSurface(){
   const ground=surfaceGroundY(ship.x)-32;
   let platform=null;
   for(const pl of minePlatforms){if(ship.x>pl.x&&ship.x<pl.x+pl.w&&Math.abs((ship.y+32)-pl.y)<28&&ship.vy>=0){platform=pl;break}}
-  if(platform){ship.y=platform.y-32;ship.vy=0;ship.grounded=true;} else if(ship.y>=ground){
-    const inHole=mineHoles.some(h=>ship.x>h.x&&ship.x<h.x+h.w);
-    if(inHole){
-      // Going below the planet's normal surface level means the astronaut has fallen into a hole.
-      // Treat that immediately as a one-hull fall/impact.
-      ship.grounded=false;
-      if(!minePitHit && ship.inv===0){
-        minePitHit=true;
-        if(damage('MINING PIT IMPACT','PIT HIT',false,true))return;
-        ship.x=clamp(ship.x-70,80,surfaceWidth-80);
-        ship.y=surfaceGroundY(ship.x)-32; ship.vy=0; ship.grounded=true;
-        minePitHit=false;
+  // Treat the visible black pit openings as hazards: contact with the opening
+  // costs one hull point, then places the astronaut safely beside the pit.
+  const pit=mineHoles.find(h=>ship.x+12>h.x&&ship.x-12<h.x+h.w);
+  if(pit && ship.y+32>=surfaceTerrainY(ship.x)-2 && !platform){
+    ship.grounded=false;
+    if(!minePitHit){
+      minePitHit=true;
+      const hullBefore=ship.hull;
+      damage('MINING PIT IMPACT','PIT HIT',false,true);
+      if(state!=='surface')return;
+      // If the shield or temporary invulnerability prevented damage, still
+      // keep the astronaut from falling through the planet.
+      if(ship.hull<hullBefore || ship.inv>0){
+        const leftEdge=pit.x-38,rightEdge=pit.x+pit.w+38;
+        ship.x=clamp(ship.x<pit.x+pit.w*.5?leftEdge:rightEdge,80,surfaceWidth-80);
+        ship.y=surfaceGroundY(ship.x)-32;ship.vy=0;ship.grounded=true;
       }
-    } else {ship.y=ground;ship.vy=0;ship.grounded=true;}
+      minePitHit=false;
+    }
+  } else if(platform){
+    ship.y=platform.y-32;ship.vy=0;ship.grounded=true;
+  } else if(ship.y>=ground){
+    ship.y=ground;ship.vy=0;ship.grounded=true;
   } else ship.grounded=false;
   cameraX=clamp(ship.x-W*.35,0,Math.max(0,surfaceWidth-W));
   mineOxygen=Math.max(0,mineOxygen-.060); o2=mineOxygen;
