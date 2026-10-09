@@ -1,3 +1,7 @@
+## v1.8.8
+- Raised mining platforms progressively on each planet after level 1, by an additional **28px per level**.
+- Restyled platforms with thicker, jagged rocky undersides and asteroid-like surface details while keeping the top landing/walking edge flat.
+
 ## v1.8.7
 - Increased the **EXTRA LIFE +1** upgrade cost from **4 gems to 5 gems**.
 
