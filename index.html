@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.12';
+const VERSION='v1.9.13';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -175,7 +175,7 @@ let cavernNodes=[],cavernSpikes=[],runSeed=1;
 let pads=[],padHalf=62,o2=100;
 let landerPeakScale=.35,landerRoughness=18,landerPeakCount=2,landerAsteroidCount=4;
 let minePlatforms=[], mineHoles=[], mineUfo=null, backpackFuel=100, maxBackpackFuel=100;
-let mineOxygen=100, mineOxygenMax=100, minePlatformScroll=0, minePitHit=false, pitBurnT=0;
+let mineOxygen=100, mineOxygenMax=100, minePlatformScroll=0, minePitHit=false, pitFlashT=0;
 let mineShipFuel=0, mineShipFuelRequired=3;
 let dist=0,tripDist=1,scroll=FLY_BASE,nextRock=0,nextRing=0,section=0,beatT=0,beat=0,ufo=null,saucerBombs=[];
 let readyT=0,readyA='',readyB='';
@@ -428,7 +428,7 @@ function setupSurface(){
   mineOxygenMax=100; mineOxygen=100; maxBackpackFuel=100; backpackFuel=45;
   mineShipFuel=0; mineShipFuelRequired=3;
   minePlatformScroll=0; mineUfo={x:W*.78,y:90,vx:-1.15,t:0,fire:90,hp:12};
-  mineHoles=[]; minePlatforms=[]; minePitHit=false; pitBurnT=0;
+  mineHoles=[]; minePlatforms=[]; minePitHit=false; pitFlashT=0;
   const gap=260;
   // Keep level 1 familiar, then raise the mining platforms progressively on later planets.
   const levelRise=Math.max(0,planetIndex)*28;
@@ -1005,7 +1005,7 @@ function updateSurface(){
       // Pit collision bypasses ordinary hit-invulnerability so every actual
       // impact costs a hull point. Only an active collision shield blocks it.
       if(shieldT<=0){
-        ship.hull--;ship.inv=75;shake=9;flash=.35;pitBurnT=60;sfx('hit');
+        ship.hull--;ship.inv=75;shake=9;flash=.35;pitFlashT=60;sfx('hit');
         if(ship.hull<=0){lose('MINING PIT IMPACT',false);return;}
         msg='PIT HIT — HULL '+ship.hull;msgT=70;
       }
@@ -1257,10 +1257,13 @@ function drawLanderGround(){
 function drawAstronaut(x,y,face){
   if(hideShip||blinking()) return;
   ctx.save();ctx.translate(x,y);mono();ctx.lineWidth=2;
+  // Briefly flash red/yellow after a pit impact, then return to the normal suit colour.
+  const hitFlash=pitFlashT>0?(Math.floor((60-pitFlashT)/8)%2===0?'#ff3b3b':'#ffe34d'):null;
+  if(hitFlash){ctx.strokeStyle=hitFlash;ctx.fillStyle=hitFlash;}
   // Tiny backpack and visible jet exhaust while the jetpack is firing.
   ctx.strokeRect(-11,-14,5,11);
   ctx.strokeRect(-7,-15,14,18);ctx.beginPath();ctx.arc(0,-21,8,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle='#7fd8ff';ctx.fillRect(face>0?1:-6,-24,5,4);mono();
+  ctx.fillStyle='#7fd8ff';ctx.fillRect(face>0?1:-6,-24,5,4);mono();if(hitFlash){ctx.strokeStyle=hitFlash;ctx.fillStyle=hitFlash;}
   const step=Math.abs(ship.vx)>.3&&ship.grounded?Math.sin(stageTimer*.3)*3:0;
   line(-6,3,-9+step,14);line(6,3,9-step,14);line(-7,-8,-13,-1);line(7,-8,13,-1);
   line(face*7,-6,face*17,-6,2);
@@ -1269,22 +1272,6 @@ function drawAstronaut(x,y,face){
     ctx.strokeStyle='#7fffe6';ctx.fillStyle='#7fffe6';
     ctx.beginPath();ctx.moveTo(-8,-2);ctx.lineTo(-8,-2+flicker+6);ctx.lineTo(-5,-2+flicker+11);ctx.lineTo(-2,-2+flicker+6);ctx.closePath();ctx.stroke();
     ctx.beginPath();ctx.moveTo(8,-2);ctx.lineTo(8,-2+flicker+6);ctx.lineTo(5,-2+flicker+11);ctx.lineTo(2,-2+flicker+6);ctx.closePath();ctx.stroke();
-  }
-  ctx.restore();
-}
-function drawPitFlames(x,y){
-  if(pitBurnT<=0)return;
-  // Tiny pixel-art flames flicker around the astronaut for about one second.
-  const flick=stageTimer;
-  ctx.save();ctx.translate(x,y);
-  for(let i=0;i<9;i++){
-    const side=i%2===0?-1:1;
-    const fx=side*(7+(i%4)*3);
-    const fy=-24+((i*11+flick*2)%34);
-    const h=5+((i+flick)%4)*2;
-    ctx.fillStyle=i%3===0?'#fff1a6':i%2===0?'#ffb52e':'#ff542b';
-    ctx.beginPath();
-    ctx.moveTo(fx-2,fy+4);ctx.lineTo(fx+((flick+i)%3)-1,fy-h);ctx.lineTo(fx+3,fy+4);ctx.closePath();ctx.fill();
   }
   ctx.restore();
 }
@@ -1535,7 +1522,6 @@ function drawSurface(){
   if(mineUfo){ctx.save();ctx.translate(mineUfo.x,mineUfo.y);ctx.strokeStyle='#ff6bd6';ctx.fillStyle='#160018';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,34,10,0,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(0,-2,14,Math.PI,0);ctx.stroke();ctx.fillStyle='#ff6bd6';ctx.fillRect(-22,5,44,3);ctx.restore();}
   bullets.forEach(b=>{if(b.enemy)ctx.fillStyle='#ff6bd6';else ctx.fillStyle=ship.laser>=4?'#ff3030':ship.laser===3?'#ff8c24':ship.laser===2?'#ffe34d':'#fff';ctx.fillRect(b.x-cameraX,b.y,b.enemy?5:9,2)});
   drawAstronaut(ship.x-cameraX,ship.y+18,ship.face);
-  drawPitFlames(ship.x-cameraX,ship.y+18);
   drawShieldEffect(ship.x-cameraX,ship.y+18);
   particles.forEach(pt=>{mono(pt.life/55);ctx.fillRect(pt.x-cameraX,pt.y,2,2)});
   drawHUD();mono();text('GEMS '+gems+'  •  SHIP FUEL '+mineShipFuel+'/'+mineShipFuelRequired,W/2,122,13,'center');
@@ -1703,6 +1689,7 @@ function drawReady(){
 /* ----------------------------------------------------------------- LOOP */
 function update(){
   if(paused){ actionPressed=false; return; }
+  if(pitFlashT>0)pitFlashT--;
   if(readyT>0){readyT--;}
   else if(state==='flight')updateFlight();
   else if(state==='lander')updateLander();
