@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.11';
+const VERSION='v1.9.12';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -175,7 +175,7 @@ let cavernNodes=[],cavernSpikes=[],runSeed=1;
 let pads=[],padHalf=62,o2=100;
 let landerPeakScale=.35,landerRoughness=18,landerPeakCount=2,landerAsteroidCount=4;
 let minePlatforms=[], mineHoles=[], mineUfo=null, backpackFuel=100, maxBackpackFuel=100;
-let mineOxygen=100, mineOxygenMax=100, minePlatformScroll=0, minePitHit=false;
+let mineOxygen=100, mineOxygenMax=100, minePlatformScroll=0, minePitHit=false, pitBurnT=0;
 let mineShipFuel=0, mineShipFuelRequired=3;
 let dist=0,tripDist=1,scroll=FLY_BASE,nextRock=0,nextRing=0,section=0,beatT=0,beat=0,ufo=null,saucerBombs=[];
 let readyT=0,readyA='',readyB='';
@@ -428,7 +428,7 @@ function setupSurface(){
   mineOxygenMax=100; mineOxygen=100; maxBackpackFuel=100; backpackFuel=45;
   mineShipFuel=0; mineShipFuelRequired=3;
   minePlatformScroll=0; mineUfo={x:W*.78,y:90,vx:-1.15,t:0,fire:90,hp:12};
-  mineHoles=[]; minePlatforms=[]; minePitHit=false;
+  mineHoles=[]; minePlatforms=[]; minePitHit=false; pitBurnT=0;
   const gap=260;
   // Keep level 1 familiar, then raise the mining platforms progressively on later planets.
   const levelRise=Math.max(0,planetIndex)*28;
@@ -1005,7 +1005,7 @@ function updateSurface(){
       // Pit collision bypasses ordinary hit-invulnerability so every actual
       // impact costs a hull point. Only an active collision shield blocks it.
       if(shieldT<=0){
-        ship.hull--;ship.inv=75;shake=9;flash=.35;sfx('hit');
+        ship.hull--;ship.inv=75;shake=9;flash=.35;pitBurnT=60;sfx('hit');
         if(ship.hull<=0){lose('MINING PIT IMPACT',false);return;}
         msg='PIT HIT — HULL '+ship.hull;msgT=70;
       }
@@ -1269,6 +1269,22 @@ function drawAstronaut(x,y,face){
     ctx.strokeStyle='#7fffe6';ctx.fillStyle='#7fffe6';
     ctx.beginPath();ctx.moveTo(-8,-2);ctx.lineTo(-8,-2+flicker+6);ctx.lineTo(-5,-2+flicker+11);ctx.lineTo(-2,-2+flicker+6);ctx.closePath();ctx.stroke();
     ctx.beginPath();ctx.moveTo(8,-2);ctx.lineTo(8,-2+flicker+6);ctx.lineTo(5,-2+flicker+11);ctx.lineTo(2,-2+flicker+6);ctx.closePath();ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawPitFlames(x,y){
+  if(pitBurnT<=0)return;
+  // Tiny pixel-art flames flicker around the astronaut for about one second.
+  const flick=stageTimer;
+  ctx.save();ctx.translate(x,y);
+  for(let i=0;i<9;i++){
+    const side=i%2===0?-1:1;
+    const fx=side*(7+(i%4)*3);
+    const fy=-24+((i*11+flick*2)%34);
+    const h=5+((i+flick)%4)*2;
+    ctx.fillStyle=i%3===0?'#fff1a6':i%2===0?'#ffb52e':'#ff542b';
+    ctx.beginPath();
+    ctx.moveTo(fx-2,fy+4);ctx.lineTo(fx+((flick+i)%3)-1,fy-h);ctx.lineTo(fx+3,fy+4);ctx.closePath();ctx.fill();
   }
   ctx.restore();
 }
