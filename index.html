@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.24';
+const VERSION='v1.9.25';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1002,6 +1002,17 @@ function updateLander(){
     }
   }
 
+  // While the 2-second shield is active, gently guide the ship towards the
+  // nearest landing pad during descent. This is a soft nudge, not an autopilot.
+  if(shieldT>0 && ship.y>H*.3 && pads.length){
+    const targetPad=pads.reduce((best,p)=>Math.abs(ship.x-p.x)<Math.abs(ship.x-best.x)?p:best,pads[0]);
+    const padDistance=ship.x-targetPad.x;
+    if(Math.abs(padDistance)<targetPad.half+150){
+      const pull=clamp(-padDistance*.000055,-.008,.008);
+      ship.vx+=pull;
+      if(Math.abs(padDistance)<targetPad.half+35) ship.vx*=.985;
+    }
+  }
   const pad=pads.find(p=>Math.abs(ship.x-p.x)<p.half-3);
   const groundY=pad?padY():terrainY(ship.x);
   if(ship.y+22>=groundY){
