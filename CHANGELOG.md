@@ -1,3 +1,7 @@
+## v1.9.41
+- Added a “PRESS ENTER FOR MORE INFO” prompt to the title screen.
+- Added an in-game mission briefing covering the gameplay loop, survival resources, upgrades, controls, planets, extra-life scoring and high-score saving.
+
 ## v1.9.40
 - Removed the on-screen mobile control buttons.
 - Moved the lives icons and fuel, hull, jetpack and oxygen HUD indicators inward from the screen edges for easier visibility.
