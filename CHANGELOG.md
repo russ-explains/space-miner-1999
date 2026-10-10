@@ -1,3 +1,6 @@
+## v1.9.42
+- Fixed the information screen keyboard handling so ENTER reaches the menu handler and closes the briefing as intended.
+
 ## v1.9.41
 - Added a “PRESS ENTER FOR MORE INFO” prompt to the title screen.
 - Added an in-game mission briefing covering the gameplay loop, survival resources, upgrades, controls, planets, extra-life scoring and high-score saving.
