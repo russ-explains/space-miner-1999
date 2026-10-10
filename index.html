@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.30';
+const VERSION='v1.9.31';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -246,7 +246,7 @@ function menuKey(code){
     if(code==='ArrowUp') upSel=(upSel+n-1)%n;
     if(code==='ArrowDown') upSel=(upSel+1)%n;
     if(code==='Space') buy(upgradeLayout().rows[upSel].type);
-    if(code==='Enter'||code==='ArrowRight') setupTakeoff();
+    if(code==='Enter') setupTakeoff();
   }
 }
 
@@ -1099,8 +1099,8 @@ function canBuy(type){
   if(type==='refuel') return banked>=1 && ship.fuel<ship.maxFuel-1;
   if(type==='fuel') return banked>=2;
   if(type==='hull') return banked>=2 && ship.hull<ship.maxHull;
-  if(type==='laser') return banked>=3 && ship.laser<4;
-  if(type==='thrust') return banked>=3 && ship.thrust<2.4;
+  if(type==='laser') return banked>=2 && ship.laser<4;
+  if(type==='thrust') return banked>=2 && ship.thrust<2.4;
   if(type==='shield') return banked>=2 && shieldCharges<3;
   if(type==='life') return banked>=6 && !lifeUpgradeBought;
   return false;
@@ -1110,8 +1110,8 @@ function buy(type){
   if(type==='refuel'){banked-=1;ship.fuel=ship.maxFuel}
   if(type==='fuel'){banked-=2;ship.maxFuel+=20;ship.fuel+=20}
   if(type==='hull'){banked-=2;ship.hull++}
-  if(type==='laser'){banked-=3;ship.laser++}
-  if(type==='thrust'){banked-=3;ship.thrust=Math.min(2.4,ship.thrust+.35)}
+  if(type==='laser'){banked-=2;ship.laser++}
+  if(type==='thrust'){banked-=2;ship.thrust=Math.min(2.4,ship.thrust+.35)}
   if(type==='shield'){banked-=2;shieldCharges++}
   if(type==='life'){banked-=6;lives++;lifeUpgradeBought=true;sfx('extra');msg='EXTRA LIFE!';msgT=90;}
   sfx('gem');
@@ -1125,7 +1125,7 @@ c.addEventListener('pointerdown',e=>{
     const L=upgradeLayout();
     L.rows.forEach((r,i)=>{if(x>L.bx&&x<L.bx+L.bw&&y>r.y&&y<r.y+L.rh){upSel=i;buy(r.type)}});
     const l=L.launch;
-    if(x>l.x&&x<l.x+l.w&&y>l.y&&y<l.y+l.h) setupTakeoff();
+    // Launching is keyboard-only: ENTER is the sole way to continue.
   }
 });
 
@@ -1606,7 +1606,7 @@ function drawUpgrade(){
   const l=L.launch;
   ctx.strokeStyle=ORE;ctx.lineWidth=3;ctx.strokeRect(l.x,l.y,l.w,l.h);ctx.fillStyle='rgba(255,211,107,.12)';ctx.fillRect(l.x,l.y,l.w,l.h);
   ctx.fillStyle=ORE;arc('LAUNCH > '+planets[planetIndex+1].name,W/2,l.y+l.h/2+7,16,'center',l.w-16);
-  mono(.6);text(W<520?'TAP, OR ↑↓ + SPACE / ENTER':'UP/DOWN SELECT • SPACE BUY • ENTER LAUNCH • OR TAP',W/2,l.y+l.h+24,11,'center');
+  mono(.6);text('UP/DOWN SELECT • SPACE BUY • ENTER LAUNCH',W/2,l.y+l.h+24,11,'center');
   ctx.globalAlpha=.65;text(VERSION,W-18,H-18,12,'right');ctx.globalAlpha=1;
 }
 
