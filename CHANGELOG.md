@@ -1,3 +1,7 @@
+## v1.9.32
+- Moved shield activation from S to the DOWN ARROW key.
+- Increased each shield activation from 2 seconds to 3 seconds and updated the on-screen labels.
+
 ## v1.9.31
 - Corrected laser and thruster upgrades to cost 2 gems each, matching the displayed prices.
 - Restricted launching from the upgrade screen to the ENTER key; Arrow Right and clicking/tapping the launch area no longer skip the upgrade screen.
