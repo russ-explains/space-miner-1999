@@ -1,3 +1,6 @@
+## v1.9.36
+- Mining mission instructions now remain on screen until the player presses a control; dismissing them starts a brief flashing READY! countdown before gameplay begins.
+
 ## v1.9.35
 - Stopped ship-fuel consumption during the final approach once the planet becomes visible, so players can thrust towards it without losing precious fuel.
 
