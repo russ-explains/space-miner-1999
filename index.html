@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.35';
+const VERSION='v1.9.36';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -398,7 +398,7 @@ function surfaceGroundY(worldX){
 }
 
 function setupSurface(){
-  state='surface';stageTimer=0;mineIntroT=120; bullets=[];aliens=[];drops=[];particles=[];
+  state='surface';stageTimer=0;mineIntroT=-1; bullets=[];aliens=[];drops=[];particles=[];
   const p=planets[planetIndex];
   mineOxygenMax=100; mineOxygen=100; maxBackpackFuel=100; backpackFuel=45;
   mineShipFuel=0; mineShipFuelRequired=3;
@@ -961,7 +961,11 @@ function updateLander(){
 
 /* -------------------------------------------------------------- SURFACE */
 function updateSurface(){
-  stageTimer++;if(mineIntroT>0)mineIntroT--;
+  stageTimer++;
+  if(mineIntroT>0)mineIntroT--;
+  else if(mineIntroT<0 && (keys.ArrowLeft||keys.ArrowRight||keys.ArrowUp||keys.ArrowDown||keys.Space||keys.Enter||keys.KeyW||keys.KeyS)){
+    mineIntroT=0;readyT=105;readyA='';readyB='';sfx('jingle');
+  }
   const speed=2.4+ship.thrust*.2;
   const move=(keys.ArrowRight?1:0)-(keys.ArrowLeft?1:0);
   if(move) ship.face=move;
@@ -1753,9 +1757,9 @@ function drawMessage(){
 function drawReady(){
   if(readyT<=0)return;
   ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,H*.36,W,H*.22);
-  ctx.fillStyle=ORE;arc(readyA,W/2,H*.43,26);
-  mono();text(readyB,W/2,H*.48,15,'center');
-  if((readyT>>3)%2){ctx.fillStyle='#ff5050';arc('READY!',W/2,H*.54,18)}
+  if(readyA){ctx.fillStyle=ORE;arc(readyA,W/2,H*.43,26);}
+  if(readyB){mono();text(readyB,W/2,H*.48,15,'center');}
+  if((readyT>>3)%2){ctx.fillStyle='#ff5050';arc('READY!',W/2,readyA?H*.54:H*.48,18)}
 }
 
 /* ----------------------------------------------------------------- LOOP */
