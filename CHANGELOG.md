@@ -1,3 +1,6 @@
+## v1.9.38
+- Halved the mining saucer's downward firing frequency on Planet 1 only, from every 75 frames to every 150 frames. Later planets are unchanged.
+
 ## v1.9.37
 - The victory screen now displays the final score, then automatically returns to the main intro screen after eight seconds so the high-score table is visible.
 
