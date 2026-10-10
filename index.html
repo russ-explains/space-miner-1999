@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.36';
+const VERSION='v1.9.37';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1731,6 +1731,7 @@ function drawEnd(win){
     ctx.globalAlpha=1;
     ctx.fillStyle='#fff';
     arc('CONGRATS YOU MADE IT',W/2,H*.44,W<520?22:30,'center',W*.94);
+    ctx.fillStyle=ORE;text('FINAL SCORE  '+pad6(score),W/2,H*.51,W<520?16:20,'center');
     if(canRestart()&&(stageTimer>>5)%2===0){
       ctx.fillStyle=ORE;
       arc('PRESS ANY KEY TO PLAY AGAIN',W/2,H*.59,W<520?10:14,'center',W*.94);
@@ -1776,6 +1777,9 @@ function update(){
   if(state==='exploding')updateExplosion();
   if(isMenu()){
     stageTimer++;demoT++;
+    if(state==='win'&&stageTimer>=480){
+      state='title';stageTimer=0;demoT=0;shootingStars=[];
+    }
     if(state==='title'){
       if(Math.random()<.018 && shootingStars.length<3)
         shootingStars.push({x:rnd(W*.1,W*.75),y:rnd(20,H*.42),vx:rnd(8,13),vy:rnd(2.5,5),life:rnd(24,40)});
