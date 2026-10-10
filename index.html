@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.38';
+const VERSION='v1.9.39';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1347,8 +1347,9 @@ function drawAstronaut(x,y,face){
   if(jetpackActive && keys.ArrowUp && backpackFuel>0 && !ship.grounded){
     const flicker=2+Math.sin(stageTimer*.8)*1.5;
     ctx.strokeStyle='#7fffe6';ctx.fillStyle='#7fffe6';
-    ctx.beginPath();ctx.moveTo(-8,-2);ctx.lineTo(-8,-2+flicker+6);ctx.lineTo(-5,-2+flicker+11);ctx.lineTo(-2,-2+flicker+6);ctx.closePath();ctx.stroke();
-    ctx.beginPath();ctx.moveTo(8,-2);ctx.lineTo(8,-2+flicker+6);ctx.lineTo(5,-2+flicker+11);ctx.lineTo(2,-2+flicker+6);ctx.closePath();ctx.stroke();
+    // Larger exhaust flames originate beneath the backpack on the miner's back.
+    ctx.beginPath();ctx.moveTo(-8,-14);ctx.lineTo(-9,-14+flicker+12);ctx.lineTo(-5,-14+flicker+22);ctx.lineTo(-1,-14+flicker+12);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(2,-14);ctx.lineTo(1,-14+flicker+12);ctx.lineTo(5,-14+flicker+22);ctx.lineTo(9,-14+flicker+12);ctx.closePath();ctx.fill();ctx.stroke();
   }
   ctx.restore();
 }
