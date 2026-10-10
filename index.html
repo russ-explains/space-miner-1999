@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.31';
+const VERSION='v1.9.32';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -254,8 +254,8 @@ addEventListener('keydown',e=>{
   initAudio();
   if(GAME_KEYS.includes(e.code)) e.preventDefault();
   if(e.code==='KeyC'&&!e.repeat){crtOn=!crtOn;crtEl.classList.toggle('off',!crtOn);store('SM4000_NOCRT',crtOn?0:1);return}
-  if(e.code==='KeyS'&&!e.repeat&&!isMenu()&&state!=='exploding'){
-    if(shieldCharges>0&&shieldT<=0){shieldCharges--;shieldT=120;sfx('gem');msg='SHIELD ACTIVE — 2 SECONDS';msgT=70;}
+  if(e.code==='ArrowDown'&&!e.repeat&&!isMenu()&&state!=='exploding'){
+    if(shieldCharges>0&&shieldT<=0){shieldCharges--;shieldT=180;sfx('gem');msg='SHIELD ACTIVE — 3 SECONDS';msgT=70;}
     else if(shieldT<=0){sfx('buzz');}
     return;
   }
@@ -1089,7 +1089,7 @@ function upgradeLayout(){
     {type:'hull',  label:'REPAIR HULL +1',cost:2},
     {type:'laser', label:'LASER +1',cost:2},
     {type:'thrust',label:'THRUST +',cost:2},
-    {type:'shield',label:'2 SEC COLLISION SHIELD (PRESS S)',cost:2},
+    {type:'shield',label:'3 SEC COLLISION SHIELD (PRESS ↓)',cost:2},
     {type:'life',label:'EXTRA LIFE +1',cost:6}
   ].map((r,i)=>({...r,y:startY+i*(rh+rowGap)}));
   const launchY=startY+rows.length*(rh+rowGap)+8;
@@ -1375,7 +1375,7 @@ function drawHUD(){
   x+=ship.maxHull*13+16;
   ctx.fillStyle=ORE;text('GEMS '+gems+(banked?'+'+banked:''),x,74,small?11:13);
   if(shieldT>0){ctx.fillStyle='#7fffe6';text('SHIELD '+(shieldT/60).toFixed(1)+'s',W/2,64,small?10:12,'center');}
-  else if(shieldCharges>0){ctx.fillStyle='#7fffe6';text('SHIELD READY x'+shieldCharges+' • S',W/2,64,small?10:12,'center');}
+  else if(shieldCharges>0){ctx.fillStyle='#7fffe6';text('SHIELD READY x'+shieldCharges+' • ↓',W/2,64,small?10:12,'center');}
   if(state==='surface'||explosionScene==='surface'&&state==='exploding'){ bar(W-(small?90:140),66,small?72:120,mineOxygen/100,'O2',mineOxygen<25&&(stageTimer>>3)%2); bar(W-(small?90:140),88,small?72:120,backpackFuel/maxBackpackFuel,'JET',backpackFuel<20&&(stageTimer>>3)%2); }
 }
 
