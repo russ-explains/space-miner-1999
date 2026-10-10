@@ -1,3 +1,8 @@
+## v1.9.31
+- Corrected laser and thruster upgrades to cost 2 gems each, matching the displayed prices.
+- Restricted launching from the upgrade screen to the ENTER key; Arrow Right and clicking/tapping the launch area no longer skip the upgrade screen.
+- Updated the on-screen instructions to make the launch key clear.
+
 ## v1.9.30
 - Improved the planetary jetpack with a stronger initial hop and stronger sustained lift.
 - Reduced jetpack fuel consumption slightly so players can stay airborne longer.
