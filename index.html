@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.37';
+const VERSION='v1.9.38';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1049,7 +1049,8 @@ function updateSurface(){
   if(mineUfo){
     mineUfo.t++; mineUfo.x+=mineUfo.vx;
     if(mineUfo.x<-80){mineUfo.x=W+80;mineUfo.vx=-1.15}
-    if(mineUfo.t%75===0){sfx('shoot');bullets.push({enemy:true,x:mineUfo.x+cameraX,y:mineUfo.y+14,vx:(ship.x-(mineUfo.x+cameraX))*.008,vy:3.2,life:300,ufoShot:true});}
+    const saucerFireInterval=planetIndex===0?150:75;
+    if(mineUfo.t%saucerFireInterval===0){sfx('shoot');bullets.push({enemy:true,x:mineUfo.x+cameraX,y:mineUfo.y+14,vx:(ship.x-(mineUfo.x+cameraX))*.008,vy:3.2,life:300,ufoShot:true});}
   }
   for(const b of bullets){
     if(b.life<=0)continue;
