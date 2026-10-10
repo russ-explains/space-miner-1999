@@ -1,3 +1,7 @@
+## v1.9.40
+- Removed the on-screen mobile control buttons.
+- Moved the lives icons and fuel, hull, jetpack and oxygen HUD indicators inward from the screen edges for easier visibility.
+
 ## v1.9.39
 - Doubled the mining jetpack flame size and repositioned both exhausts to emerge from beneath the backpack on the miner's back.
 
