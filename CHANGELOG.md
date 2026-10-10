@@ -1,3 +1,6 @@
+## v1.9.37
+- The victory screen now displays the final score, then automatically returns to the main intro screen after eight seconds so the high-score table is visible.
+
 ## v1.9.36
 - Mining mission instructions now remain on screen until the player presses a control; dismissing them starts a brief flashing READY! countdown before gameplay begins.
 
