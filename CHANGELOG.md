@@ -1,3 +1,6 @@
+## v1.9.35
+- Stopped ship-fuel consumption during the final approach once the planet becomes visible, so players can thrust towards it without losing precious fuel.
+
 ## v1.9.34
 - Added a two-second mining-level briefing with illustrated F, J and O crates and their purposes.
 - Stacked collected F fuel crates beside the parked ship and kept the collected count visible in the HUD.
