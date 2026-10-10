@@ -1,3 +1,7 @@
+## v1.9.33
+- Fixed the final-planet flow so collecting the three ship-fuel pickups and reaching the ship no longer ends the game as a win.
+- On planet 5, players must now launch into the rising-lava cavern and escape successfully before the victory screen appears.
+
 ## v1.9.32
 - Moved shield activation from S to the DOWN ARROW key.
 - Increased each shield activation from 2 seconds to 3 seconds and updated the on-screen labels.
