@@ -42,7 +42,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.34';
+const VERSION='v1.9.35';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -614,7 +614,8 @@ function updateFlight(){
   if(keys.ArrowUp && ship.fuel>0){
     ship.vx+=Math.sin(ship.angle)*thrust;
     ship.vy-=Math.cos(ship.angle)*thrust;
-    ship.fuel-=.03;
+    // Once the planet comes into view, let players thrust towards it without spending precious fuel.
+    if(tripDist-dist>=W*1.6) ship.fuel-=.03;
     if(stageTimer%2===0) exhaust();
   }
   if(actionPressed && bullets.length<4+ship.laser){
