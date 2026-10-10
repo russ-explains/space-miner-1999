@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.40';
+const VERSION='v1.9.41';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -220,7 +220,16 @@ function menuKey(code){
     sfx('crack');
     return;
   }
-  if(state==='title'||state==='gameover'||state==='win'){
+  if(state==='info'){
+    if(code==='Enter'||code==='Escape'||code==='Space'||code==='Backspace'){state='title';sfx('crack');}
+    return;
+  }
+  if(state==='title'){
+    if(code==='Enter'){state='info';sfx('land');return;}
+    if(canRestart()) resetRun();
+    return;
+  }
+  if(state==='gameover'||state==='win'){
     if(canRestart()) resetRun();
     return;
   }
@@ -1653,7 +1662,55 @@ function drawTitle(){
   text(W<520?'◀ ▶ ROTATE  ▲ THRUST/JUMP  ● FIRE':'ROTATE ◀ ▶   THRUST / JUMP ▲   FIRE SPACE / ●',W/2,H*.54+150,s,'center');
   text('EXTRA SHIP EVERY '+EXTRA_LIFE_EVERY+(W<520?'':'  •  C = CRT FILTER'),W/2,H*.54+172,s,'center');
   if(bestPlanet) text('FURTHEST PLANET '+bestPlanet+'/'+planets.length,W/2,H*.54+194,s,'center');
+  ctx.fillStyle=ORE;arc('PRESS ENTER FOR MORE INFO',W/2,H*.54+218,W<520?10:13,'center',W*.94);
   ctx.globalAlpha=.6;text('© GUNPOWDER STUDIOS   '+VERSION,W/2,H-14,11,'center');ctx.globalAlpha=1;
+}
+
+function drawInfo(){
+  ctx.fillStyle='rgba(0,0,0,.88)';ctx.fillRect(0,0,W,H);
+  const pw=Math.min(W-24,760), ph=Math.min(H-24,Math.max(410,H*.84)), px=(W-pw)/2, py=(H-ph)/2;
+  ctx.fillStyle='#080b10';ctx.fillRect(px,py,pw,ph);
+  ctx.strokeStyle=ORE;ctx.lineWidth=2;ctx.strokeRect(px+2,py+2,pw-4,ph-4);
+  ctx.fillStyle=ORE;arc('SPACE MINER 4000',W/2,py+38,W<520?18:25,'center',pw-28);
+  ctx.fillStyle='#fff';arc('MISSION BRIEFING',W/2,py+66,W<520?10:13,'center',pw-28);
+  const small=W<520, fs=small?12:16, lh=small?25:31, x=px+18;
+  let y=py+100;
+  const section=(head,lines)=>{
+    ctx.fillStyle='#7fffe6';text(head,x,y,fs+1);y+=lh*.78;
+    ctx.fillStyle='#eee';
+    for(const lineText of lines){
+      const maxChars=small?48:86;
+      const words=lineText.split(' ');let line='';
+      for(const word of words){
+        if((line+' '+word).trim().length>maxChars){text('• '+line,x+4,y,fs);y+=lh;line=word;}
+        else line=(line+' '+word).trim();
+      }
+      if(line){text('• '+line,x+4,y,fs);y+=lh;}
+    }
+    y+=small?5:8;
+  };
+  section('YOUR MISSION',[
+    'Fly through asteroid fields, land on strange worlds, then explore on foot.',
+    'Mine each planet for gems and ship-fuel canisters, then return to your ship.',
+    'On the final world, escape the rising lava to complete your five-planet run.'
+  ]);
+  section('SURVIVE AND UPGRADE',[
+    'Watch your hull and fuel in space; on foot, manage oxygen and jetpack fuel.',
+    'Collect gems and spend them in the workshop on repairs and ship upgrades.',
+    'Find oxygen and backpack-fuel pickups, and use your limited shield charges wisely.'
+  ]);
+  section('CONTROLS',[
+    'LEFT / RIGHT ARROWS: rotate in space; move on foot.',
+    'UP ARROW: thrust, lander thrust, jump and jetpack.',
+    'SPACE: fire. DOWN ARROW: activate a shield charge. P: pause.',
+    'C: toggle the retro CRT screen effect. ENTER: close this briefing.'
+  ]);
+  section('ARCADE EXTRAS',[
+    'Earn an extra ship for every 10,000 points. Chase the high-score table!',
+    'There are five planets, each with its own hazards and increasing challenge.',
+    'Your high scores are saved in this browser on this device.'
+  ]);
+  ctx.fillStyle=ORE;arc('PRESS ENTER / ESC TO RETURN',W/2,py+ph-20,small?9:12,'center',pw-24);
 }
 
 function drawInitials(){
@@ -1804,6 +1861,7 @@ function draw(){
   ctx.save();
   if(shake) ctx.translate(rnd(-shake,shake),rnd(-shake,shake));
   if(state==='title')drawTitle();
+  else if(state==='info'){drawTitle();drawInfo();}
   else if(state==='flight')drawFlight();
   else if(state==='lander')drawLander();
   else if(state==='takeoff')drawTakeoff();
