@@ -1,3 +1,6 @@
+## v1.9.39
+- Doubled the mining jetpack flame size and repositioned both exhausts to emerge from beneath the backpack on the miner's back.
+
 ## v1.9.38
 - Halved the mining saucer's downward firing frequency on Planet 1 only, from every 75 frames to every 150 frames. Later planets are unchanged.
 
