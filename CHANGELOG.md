@@ -1,3 +1,8 @@
+## v1.9.34
+- Added a two-second mining-level briefing with illustrated F, J and O crates and their purposes.
+- Stacked collected F fuel crates beside the parked ship and kept the collected count visible in the HUD.
+- Added a jetpack ceiling below the flying saucer on mining levels.
+
 ## v1.9.33
 - Fixed the final-planet flow so collecting the three ship-fuel pickups and reaching the ship no longer ends the game as a win.
 - On planet 5, players must now launch into the rising-lava cavern and escape successfully before the victory screen appears.
