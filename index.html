@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.49';
+const VERSION='v1.9.50';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -263,7 +263,7 @@ function activateTestShortcut(code){
   }
   if(code==='KeyU'){
     ship.maxFuel=100;ship.fuel=ship.maxFuel;
-    ship.maxHull=6;ship.hull=ship.maxHull;
+    ship.maxHull=3;ship.hull=Math.min(3,ship.maxHull);
     ship.laser=4;ship.thrust=2.4;
     shieldCharges=3;shieldT=0;
     backpackFuel=maxBackpackFuel=100;
@@ -505,15 +505,28 @@ function drawVerticalLander(){
     if(a.y<top-50||a.y>bottom+50)continue;
     drawRock({x:a.x,y:a.y-top,r:a.r,rot:a.rot,shape:a.shape},.95,'#d0d0d0');
   }
-  // A few low ridges shape the floor of the broad bottom chamber without blocking the pads.
+  // Rocky mountains rise from the floor to roughly 70% of the cavern height,
+  // kept towards the sides so both landing pads remain clear and reachable.
   const floorTop=landerWorldHeight-72-top;
+  const mountainRise=H*.70;
   ctx.fillStyle='#171719';ctx.strokeStyle=p.tint;ctx.lineWidth=2;ctx.beginPath();
-  ctx.moveTo(0,floorTop+24);ctx.lineTo(W*.12,floorTop+24);ctx.lineTo(W*.19,floorTop+5);ctx.lineTo(W*.25,floorTop+22);ctx.lineTo(W*.39,floorTop+24);ctx.lineTo(W*.45,floorTop+10);ctx.lineTo(W*.51,floorTop+24);ctx.lineTo(W*.64,floorTop+24);ctx.lineTo(W*.72,floorTop+7);ctx.lineTo(W*.79,floorTop+24);ctx.lineTo(W,floorTop+24);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.moveTo(0,floorTop+24);
+  ctx.lineTo(W*.035,floorTop+24);ctx.lineTo(W*.105,floorTop-mountainRise*.92);
+  ctx.lineTo(W*.17,floorTop-mountainRise*.48);ctx.lineTo(W*.225,floorTop+24);
+  ctx.lineTo(W*.38,floorTop+24);ctx.lineTo(W*.425,floorTop+H*.08);
+  ctx.lineTo(W*.47,floorTop+24);ctx.lineTo(W*.53,floorTop+24);
+  ctx.lineTo(W*.575,floorTop+H*.12);ctx.lineTo(W*.62,floorTop+24);
+  ctx.lineTo(W*.775,floorTop+24);ctx.lineTo(W*.83,floorTop-mountainRise*.5);
+  ctx.lineTo(W*.895,floorTop-mountainRise);ctx.lineTo(W*.96,floorTop+24);
+  ctx.lineTo(W,floorTop+24);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();ctx.stroke();
   for(const pd of pads){
     const py=pd.y-top;
-    ctx.strokeStyle=pd.mult>1?ORE:p.tint;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(pd.x-pd.half,py);ctx.lineTo(pd.x+pd.half,py);ctx.stroke();
-    ctx.fillStyle=pd.mult>1?ORE:'#fff';text(pd.mult>1?'BONUS PAD x3':'LANDING PAD',pd.x,py-12,11,'center');
-    if(pd.mult>1)drawGem(pd.x,py-24,ORE);
+    // Match Planet 1's familiar flat white pad and angled support legs.
+    mono();ctx.fillRect(pd.x-pd.half,py,pd.half*2,7);
+    line(pd.x-pd.half+7,py+7,pd.x-pd.half+17,py+18);
+    line(pd.x+pd.half-7,py+7,pd.x+pd.half-17,py+18);
+    if((stageTimer>>4)%2){ctx.fillStyle=pd.mult>1?ORE:p.tint;ctx.fillRect(pd.x-pd.half-2,py-6,4,4);ctx.fillRect(pd.x+pd.half-2,py-6,4,4);}
+    if(pd.mult>1){drawGem(pd.x,py-12,ORE);ctx.fillStyle=ORE;text('x'+pd.mult,pd.x,py+34,13,'center');}
   }
   drawShip(ship.x,ship.y-top,1.1,ship.angle,keys.ArrowUp&&ship.fuel>0&&state==='lander',keys.ArrowLeft,keys.ArrowRight,true);
   drawShieldEffect(ship.x,ship.y-top);
@@ -692,7 +705,7 @@ function damage(deathText,hitText,boom=true,collision=false){
   // including direct weapon hits as well as collisions.
   if(shieldT>0) return false;
   if(ship.inv>0) return false;
-  ship.hull--; ship.inv=75; shake=9; flash=.35; sfx('hit');
+  ship.hull=Math.max(0,Math.min(3,ship.hull)-1); ship.inv=75; shake=9; flash=.35; sfx('hit');
   if(ship.hull<=0){ lose(deathText,boom); return true; }
   msg=hitText+' — HULL '+ship.hull; msgT=70; return true;
 }
@@ -731,7 +744,8 @@ function lose(reason,shipBoom=false){
 function afterDeath(){
   lives--;
   if(lives<=0){endRun(false);return}
-  ship.hull=ship.maxHull; ship.fuel=Math.max(ship.fuel,ship.maxFuel*.6); ship.inv=150;
+  ship.maxHull=Math.min(3,Math.max(1,ship.maxHull||3));
+  ship.hull=Math.min(3,ship.maxHull); ship.fuel=Math.max(ship.fuel,ship.maxFuel*.6); ship.inv=150;
   const sc=explosionScene;
   if(sc==='flight') setupFlight(true);
   else if(sc==='lander') setupLander();
@@ -1134,7 +1148,7 @@ function updateSurface(){
   stageTimer++;
   if(mineIntroT>0){
     mineIntroT--;
-    if(mineIntroT===0){readyT=105;readyA='';readyB='';sfx('jingle');}
+    if(mineIntroT===0 && planetIndex!==0){readyT=105;readyA='';readyB='';sfx('jingle');}
   } else if(mineIntroT<0 && (keys.ArrowLeft||keys.ArrowRight||keys.ArrowUp||keys.ArrowDown||keys.Space||keys.Enter||keys.KeyW||keys.KeyS)){
     // On Planet 1, keep the mission guide visible for four seconds after the first control input.
     mineIntroT=240;
@@ -1291,7 +1305,7 @@ function buy(type){
   if(!canBuy(type)){sfx('buzz');return}
   if(type==='refuel'){banked-=1;ship.fuel=ship.maxFuel}
   if(type==='fuel'){banked-=2;ship.maxFuel+=20;ship.fuel+=20}
-  if(type==='hull'){banked-=2;ship.hull++}
+  if(type==='hull'){banked-=2;ship.hull=Math.min(3,ship.maxHull,ship.hull+1)}
   if(type==='laser'){banked-=2;ship.laser++}
   if(type==='thrust'){banked-=2;ship.thrust=Math.min(2.4,ship.thrust+.35)}
   if(type==='shield'){banked-=2;shieldCharges++}
@@ -1564,6 +1578,7 @@ function drawHUD(){
   bar(left,66,fuelW,ship.fuel/ship.maxFuel,'FUEL',lowFuel);
   let x=left+(small?94:128);
   mono();text('HULL',x,63,10);
+  ship.maxHull=Math.min(3,Math.max(1,ship.maxHull||3));ship.hull=Math.min(ship.hull,ship.maxHull,3);
   for(let i=0;i<ship.maxHull;i++){ if(i<ship.hull) ctx.fillRect(x+i*13,66,10,8); else ctx.strokeRect(x+i*13,66,10,8)}
   x+=ship.maxHull*13+16;
   ctx.fillStyle=ORE;text('GEMS '+gems+(banked?'+'+banked:''),x,74,small?11:13);
