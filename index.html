@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.50';
+const VERSION='v1.9.51';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -452,8 +452,15 @@ function updateVerticalLander(){
   ship.vx*=.9995;ship.vy*=.9998;ship.x+=ship.vx;ship.y+=ship.vy;
   const bounds=verticalCaveBounds(ship.y);
   if(ship.x-15<bounds.left||ship.x+15>bounds.right){
-    if(ship.inv===0){lose('CAVERN WALL IMPACT',true);return;}
-    ship.x=clamp(ship.x,bounds.left+16,bounds.right-16);ship.vx*=-.25;
+    const hitLeft=ship.x-15<bounds.left;
+    ship.x=clamp(ship.x,bounds.left+16,bounds.right-16);
+    // A landing-cavern wall impact costs one hull point, never an instant kill.
+    // Damage grants invulnerability frames so one contact cannot drain multiple hull.
+    ship.vx=hitLeft?Math.max(0,ship.vx*.05):Math.min(0,ship.vx*.05);
+    if(ship.inv===0){
+      damage('HULL DESTROYED — CAVERN WALL IMPACT','WALL IMPACT',true,true);
+      if(state!=='lander')return;
+    }
   }
   for(const h of landerCaveHazards){
     const hx=h.x+Math.sin(stageTimer*.018+h.phase)*(10+difficulty*3);
