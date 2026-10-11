@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.53';
+const VERSION='v1.9.54';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -390,6 +390,27 @@ function setupLander(){
   ready(planets[planetIndex].name,'LUNAR DESCENT');
 }
 
+const CAVERN_MOUNTAIN_PROFILE=[
+    [0,0],[.025,.015],[.045,.20],[.063,.15],[.082,.34],[.103,.29],[.124,.58],
+    [.145,.48],[.163,.68],[.184,.40],[.205,.25],[.228,.015],[.255,.01],[.278,.16],
+    [.295,.11],[.31,.015],[.333,.12],[.352,.20],[.372,.08],[.394,.27],[.414,.12],
+    [.435,.015],[.465,.01],[.49,.18],[.512,.12],[.532,.31],[.552,.19],[.573,.25],
+    [.596,.015],[.625,.01],[.648,.16],[.669,.10],[.69,.34],[.711,.25],[.731,.48],
+    [.748,.39],[.766,.62],[.782,.37],[.797,.16],[.82,.015],[.838,.12],[.855,.32],
+    [.872,.21],[.891,.51],[.912,.30],[.934,.16],[.958,.015],[1,0]
+  ];
+function cavernMountainHeightAt(x){
+  const nx=clamp(x/Math.max(1,W),0,1);
+  for(let i=0;i<CAVERN_MOUNTAIN_PROFILE.length-1;i++){
+    const a=CAVERN_MOUNTAIN_PROFILE[i],b=CAVERN_MOUNTAIN_PROFILE[i+1];
+    if(nx>=a[0]&&nx<=b[0]){
+      const t=(nx-a[0])/(b[0]-a[0]);
+      return (a[1]+(b[1]-a[1])*t)*H*.70;
+    }
+  }
+  return 0;
+}
+
 function setupVerticalLander(){
   landerVerticalMode=true;
   landerWorldHeight=H*(2.8+planetIndex*.72);
@@ -486,6 +507,20 @@ function updateVerticalLander(){
       ship.vx+=dx/dist*.035;ship.vy+=dy/dist*.025;
     }
   }
+  // Solid mountain faces in the bottom cavern: touching one removes exactly one HULL
+  // and bounces the lander back above the ridge. Invulnerability prevents repeat damage.
+  const mountainFloor=landerWorldHeight-72;
+  const mountainTop=mountainFloor-cavernMountainHeightAt(ship.x);
+  if(ship.y+18>mountainTop && ship.y<mountainFloor+18 && mountainHeightAt(ship.x)>H*.025){
+    ship.y=mountainTop-19;
+    ship.vy=-Math.max(.08,Math.abs(ship.vy)*.35);
+    const slopeL=cavernMountainHeightAt(ship.x-8),slopeR=cavernMountainHeightAt(ship.x+8);
+    ship.vx+=clamp((slopeL-slopeR)/Math.max(1,H)*.8,-.12,.12);
+    if(ship.inv===0){
+      damage('HULL DESTROYED — MOUNTAIN IMPACT','MOUNTAIN IMPACT',true,true);
+      if(state!=='lander')return;
+    }
+  }
   landerCameraY=clamp(ship.y-H*.32,0,Math.max(0,landerWorldHeight-H));
   const lowestPadY=Math.min(...pads.map(p=>p.y));
   if(ship.y+22>=lowestPadY){
@@ -521,34 +556,14 @@ function drawVerticalLander(){
     if(a.y<top-50||a.y>bottom+50)continue;
     drawRock({x:a.x,y:a.y-top,r:a.r,rot:a.rot,shape:a.shape},.95,'#d0d0d0');
   }
-  // Several irregular, rocky mountain ridges make the lower cavern feel less geometric.
-  // The tallest peaks reach about 70% of screen height; the bonus pad sits on a narrower,
-  // more exposed shelf to the right, while the main pad has a safer approach.
+  // Shared mountain profile: the same jagged outline is used for drawing and collision.
+  // Low clear shelves at x=.31 and x=.82 keep both pads outside the solid mountain shapes.
   const floorTop=landerWorldHeight-72-top;
   const mountainRise=H*.70;
   ctx.fillStyle='#171719';ctx.strokeStyle=p.tint;ctx.lineWidth=2;ctx.beginPath();
   ctx.moveTo(0,floorTop+24);
-  // Left ridge: multiple uneven peaks and shoulders, rather than a single triangle.
-  ctx.lineTo(W*.025,floorTop+22);ctx.lineTo(W*.055,floorTop-mountainRise*.26);
-  ctx.lineTo(W*.082,floorTop-mountainRise*.20);ctx.lineTo(W*.105,floorTop-mountainRise*.72);
-  ctx.lineTo(W*.132,floorTop-mountainRise*.91);ctx.lineTo(W*.151,floorTop-mountainRise*.62);
-  ctx.lineTo(W*.177,floorTop-mountainRise*.67);ctx.lineTo(W*.199,floorTop-mountainRise*.31);
-  ctx.lineTo(W*.226,floorTop+22);ctx.lineTo(W*.285,floorTop+22);
-  // Low broken ridge in the centre, with a navigable gap around the main pad.
-  ctx.lineTo(W*.325,floorTop+H*.10);ctx.lineTo(W*.354,floorTop+H*.035);
-  ctx.lineTo(W*.377,floorTop+H*.13);ctx.lineTo(W*.405,floorTop+H*.07);
-  ctx.lineTo(W*.431,floorTop+22);ctx.lineTo(W*.49,floorTop+22);
-  ctx.lineTo(W*.515,floorTop+H*.12);ctx.lineTo(W*.543,floorTop+H*.06);
-  ctx.lineTo(W*.568,floorTop+H*.14);ctx.lineTo(W*.598,floorTop+22);
-  // Right ridge is taller and more broken, making the small x3 pad's approach riskier.
-  ctx.lineTo(W*.655,floorTop+22);ctx.lineTo(W*.681,floorTop-mountainRise*.22);
-  ctx.lineTo(W*.707,floorTop-mountainRise*.16);ctx.lineTo(W*.733,floorTop-mountainRise*.48);
-  ctx.lineTo(W*.756,floorTop-mountainRise*.39);ctx.lineTo(W*.781,floorTop-mountainRise*.73);
-  ctx.lineTo(W*.805,floorTop-mountainRise*.58);ctx.lineTo(W*.826,floorTop-mountainRise*.88);
-  ctx.lineTo(W*.848,floorTop-mountainRise*.67);ctx.lineTo(W*.873,floorTop-mountainRise*.77);
-  ctx.lineTo(W*.9,floorTop-mountainRise*.34);ctx.lineTo(W*.927,floorTop-mountainRise*.45);
-  ctx.lineTo(W*.96,floorTop+22);ctx.lineTo(W,floorTop+22);
-  ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();ctx.stroke();
+  for(const point of mountainProfile)ctx.lineTo(point[0]*W,floorTop-mountainHeightAt(point[0]*W));
+  ctx.lineTo(W,floorTop+24);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();ctx.stroke();
   for(const pd of pads){
     const py=pd.y-top;
     // Match Planet 1's familiar flat white pad and angled support legs.
