@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.55';
+const VERSION='v1.9.56';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1577,19 +1577,35 @@ function drawAstronaut(x,y,face){
   // Briefly flash red/yellow after a pit impact, then return to the normal suit colour.
   const hitFlash=pitFlashT>0?(Math.floor((60-pitFlashT)/8)%2===0?'#ff3b3b':'#ffe34d'):null;
   if(hitFlash){ctx.strokeStyle=hitFlash;ctx.fillStyle=hitFlash;}
-  // Tiny backpack and visible jet exhaust while the jetpack is firing.
-  ctx.strokeRect(-11,-14,5,11);
-  ctx.strokeRect(-7,-15,14,18);ctx.beginPath();ctx.arc(0,-21,8,0,Math.PI*2);ctx.stroke();
+  // Larger backpack sits on the astronaut's back and swaps sides with his facing direction.
+  const packX=face>0?-16:8, packW=8;
+  ctx.strokeRect(packX,-15,packW,15);
+  ctx.strokeRect(packX+(face>0?2:1),-12,packW-2,8);
+  // Backpack nozzle and exhaust are aligned, so the flame visibly comes from the pack itself.
+  const nozzleX=face>0?packX+packW-2:packX+2;
+  ctx.beginPath();ctx.arc(0,-21,8,0,Math.PI*2);ctx.stroke();
   ctx.fillStyle='#7fd8ff';ctx.fillRect(face>0?1:-6,-24,5,4);mono();if(hitFlash){ctx.strokeStyle=hitFlash;ctx.fillStyle=hitFlash;}
   const step=Math.abs(ship.vx)>.3&&ship.grounded?Math.sin(stageTimer*.3)*3:0;
   line(-6,3,-9+step,14);line(6,3,9-step,14);line(-7,-8,-13,-1);line(7,-8,13,-1);
   line(face*7,-6,face*17,-6,2);
   if(jetpackActive && keys.ArrowUp && backpackFuel>0 && !ship.grounded){
-    const flicker=2+Math.sin(stageTimer*.8)*1.5;
-    ctx.strokeStyle='#7fffe6';ctx.fillStyle='#7fffe6';
-    // Larger exhaust flames originate beneath the backpack on the miner's back.
-    ctx.beginPath();ctx.moveTo(-8,-14);ctx.lineTo(-9,-14+flicker+12);ctx.lineTo(-5,-14+flicker+22);ctx.lineTo(-1,-14+flicker+12);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.beginPath();ctx.moveTo(2,-14);ctx.lineTo(1,-14+flicker+12);ctx.lineTo(5,-14+flicker+22);ctx.lineTo(9,-14+flicker+12);ctx.closePath();ctx.fill();ctx.stroke();
+    const flicker=3+Math.sin(stageTimer*.8)*2;
+    // A longer, tapered flame begins at the bottom nozzle of the backpack.
+    ctx.strokeStyle='#35dfff';ctx.fillStyle='#35dfff';
+    ctx.beginPath();
+    ctx.moveTo(nozzleX-2,-1);
+    ctx.lineTo(nozzleX-3,-1+flicker+9);
+    ctx.lineTo(nozzleX,-1+flicker+31);
+    ctx.lineTo(nozzleX+3,-1+flicker+10);
+    ctx.lineTo(nozzleX+2,-1);
+    ctx.closePath();ctx.fill();ctx.stroke();
+    // Bright inner core gives the longer exhaust a clear, energetic centre.
+    ctx.fillStyle='#fff4a8';ctx.strokeStyle='#fff4a8';
+    ctx.beginPath();
+    ctx.moveTo(nozzleX-1,-1);
+    ctx.lineTo(nozzleX,-1+flicker+17);
+    ctx.lineTo(nozzleX+1,-1);
+    ctx.closePath();ctx.fill();
   }
   ctx.restore();
 }
