@@ -1,3 +1,7 @@
+## v1.9.51 — 2026-10-11
+- Changed landing-cavern wall collisions from instant destruction to a one-HULL-point impact, with existing invulnerability frames preventing repeated damage from a single contact.
+- Kept wall impacts physically bounded with a gentle rebound so the lander is pushed back into the cavern.
+
 ## v1.9.50 — 2026-10-11
 - Removed the flashing **READY** sign after the first mining planet's instructions; the rules remain available without that extra prompt.
 - Hard-capped hull at **3** across the HUD/game state, damage recovery, repair upgrade and **U** testing cheat.
