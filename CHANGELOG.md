@@ -1,3 +1,6 @@
+## v1.9.43
+- Increased blue fuel-ring pickups on the first asteroid level by 35%, from 7.5 to 10.125 fuel units. Later levels are unchanged.
+
 ## v1.9.42
 - Fixed the information screen keyboard handling so ENTER reaches the menu handler and closes the briefing as intended.
 
