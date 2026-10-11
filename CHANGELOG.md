@@ -1,3 +1,7 @@
+## v1.9.45
+- Changed landing sections on Planets 2–5 into vertically scrolling cavern descents, with a landing pad at the bottom and moving rock hazards.
+- Increased cavern depth, corridor difficulty and landing precision requirements on each later planet; Planet 1 keeps its original horizontal lander.
+
 ## v1.9.44
 - Restored the mining mission guide on Planet 1 only; it stays visible indefinitely until the player presses a control, then remains visible for another four seconds before the READY countdown.
 - Later mining planets no longer show the introductory guide.
