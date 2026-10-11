@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.52';
+const VERSION='v1.9.53';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -425,7 +425,8 @@ function setupVerticalLander(){
     landerCaveAsteroids.push({x:rnd(b.left+r+18,b.right-r-18),y,r,vx:rnd(-.42,.42),vy:rnd(-.22,.22),rot:rnd(0,Math.PI*2),spin:rnd(-.025,.025),phase:rnd(0,Math.PI*2),shape:Array.from({length:8},()=>rnd(.76,1.16))});
   }
   const padHalf=Math.max(44,58-difficulty*2);
-  pads=[{x:W*.31,half:padHalf,mult:1,y:landerWorldHeight-112},{x:W*.69,half:padHalf,mult:3,y:landerWorldHeight-128,gemTaken:false}];
+  const bonusPadHalf=Math.max(22,Math.round(padHalf*.58)); // Keep the x3 pad as small as Planet 1's bonus pad.
+  pads=[{x:W*.31,half:padHalf,mult:1,y:landerWorldHeight-112},{x:W*.82,half:bonusPadHalf,mult:3,y:landerWorldHeight-128,gemTaken:false}];
   asteroids=[];bullets=[];ebullets=[];drops=[];particles=[];pickups=[];ufo=null;
   ship.x=W*.5;ship.y=90;ship.vx=rnd(-.08,.08);ship.vy=.02;ship.angle=0;ship.av=0;
 }
@@ -520,20 +521,34 @@ function drawVerticalLander(){
     if(a.y<top-50||a.y>bottom+50)continue;
     drawRock({x:a.x,y:a.y-top,r:a.r,rot:a.rot,shape:a.shape},.95,'#d0d0d0');
   }
-  // Rocky mountains rise from the floor to roughly 70% of the cavern height,
-  // kept towards the sides so both landing pads remain clear and reachable.
+  // Several irregular, rocky mountain ridges make the lower cavern feel less geometric.
+  // The tallest peaks reach about 70% of screen height; the bonus pad sits on a narrower,
+  // more exposed shelf to the right, while the main pad has a safer approach.
   const floorTop=landerWorldHeight-72-top;
   const mountainRise=H*.70;
   ctx.fillStyle='#171719';ctx.strokeStyle=p.tint;ctx.lineWidth=2;ctx.beginPath();
   ctx.moveTo(0,floorTop+24);
-  ctx.lineTo(W*.035,floorTop+24);ctx.lineTo(W*.105,floorTop-mountainRise*.92);
-  ctx.lineTo(W*.17,floorTop-mountainRise*.48);ctx.lineTo(W*.225,floorTop+24);
-  ctx.lineTo(W*.38,floorTop+24);ctx.lineTo(W*.425,floorTop+H*.08);
-  ctx.lineTo(W*.47,floorTop+24);ctx.lineTo(W*.53,floorTop+24);
-  ctx.lineTo(W*.575,floorTop+H*.12);ctx.lineTo(W*.62,floorTop+24);
-  ctx.lineTo(W*.775,floorTop+24);ctx.lineTo(W*.83,floorTop-mountainRise*.5);
-  ctx.lineTo(W*.895,floorTop-mountainRise);ctx.lineTo(W*.96,floorTop+24);
-  ctx.lineTo(W,floorTop+24);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();ctx.stroke();
+  // Left ridge: multiple uneven peaks and shoulders, rather than a single triangle.
+  ctx.lineTo(W*.025,floorTop+22);ctx.lineTo(W*.055,floorTop-mountainRise*.26);
+  ctx.lineTo(W*.082,floorTop-mountainRise*.20);ctx.lineTo(W*.105,floorTop-mountainRise*.72);
+  ctx.lineTo(W*.132,floorTop-mountainRise*.91);ctx.lineTo(W*.151,floorTop-mountainRise*.62);
+  ctx.lineTo(W*.177,floorTop-mountainRise*.67);ctx.lineTo(W*.199,floorTop-mountainRise*.31);
+  ctx.lineTo(W*.226,floorTop+22);ctx.lineTo(W*.285,floorTop+22);
+  // Low broken ridge in the centre, with a navigable gap around the main pad.
+  ctx.lineTo(W*.325,floorTop+H*.10);ctx.lineTo(W*.354,floorTop+H*.035);
+  ctx.lineTo(W*.377,floorTop+H*.13);ctx.lineTo(W*.405,floorTop+H*.07);
+  ctx.lineTo(W*.431,floorTop+22);ctx.lineTo(W*.49,floorTop+22);
+  ctx.lineTo(W*.515,floorTop+H*.12);ctx.lineTo(W*.543,floorTop+H*.06);
+  ctx.lineTo(W*.568,floorTop+H*.14);ctx.lineTo(W*.598,floorTop+22);
+  // Right ridge is taller and more broken, making the small x3 pad's approach riskier.
+  ctx.lineTo(W*.655,floorTop+22);ctx.lineTo(W*.681,floorTop-mountainRise*.22);
+  ctx.lineTo(W*.707,floorTop-mountainRise*.16);ctx.lineTo(W*.733,floorTop-mountainRise*.48);
+  ctx.lineTo(W*.756,floorTop-mountainRise*.39);ctx.lineTo(W*.781,floorTop-mountainRise*.73);
+  ctx.lineTo(W*.805,floorTop-mountainRise*.58);ctx.lineTo(W*.826,floorTop-mountainRise*.88);
+  ctx.lineTo(W*.848,floorTop-mountainRise*.67);ctx.lineTo(W*.873,floorTop-mountainRise*.77);
+  ctx.lineTo(W*.9,floorTop-mountainRise*.34);ctx.lineTo(W*.927,floorTop-mountainRise*.45);
+  ctx.lineTo(W*.96,floorTop+22);ctx.lineTo(W,floorTop+22);
+  ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();ctx.stroke();
   for(const pd of pads){
     const py=pd.y-top;
     // Match Planet 1's familiar flat white pad and angled support legs.
