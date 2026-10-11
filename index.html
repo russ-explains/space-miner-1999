@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.48';
+const VERSION='v1.9.49';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -243,9 +243,41 @@ function menuKey(code){
   }
 }
 
+function activateTestShortcut(code){
+  if(isMenu()||state==='exploding')return false;
+  const sectionMap={'Digit1':'flight','Digit2':'lander','Digit3':'surface','Digit4':'takeoff'};
+  const target=sectionMap[code];
+  if(target){
+    const currentMatches=(target==='flight'&&state==='flight')||(target==='lander'&&state==='lander')||(target==='surface'&&state==='surface')||(target==='takeoff'&&state==='takeoff');
+    if(currentMatches){
+      if(planetIndex>=planets.length-1){msg='FINAL PLANET REACHED';msgT=75;sfx('buzz');return true;}
+      planetIndex++;
+    }
+    paused=false;readyT=0;actionPressed=false;upPressed=false;jetpackActive=false;
+    if(target==='flight')setupFlight();
+    else if(target==='lander')setupLander();
+    else if(target==='surface')setupSurface();
+    else setupTakeoff();
+    msg='TEST SHORTCUT — PLANET '+(planetIndex+1);msgT=90;
+    return true;
+  }
+  if(code==='KeyU'){
+    ship.maxFuel=100;ship.fuel=ship.maxFuel;
+    ship.maxHull=6;ship.hull=ship.maxHull;
+    ship.laser=4;ship.thrust=2.4;
+    shieldCharges=3;shieldT=0;
+    backpackFuel=maxBackpackFuel=100;
+    banked=Math.max(banked,99);
+    msg='TEST UPGRADES ENABLED';msgT=100;sfx('extra');
+    return true;
+  }
+  return false;
+}
+
 addEventListener('keydown',e=>{
   initAudio();
   if(GAME_KEYS.includes(e.code)) e.preventDefault();
+  if(!e.repeat&&activateTestShortcut(e.code))return;
   if(e.code==='KeyC'&&!e.repeat){crtOn=!crtOn;crtEl.classList.toggle('off',!crtOn);store('SM4000_NOCRT',crtOn?0:1);return}
   if(e.code==='ArrowDown'&&!e.repeat&&!isMenu()&&state!=='exploding'){
     if(shieldCharges>0&&shieldT<=0){shieldCharges--;shieldT=180;sfx('gem');msg='SHIELD ACTIVE — 3 SECONDS';msgT=70;}
