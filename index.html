@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.44';
+const VERSION='v1.9.45';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -182,6 +182,7 @@ let takeoffAlt=0,takeoffV=0,takeoffCam=0,cavernHeight=2200,lavaAlt=-400;
 let cavernNodes=[],cavernSpikes=[],runSeed=1;
 let pads=[],padHalf=62,o2=100;
 let landerPeakScale=.35,landerRoughness=18,landerPeakCount=2,landerAsteroidCount=4;
+let landerVerticalMode=false, landerWorldHeight=0, landerCameraY=0, landerCaveNodes=[], landerCaveHazards=[], landerTargetX=0;
 let minePlatforms=[], mineHoles=[], mineUfo=null, backpackFuel=100, maxBackpackFuel=100;
 let mineOxygen=100, mineOxygenMax=100, minePlatformScroll=0, minePitHit=false, pitFlashT=0;
 let mineShipFuel=0, mineShipFuelRequired=3, mineIntroT=0;
@@ -321,6 +322,10 @@ function setupLander(){
   ship.x=W*.5;ship.y=110;
   ship.vx=rnd(-.18,.18);ship.vy=.03;ship.angle=rnd(-.06,.06);ship.av=0;
 
+  // Planet 1 keeps the classic horizontal lander. Later planets use a vertical cavern descent.
+  if(planetIndex>=1){setupVerticalLander();ready(planets[planetIndex].name,'VERTICAL CAVERN DESCENT');return;}
+  landerVerticalMode=false;
+
   // Each planet gets a distinct, progressively harder landing landscape.
   const difficulty=planetIndex;
   padHalf=Math.max(46,62-difficulty*3);
@@ -351,6 +356,107 @@ function setupLander(){
     };
   });
   ready(planets[planetIndex].name,'LUNAR DESCENT');
+}
+
+function setupVerticalLander(){
+  landerVerticalMode=true;
+  landerWorldHeight=H*(2.8+planetIndex*.72);
+  landerCameraY=0;
+  const difficulty=planetIndex;
+  const corridorHalf=Math.max(W*.19,W*(.34-difficulty*.025));
+  landerCaveNodes=[{y:0,cx:W*.5,half:Math.max(W*.28,corridorHalf)}];
+  for(let y=180;y<landerWorldHeight-240;y+=150){
+    const prev=landerCaveNodes[landerCaveNodes.length-1];
+    landerCaveNodes.push({y,cx:clamp(prev.cx+rnd(-W*(.12+difficulty*.012),W*(.12+difficulty*.012)),W*.32,W*.68),half:Math.max(W*(.17-difficulty*.014),W*.115)+rnd(-W*.025,W*.025)});
+  }
+  landerCaveNodes.push({y:landerWorldHeight-190,cx:W*.5,half:Math.max(W*.25,corridorHalf*.9)});
+  landerCaveNodes.push({y:landerWorldHeight,cx:W*.5,half:W*.46});
+  landerTargetX=clamp(W*(.5+rnd(-.18,.18)),W*.35,W*.65);
+  landerCaveHazards=[];
+  const hazardCount=4+difficulty*3;
+  for(let i=0;i<hazardCount;i++){
+    const y=H*.55+(landerWorldHeight-H*1.1)*(i+.5)/hazardCount;
+    const b=verticalCaveBounds(y);
+    const side=i%2===0?'left':'right';
+    const radius=Math.max(12,18+difficulty*2);
+    landerCaveHazards.push({x:side==='left'?b.left+radius+8:b.right-radius-8,y,r:radius,phase:rnd(0,Math.PI*2)});
+  }
+  pads=[{x:landerTargetX,half:Math.max(42,62-difficulty*4),mult:1}];
+  asteroids=[];bullets=[];ebullets=[];drops=[];particles=[];pickups=[];ufo=null;
+  ship.x=W*.5;ship.y=90;ship.vx=rnd(-.08,.08);ship.vy=.02;ship.angle=0;ship.av=0;
+}
+function verticalCaveBounds(y){
+  const nodes=landerCaveNodes;
+  let lo=nodes[0],hi=nodes[nodes.length-1];
+  for(let i=0;i<nodes.length-1;i++){if(y>=nodes[i].y&&y<=nodes[i+1].y){lo=nodes[i];hi=nodes[i+1];break;}}
+  const t=clamp((y-lo.y)/Math.max(1,hi.y-lo.y),0,1),sm=t*t*(3-2*t);
+  const cx=lo.cx+(hi.cx-lo.cx)*sm,half=lo.half+(hi.half-lo.half)*sm;
+  return {left:cx-half,right:cx+half};
+}
+function updateVerticalLander(){
+  stageTimer++;
+  const difficulty=planetIndex;
+  ship.vy+=.0048+difficulty*.0008;
+  const torque=.00125+difficulty*.00008;
+  if(keys.ArrowLeft)ship.av-=torque;
+  if(keys.ArrowRight)ship.av+=torque;
+  ship.av+=-Math.sin(ship.angle)*.0009;ship.av*=.989;ship.angle+=ship.av;
+  if(keys.ArrowUp&&ship.fuel>0){
+    const power=.0145*ship.thrust;ship.vx+=Math.sin(ship.angle)*power;ship.vy-=Math.cos(ship.angle)*power;
+    ship.fuel=Math.max(0,ship.fuel-.028);if(stageTimer%3===0)exhaust();
+  }
+  ship.vx*=.9995;ship.vy*=.9998;ship.x+=ship.vx;ship.y+=ship.vy;
+  const bounds=verticalCaveBounds(ship.y);
+  if(ship.x-15<bounds.left||ship.x+15>bounds.right){
+    if(ship.inv===0){lose('CAVERN WALL IMPACT',true);return;}
+    ship.x=clamp(ship.x,bounds.left+16,bounds.right-16);ship.vx*=-.25;
+  }
+  for(const h of landerCaveHazards){
+    const hx=h.x+Math.sin(stageTimer*.018+h.phase)*(10+difficulty*3);
+    if(Math.hypot(ship.x-hx,ship.y-h.y)<h.r+13&&ship.inv===0){lose('CAVERN ROCK IMPACT',true);return;}
+  }
+  landerCameraY=clamp(ship.y-H*.32,0,Math.max(0,landerWorldHeight-H));
+  const padYWorld=landerWorldHeight-100;
+  if(ship.y+22>=padYWorld){
+    const vertical=Math.abs(ship.vy),horizontal=Math.abs(ship.vx);
+    const upright=Math.abs(Math.atan2(Math.sin(ship.angle),Math.cos(ship.angle)));
+    const onPad=Math.abs(ship.x-landerTargetX)<pads[0].half-3;
+    const safe=vertical<Math.max(.62,.9-difficulty*.055)&&horizontal<Math.max(.42,.65-difficulty*.04)&&upright<Math.max(.2,.3-difficulty*.02);
+    if(onPad&&safe){
+      const pts=500+Math.round((1-vertical/.9)*250);addScore(pts,ship.x,ship.y-40-landerCameraY);
+      sfx('land');ship.angle=0;ship.av=0;landerVerticalMode=false;setupSurface();
+    }else if(!onPad)lose('MISSED THE CAVERN LANDING PAD',true);
+    else if(vertical>=Math.max(.62,.9-difficulty*.055))lose('CAVERN DESCENT TOO FAST',true);
+    else if(horizontal>=Math.max(.42,.65-difficulty*.04))lose('TOO MUCH SIDEWAYS SPEED',true);
+    else lose('SHIP NOT LEVEL',true);
+  }
+}
+function drawVerticalLander(){
+  ctx.fillStyle='#030609';ctx.fillRect(0,0,W,H);
+  const top=landerCameraY,bottom=top+H,p=planets[planetIndex],step=12;
+  for(let y=Math.floor(top/step)*step;y<=bottom+step;y+=step){
+    const b=verticalCaveBounds(y);
+    ctx.fillStyle='#101114';ctx.fillRect(0,y-top,Math.max(0,b.left),step+1);ctx.fillRect(b.right,y-top,Math.max(0,W-b.right),step+1);
+    ctx.strokeStyle=p.tint;ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(b.left,y-top);ctx.lineTo(b.left,y-top+step);ctx.moveTo(b.right,y-top);ctx.lineTo(b.right,y-top+step);ctx.stroke();
+  }
+  for(const h of landerCaveHazards){
+    if(h.y<top-40||h.y>bottom+40)continue;
+    const x=h.x+Math.sin(stageTimer*.018+h.phase)*(10+planetIndex*3),y=h.y-top;
+    drawRock({x,y,r:h.r,rot:stageTimer*.006,shape:[.8,1.1,.9,1.15,.75,1.05,.85,1.12]},.9,'#8c8c8c');
+  }
+  const py=landerWorldHeight-100-top;
+  ctx.strokeStyle=p.tint;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(landerTargetX-pads[0].half,py);ctx.lineTo(landerTargetX+pads[0].half,py);ctx.stroke();
+  ctx.fillStyle=ORE;text('LANDING PAD',landerTargetX,py-12,11,'center');
+  drawShip(ship.x,ship.y-top,1.1,ship.angle,keys.ArrowUp&&ship.fuel>0&&state==='lander',keys.ArrowLeft,keys.ArrowRight,true);
+  drawShieldEffect(ship.x,ship.y-top);
+  drawHUD();
+  const ang=Math.abs(Math.atan2(Math.sin(ship.angle),Math.cos(ship.angle)));
+  const col=ok=>ctx.fillStyle=ok?'#7dff9a':'#ff6b6b';
+  col(Math.abs(ship.vy)<Math.max(.62,.9-planetIndex*.055));text('V '+ship.vy.toFixed(2),W/2-100,104,13,'center');
+  col(Math.abs(ship.vx)<Math.max(.42,.65-planetIndex*.04));text('H '+Math.abs(ship.vx).toFixed(2),W/2,104,13,'center');
+  col(ang<Math.max(.2,.3-planetIndex*.02));text('ANG '+Math.round(ang*57.3),W/2+100,104,13,'center');
+  mono();text('DESCENT '+Math.min(100,Math.floor(ship.y/landerWorldHeight*100))+'%  •  FUEL '+Math.floor(ship.fuel),W/2,124,12,'center');
 }
 
 const GROUND=()=>H*.78;
@@ -883,6 +989,7 @@ function updateTakeoff(){
 
 /* --------------------------------------------------------------- LANDER */
 function updateLander(){
+  if(landerVerticalMode){updateVerticalLander();return;}
   stageTimer++;
   ship.vy+=.0048 + planetIndex*.00065;
   const torque=.00125;
@@ -1518,6 +1625,7 @@ function drawTakeoff(){
 }
 
 function drawLander(){
+  if(landerVerticalMode){drawVerticalLander();return;}
   ctx.fillStyle='#060606';ctx.fillRect(0,0,W,H);
   for(let i=0;i<50;i++){ctx.globalAlpha=.15+(i%4)*.08;mono();ctx.fillRect((i*137)%W,(i*71)%(H*.6),1.5,1.5)}ctx.globalAlpha=1;
   drawLanderGround();
