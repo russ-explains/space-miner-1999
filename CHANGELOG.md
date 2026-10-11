@@ -1,3 +1,7 @@
+## v1.9.55 — 2026-10-11
+- Guaranteed a flat cavern floor shelf around each landing pad, with the shelf wider than the pad by a responsive safety margin.
+- Made the mountain outline sample the same shelf-aware profile used by collision, so the wider floor is visible and stays free of solid mountain terrain.
+
 ## v1.9.54 — 2026-10-11
 - Made the jagged cavern mountains solid terrain: the lander can no longer pass through them.
 - Mountain impacts remove one HULL point and bounce the lander back above the ridge; existing invulnerability prevents repeated damage from one contact.
