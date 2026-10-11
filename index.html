@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.54';
+const VERSION='v1.9.55';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -401,14 +401,22 @@ const CAVERN_MOUNTAIN_PROFILE=[
   ];
 function cavernMountainHeightAt(x){
   const nx=clamp(x/Math.max(1,W),0,1);
+  let height=0;
   for(let i=0;i<CAVERN_MOUNTAIN_PROFILE.length-1;i++){
     const a=CAVERN_MOUNTAIN_PROFILE[i],b=CAVERN_MOUNTAIN_PROFILE[i+1];
     if(nx>=a[0]&&nx<=b[0]){
       const t=(nx-a[0])/(b[0]-a[0]);
-      return (a[1]+(b[1]-a[1])*t)*H*.70;
+      height=(a[1]+(b[1]-a[1])*t)*H*.70;
+      break;
     }
   }
-  return 0;
+  // Guarantee each landing pad has a flat floor shelf wider than the pad itself.
+  // Keep a pixel-based margin so the guarantee also holds on narrow screens.
+  for(const pad of pads){
+    const shelfHalf=pad.half+Math.max(18,W*.012);
+    if(Math.abs(x-pad.x)<=shelfHalf)height=Math.min(height,H*.01);
+  }
+  return height;
 }
 
 function setupVerticalLander(){
@@ -556,13 +564,13 @@ function drawVerticalLander(){
     if(a.y<top-50||a.y>bottom+50)continue;
     drawRock({x:a.x,y:a.y-top,r:a.r,rot:a.rot,shape:a.shape},.95,'#d0d0d0');
   }
-  // Shared mountain profile: the same jagged outline is used for drawing and collision.
-  // Low clear shelves at x=.31 and x=.82 keep both pads outside the solid mountain shapes.
+  // Shared mountain profile: the same outline is used for drawing and collision.
+  // Sample it across the screen so the wider, pad-specific flat shelves are drawn accurately.
   const floorTop=landerWorldHeight-72-top;
-  const mountainRise=H*.70;
   ctx.fillStyle='#171719';ctx.strokeStyle=p.tint;ctx.lineWidth=2;ctx.beginPath();
   ctx.moveTo(0,floorTop+24);
-  for(const point of CAVERN_MOUNTAIN_PROFILE)ctx.lineTo(point[0]*W,floorTop-cavernMountainHeightAt(point[0]*W));
+  for(let x=0;x<=W;x+=8)ctx.lineTo(x,floorTop-cavernMountainHeightAt(x));
+  ctx.lineTo(W,floorTop-cavernMountainHeightAt(W));
   ctx.lineTo(W,floorTop+24);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();ctx.stroke();
   for(const pd of pads){
     const py=pd.y-top;
