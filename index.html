@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.45';
+const VERSION='v1.9.46';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -369,8 +369,10 @@ function setupVerticalLander(){
     const prev=landerCaveNodes[landerCaveNodes.length-1];
     landerCaveNodes.push({y,cx:clamp(prev.cx+rnd(-W*(.12+difficulty*.012),W*(.12+difficulty*.012)),W*.32,W*.68),half:Math.max(W*(.17-difficulty*.014),W*.115)+rnd(-W*.025,W*.025)});
   }
-  landerCaveNodes.push({y:landerWorldHeight-190,cx:W*.5,half:Math.max(W*.25,corridorHalf*.9)});
-  landerCaveNodes.push({y:landerWorldHeight,cx:W*.5,half:W*.46});
+  // Open into a broad bottom chamber so either landing pad is reachable from the descent channel.
+  landerCaveNodes.push({y:landerWorldHeight-480,cx:W*.5,half:W*.39});
+  landerCaveNodes.push({y:landerWorldHeight-260,cx:W*.5,half:W*.45});
+  landerCaveNodes.push({y:landerWorldHeight,cx:W*.5,half:W*.47});
   landerTargetX=clamp(W*(.5+rnd(-.18,.18)),W*.35,W*.65);
   landerCaveHazards=[];
   const hazardCount=4+difficulty*3;
@@ -381,7 +383,8 @@ function setupVerticalLander(){
     const radius=Math.max(12,18+difficulty*2);
     landerCaveHazards.push({x:side==='left'?b.left+radius+8:b.right-radius-8,y,r:radius,phase:rnd(0,Math.PI*2)});
   }
-  pads=[{x:landerTargetX,half:Math.max(42,62-difficulty*4),mult:1}];
+  const padHalf=Math.max(44,58-difficulty*2);
+  pads=[{x:W*.31,half:padHalf,mult:1,y:landerWorldHeight-112},{x:W*.69,half:padHalf,mult:3,y:landerWorldHeight-128,gemTaken:false}];
   asteroids=[];bullets=[];ebullets=[];drops=[];particles=[];pickups=[];ufo=null;
   ship.x=W*.5;ship.y=90;ship.vx=rnd(-.08,.08);ship.vy=.02;ship.angle=0;ship.av=0;
 }
@@ -416,16 +419,17 @@ function updateVerticalLander(){
     if(Math.hypot(ship.x-hx,ship.y-h.y)<h.r+13&&ship.inv===0){lose('CAVERN ROCK IMPACT',true);return;}
   }
   landerCameraY=clamp(ship.y-H*.32,0,Math.max(0,landerWorldHeight-H));
-  const padYWorld=landerWorldHeight-100;
-  if(ship.y+22>=padYWorld){
+  const lowestPadY=Math.min(...pads.map(p=>p.y));
+  if(ship.y+22>=lowestPadY){
     const vertical=Math.abs(ship.vy),horizontal=Math.abs(ship.vx);
     const upright=Math.abs(Math.atan2(Math.sin(ship.angle),Math.cos(ship.angle)));
-    const onPad=Math.abs(ship.x-landerTargetX)<pads[0].half-3;
+    const pad=pads.find(p=>Math.abs(ship.x-p.x)<p.half-3&&Math.abs((ship.y+22)-p.y)<30);
     const safe=vertical<Math.max(.62,.9-difficulty*.055)&&horizontal<Math.max(.42,.65-difficulty*.04)&&upright<Math.max(.2,.3-difficulty*.02);
-    if(onPad&&safe){
-      const pts=500+Math.round((1-vertical/.9)*250);addScore(pts,ship.x,ship.y-40-landerCameraY);
+    if(pad&&safe){
+      const pts=(500+Math.round((1-vertical/.9)*250))*pad.mult;addScore(pts,ship.x,ship.y-40-landerCameraY);
+      if(pad.mult>1&&!pad.gemTaken){pad.gemTaken=true;gems++;addScore(200,ship.x,ship.y-58-landerCameraY);sfx('gem');}
       sfx('land');ship.angle=0;ship.av=0;landerVerticalMode=false;setupSurface();
-    }else if(!onPad)lose('MISSED THE CAVERN LANDING PAD',true);
+    }else if(!pad)lose('MISSED THE CAVERN LANDING PAD',true);
     else if(vertical>=Math.max(.62,.9-difficulty*.055))lose('CAVERN DESCENT TOO FAST',true);
     else if(horizontal>=Math.max(.42,.65-difficulty*.04))lose('TOO MUCH SIDEWAYS SPEED',true);
     else lose('SHIP NOT LEVEL',true);
@@ -445,9 +449,16 @@ function drawVerticalLander(){
     const x=h.x+Math.sin(stageTimer*.018+h.phase)*(10+planetIndex*3),y=h.y-top;
     drawRock({x,y,r:h.r,rot:stageTimer*.006,shape:[.8,1.1,.9,1.15,.75,1.05,.85,1.12]},.9,'#8c8c8c');
   }
-  const py=landerWorldHeight-100-top;
-  ctx.strokeStyle=p.tint;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(landerTargetX-pads[0].half,py);ctx.lineTo(landerTargetX+pads[0].half,py);ctx.stroke();
-  ctx.fillStyle=ORE;text('LANDING PAD',landerTargetX,py-12,11,'center');
+  // A few low ridges shape the floor of the broad bottom chamber without blocking the pads.
+  const floorTop=landerWorldHeight-72-top;
+  ctx.fillStyle='#171719';ctx.strokeStyle=p.tint;ctx.lineWidth=2;ctx.beginPath();
+  ctx.moveTo(0,floorTop+24);ctx.lineTo(W*.12,floorTop+24);ctx.lineTo(W*.19,floorTop+5);ctx.lineTo(W*.25,floorTop+22);ctx.lineTo(W*.39,floorTop+24);ctx.lineTo(W*.45,floorTop+10);ctx.lineTo(W*.51,floorTop+24);ctx.lineTo(W*.64,floorTop+24);ctx.lineTo(W*.72,floorTop+7);ctx.lineTo(W*.79,floorTop+24);ctx.lineTo(W,floorTop+24);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();ctx.stroke();
+  for(const pd of pads){
+    const py=pd.y-top;
+    ctx.strokeStyle=pd.mult>1?ORE:p.tint;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(pd.x-pd.half,py);ctx.lineTo(pd.x+pd.half,py);ctx.stroke();
+    ctx.fillStyle=pd.mult>1?ORE:'#fff';text(pd.mult>1?'BONUS PAD x3':'LANDING PAD',pd.x,py-12,11,'center');
+    if(pd.mult>1)drawGem(pd.x,py-24,ORE);
+  }
   drawShip(ship.x,ship.y-top,1.1,ship.angle,keys.ArrowUp&&ship.fuel>0&&state==='lander',keys.ArrowLeft,keys.ArrowRight,true);
   drawShieldEffect(ship.x,ship.y-top);
   drawHUD();
@@ -542,7 +553,8 @@ function setupSurface(){
 function respawnSurface(){
   state='surface';bullets=[];particles=[];cameraX=0;o2=100;mineOxygen=100;backpackFuel=100;
   ship.x=190;ship.y=surfaceGroundY(190)-32;ship.vx=0;ship.vy=0;ship.grounded=true;ship.face=1;
-  ready(planets[planetIndex].name,'OXYGEN LIMITED  •  JET TO UPPER PLATFORMS');
+  if(planetIndex===0){readyT=0;readyA='';readyB='';}
+  else ready(planets[planetIndex].name,'OXYGEN LIMITED  •  JET TO UPPER PLATFORMS');
 }
 
 function setupUpgrade(){state='upgrade';stageTimer=0;upSel=0;initAudio();setWorkshopSound(true);}
@@ -1703,7 +1715,7 @@ function drawSurface(){
   particles.forEach(pt=>{mono(pt.life/55);ctx.fillRect(pt.x-cameraX,pt.y,2,2)});
   drawHUD();mono();text('GEMS '+gems+'  •  SHIP FUEL '+mineShipFuel+'/'+mineShipFuelRequired,W/2,122,13,'center');
   ctx.fillStyle='#7fffe6';text('↑: JUMP   TAP ↑ AGAIN: JETPACK   SPACE: FIRE   •   O2 + JET FUEL + 3× FUEL CANISTERS',W/2,H-34,11,'center');
-  if(mineIntroT>0){
+  if(mineIntroT!==0){
     const panelW=Math.min(W-28,560),panelH=150,px=(W-panelW)/2,py=(H-panelH)/2;
     ctx.save();ctx.globalAlpha=.94;ctx.fillStyle='#050505';ctx.fillRect(px,py,panelW,panelH);ctx.strokeStyle=ORE;ctx.lineWidth=2;ctx.strokeRect(px,py,panelW,panelH);ctx.globalAlpha=1;
     mono();ctx.fillStyle=ORE;text('MINING MISSION',W/2,py+25,16,'center');
