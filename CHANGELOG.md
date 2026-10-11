@@ -1,3 +1,8 @@
+## v1.9.52 — 2026-10-11
+- Changed floating-asteroid collisions during cavern landings to remove one HULL point instead of instantly destroying the lander.
+- Added a small knockback to separate the lander from the asteroid; invulnerability frames prevent a single overlap from repeatedly draining HULL.
+- Confirmed cavern wall impacts also use one-HULL damage, as introduced in v1.9.51.
+
 ## v1.9.51 — 2026-10-11
 - Changed landing-cavern wall collisions from instant destruction to a one-HULL-point impact, with existing invulnerability frames preventing repeated damage from a single contact.
 - Kept wall impacts physically bounded with a gentle rebound so the lander is pushed back into the cavern.
