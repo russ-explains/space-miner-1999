@@ -1,3 +1,9 @@
+## v1.9.50 — 2026-10-11
+- Removed the flashing **READY** sign after the first mining planet's instructions; the rules remain available without that extra prompt.
+- Hard-capped hull at **3** across the HUD/game state, damage recovery, repair upgrade and **U** testing cheat.
+- Added tall rocky mountain shapes to the large landing caverns on Planets 2–5, rising to around 70% of the screen height while keeping both landing pads clear.
+- Restyled the later-planet landing pads to match Planet 1's flat pad, support legs, and blinking end markers; the x3 bonus marker remains.
+
 ## v1.9.49
 - Re-enabled test shortcuts during gameplay: **1** = asteroid flight, **2** = landing, **3** = mining, **4** = cavern escape.
 - Repeating the current section shortcut advances to the next planet, stopping at the final planet.
