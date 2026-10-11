@@ -1,3 +1,8 @@
+## v1.9.48
+- Expanded the bottom landing cavern on Planets 2–5 to at least a full screen in height, with a wide open chamber and both landing pads at the bottom so players can choose where to land.
+- Increased starting fuel for the opening asteroid level by another 20 points, from 41.4 to 61.4.
+- Changed the free extra-life threshold to 50,000 points and updated the mission briefing to match.
+
 ## v1.9.47
 - Added drifting, rotating asteroids throughout the vertical landing caverns; collisions can destroy the lander.
 - Asteroid count and size increase on each successive planet, while the bottom landing chamber remains clear of spawned asteroids.
