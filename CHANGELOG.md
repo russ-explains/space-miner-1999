@@ -1,3 +1,8 @@
+## v1.9.49
+- Re-enabled test shortcuts during gameplay: **1** = asteroid flight, **2** = landing, **3** = mining, **4** = cavern escape.
+- Repeating the current section shortcut advances to the next planet, stopping at the final planet.
+- Re-enabled **U** to grant full fuel, upgraded hull/laser/thrust, three shields, full jetpack fuel, and a large gem bank for testing.
+
 ## v1.9.48
 - Expanded the bottom landing cavern on Planets 2–5 to at least a full screen in height, with a wide open chamber and both landing pads at the bottom so players can choose where to land.
 - Increased starting fuel for the opening asteroid level by another 20 points, from 41.4 to 61.4.
