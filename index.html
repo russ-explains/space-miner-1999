@@ -511,7 +511,7 @@ function updateVerticalLander(){
   // and bounces the lander back above the ridge. Invulnerability prevents repeat damage.
   const mountainFloor=landerWorldHeight-72;
   const mountainTop=mountainFloor-cavernMountainHeightAt(ship.x);
-  if(ship.y+18>mountainTop && ship.y<mountainFloor+18 && mountainHeightAt(ship.x)>H*.025){
+  if(ship.y+18>mountainTop && ship.y<mountainFloor+18 && cavernMountainHeightAt(ship.x)>H*.025){
     ship.y=mountainTop-19;
     ship.vy=-Math.max(.08,Math.abs(ship.vy)*.35);
     const slopeL=cavernMountainHeightAt(ship.x-8),slopeR=cavernMountainHeightAt(ship.x+8);
@@ -562,7 +562,7 @@ function drawVerticalLander(){
   const mountainRise=H*.70;
   ctx.fillStyle='#171719';ctx.strokeStyle=p.tint;ctx.lineWidth=2;ctx.beginPath();
   ctx.moveTo(0,floorTop+24);
-  for(const point of mountainProfile)ctx.lineTo(point[0]*W,floorTop-mountainHeightAt(point[0]*W));
+  for(const point of CAVERN_MOUNTAIN_PROFILE)ctx.lineTo(point[0]*W,floorTop-cavernMountainHeightAt(point[0]*W));
   ctx.lineTo(W,floorTop+24);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();ctx.stroke();
   for(const pd of pads){
     const py=pd.y-top;
