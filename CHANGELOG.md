@@ -1,3 +1,9 @@
+## v1.9.54 — 2026-10-11
+- Made the jagged cavern mountains solid terrain: the lander can no longer pass through them.
+- Mountain impacts remove one HULL point and bounce the lander back above the ridge; existing invulnerability prevents repeated damage from one contact.
+- Added more uneven peaks and shoulders throughout the cavern, with clear low shelves at both landing pads.
+- Positioned the small x3 pad in a low gap between two right-side ridges to make the approach more challenging without placing the pad inside a mountain.
+
 ## v1.9.53 — 2026-10-11
 - Made the x3 bonus landing pad on vertical cavern planets smaller, matching the approximate proportions of Planet 1's bonus pad.
 - Moved the x3 pad further to the right to make its approach more exposed and challenging.
