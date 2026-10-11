@@ -1,3 +1,7 @@
+## v1.9.47
+- Added drifting, rotating asteroids throughout the vertical landing caverns; collisions can destroy the lander.
+- Asteroid count and size increase on each successive planet, while the bottom landing chamber remains clear of spawned asteroids.
+
 ## v1.9.46
 - Fixed Planet 1 mining instructions so the guide is visible immediately when the level loads, before gameplay begins; the first control input starts its four-second dismissal timer.
 - Widened the bottom of vertical landing caverns into a broad landing chamber with small floor ridges and two reachable landing pads, including the x3 bonus pad.
