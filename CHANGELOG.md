@@ -1,3 +1,7 @@
+## v1.9.58 — 2026-10-11
+- Reduced the score threshold for earning a free extra ship from **50,000 points to 25,000 points**.
+- Updated the on-screen mission briefing and the displayed extra-ship rule to match the new threshold.
+
 ## v1.9.57 — 2026-10-11
 - Removed the temporary gameplay test cheats: number keys **1–4** can no longer jump between sections or planets, and **U** no longer grants test upgrades/resources.
 - Normal controls, the **C** CRT toggle, and the **P** pause key remain available.
