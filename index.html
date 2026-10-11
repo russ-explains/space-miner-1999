@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.57';
+const VERSION='v1.9.58';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -164,7 +164,7 @@ const planets=[
 ];
 const ORE='#ffd36b';
 const FLY_BASE=1.6;          // autoscroll speed in deep space (px/frame)
-const EXTRA_LIFE_EVERY=50000;
+const EXTRA_LIFE_EVERY=25000;
 
 function loadTable(){
   try{const t=JSON.parse(localStorage.getItem('SM4000_TABLE')||'null');if(Array.isArray(t)&&t.length)return t}catch(e){}
@@ -1940,7 +1940,7 @@ function drawInfo(){
     'C: toggle the retro CRT screen effect. ENTER: close this briefing.'
   ]);
   section('ARCADE EXTRAS',[
-    'Earn a free extra ship at 50,000 points. Chase the high-score table!',
+    'Earn a free extra ship every 25,000 points. Chase the high-score table!',
     'There are five planets, each with its own hazards and increasing challenge.',
     'Your high scores are saved in this browser on this device.'
   ]);
