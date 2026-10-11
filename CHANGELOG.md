@@ -1,3 +1,7 @@
+## v1.9.57 — 2026-10-11
+- Removed the temporary gameplay test cheats: number keys **1–4** can no longer jump between sections or planets, and **U** no longer grants test upgrades/resources.
+- Normal controls, the **C** CRT toggle, and the **P** pause key remain available.
+
 ## v1.9.56 — 2026-10-11
 - Enlarged the astronaut's jetpack backpack so it reads more clearly during mining.
 - The backpack swaps sides when the astronaut turns left or right.
