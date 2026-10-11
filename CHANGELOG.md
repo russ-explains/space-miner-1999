@@ -1,3 +1,7 @@
+## v1.9.44
+- Restored the mining mission guide on Planet 1 only; it stays visible indefinitely until the player presses a control, then remains visible for another four seconds before the READY countdown.
+- Later mining planets no longer show the introductory guide.
+
 ## v1.9.43
 - Increased blue fuel-ring pickups on the first asteroid level by 35%, from 7.5 to 10.125 fuel units. Later levels are unchanged.
 
