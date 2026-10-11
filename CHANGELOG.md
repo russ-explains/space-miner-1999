@@ -1,3 +1,8 @@
+## v1.9.53 — 2026-10-11
+- Made the x3 bonus landing pad on vertical cavern planets smaller, matching the approximate proportions of Planet 1's bonus pad.
+- Moved the x3 pad further to the right to make its approach more exposed and challenging.
+- Reworked cavern mountain silhouettes into several uneven, jagged ridges with multiple peaks and shoulders, including a more rugged approach near the bonus pad.
+
 ## v1.9.52 — 2026-10-11
 - Changed floating-asteroid collisions during cavern landings to remove one HULL point instead of instantly destroying the lander.
 - Added a small knockback to separate the lander from the asteroid; invulnerability frames prevent a single overlap from repeatedly draining HULL.
