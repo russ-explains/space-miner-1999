@@ -1,3 +1,8 @@
+## v1.9.46
+- Fixed Planet 1 mining instructions so the guide is visible immediately when the level loads, before gameplay begins; the first control input starts its four-second dismissal timer.
+- Widened the bottom of vertical landing caverns into a broad landing chamber with small floor ridges and two reachable landing pads, including the x3 bonus pad.
+- Adjusted landing detection to recognise either pad at its own height.
+
 ## v1.9.45
 - Changed landing sections on Planets 2–5 into vertically scrolling cavern descents, with a landing pad at the bottom and moving rock hazards.
 - Increased cavern depth, corridor difficulty and landing precision requirements on each later planet; Planet 1 keeps its original horizontal lander.
