@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.87';
+const VERSION='v1.9.88';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1473,15 +1473,22 @@ let mineSublevel={active:false,camY:0,platforms:[],pickups:[],monster:null,bombs
 function enterMiningCavern(){
  const s=mineSublevel;s.active=true;s.camY=0;s.floorY=H-46;
  const shaftW=Math.max(12,Math.min(20,W*.025)),left=18,right=W-18;
- // Thin, staggered ledges echo the surface platforms rather than forming broad shelves.
+ // Floating, surface-style ledges dotted irregularly around the chamber.
  s.platforms=[
-  {x:left+8,y:H*.19,w:W*.22},{x:right-W*.24-8,y:H*.25,w:W*.24},
-  {x:right-W*.18-8,y:H*.37,w:W*.18},{x:left+8,y:H*.43,w:W*.20},
-  {x:left+8,y:H*.56,w:W*.18},{x:right-W*.23-8,y:H*.61,w:W*.23},
-  {x:right-W*.20-8,y:H*.74,w:W*.20},{x:left+8,y:H*.79,w:W*.23}
+  {x:W*.05,y:H*.20,w:W*.15},{x:W*.54,y:H*.19,w:W*.14},
+  {x:W*.16,y:H*.37,w:W*.13},{x:W*.48,y:H*.50,w:W*.30},
+  {x:W*.13,y:H*.70,w:W*.16},{x:W*.81,y:H*.72,w:W*.12},
+  {x:W*.79,y:H*.10,w:W*.13}
  ];
- s.pickups=[];for(let i=0;i<7;i++)s.pickups.push({type:i%2?'backpack':'oxygen',x:i%2?W*.76:W*.24,y:H*(.2+Math.floor(i/2)*.18),taken:false});
- s.pickups.push({type:'backpack',x:W*.52,y:s.floorY-32,taken:false});
+ // Resource crates are scattered around different ledges; a jetpack pack always remains on the floor.
+ const resources=[
+  {type:'oxygen',x:W*.14,y:H*.16},{type:'backpack',x:W*.69,y:H*.45},
+  {type:'oxygen',x:W*.68,y:H*.44},{type:'backpack',x:W*.15,y:H*.65},
+  {type:'oxygen',x:W*.15,y:H*.16},{type:'backpack',x:W*.84,y:H*.66},
+  {type:'oxygen',x:W*.60,y:H*.08}
+ ];
+ s.pickups=resources.map((p,i)=>({...p,taken:false}));
+ s.pickups.push({type:'backpack',x:W*.61,y:s.floorY-30,taken:false});
  s.monster={x:W*.5,y:H*.49,hp:7+planetIndex*5,maxHp:7+planetIndex*5,age:0,alive:true,melt:0,fire:Math.max(24,65-planetIndex*8)};
  s.bombs=[];s.gems=[];s.rocket={x:W*.12,y:s.floorY-22,active:true};s.launch=null;
  ship.x=W*.5;ship.y=70;ship.vx=0;ship.vy=0;ship.grounded=false;jetpackActive=false;
@@ -1524,14 +1531,18 @@ function drawMiningCavern(){
  ctx.strokeStyle='#777';ctx.lineWidth=3;ctx.strokeRect(2,2,W-4,H-4);
  // A tiny ladder sits only beside the lower-right wall; no tall rails run up the screen.
  ctx.strokeStyle='#aaa';ctx.lineWidth=2;const lx=W-28,ladderTop=H*.68;ctx.beginPath();ctx.moveTo(lx,ladderTop);ctx.lineTo(lx,H-8);for(let y=ladderTop+8;y<H-8;y+=20){ctx.moveTo(lx-5,y);ctx.lineTo(lx+2,y);}ctx.stroke();
- for(const p of s.platforms){const y=p.y;if(y>-20&&y<H+20){ctx.fillStyle='#17191b';ctx.fillRect(p.x,y,p.w,4);ctx.strokeStyle=planets[planetIndex].tint;ctx.lineWidth=1.5;ctx.strokeRect(p.x,y,p.w,4);}}
- // Wobbly white cavern floor, with the lower fuel pack kept clearly visible.
- ctx.strokeStyle='#f2f2f2';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,s.floorY);for(let x=0;x<=W;x+=8)ctx.lineTo(x,s.floorY+Math.sin(x*.045)*2+Math.sin(x*.013)*1.5);ctx.stroke();
+ // Reuse the same thin top edge and jagged, rocky underside style as the surface platforms.
+ s.platforms.forEach((p,i)=>{const x=p.x,y=p.y,depth=8+(i%3)*3,step=10,seed=i*7+Math.floor(p.x*.03);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+p.w,y);for(let k=Math.ceil(p.w/step);k>=0;k--){const px=x+Math.min(p.w,k*step);const jag=3+((Math.sin(seed+k*2.17)+1)*.5)*depth;ctx.lineTo(px,y+jag);}ctx.closePath();ctx.fillStyle='rgba(115,115,115,.22)';ctx.fill();ctx.strokeStyle='#ddd';ctx.lineWidth=1.2;ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+p.w,y);ctx.stroke();});
+ // Wobbly white ground contour, matching the hand-drawn reference.
+ ctx.strokeStyle='#ddd';ctx.lineWidth=1.5;ctx.beginPath();for(let x=0;x<=W;x+=5){const yy=s.floorY+Math.sin(x*.018)*10+Math.sin(x*.043)*5+Math.sin(x*.006)*7;x?ctx.lineTo(x,yy):ctx.moveTo(x,yy);}ctx.stroke();
  for(const p of s.pickups){if(!p.taken)drawCrateIcon(p.type,p.x,p.y,p.y>s.floorY-70?24:20);}
- const m=s.monster;if(m.alive||m.melt>0){ctx.save();ctx.translate(m.x,m.y);ctx.fillStyle='#36c84e';ctx.strokeStyle='#70ff72';ctx.lineWidth=2;
-  for(let i=0;i<4;i++){const a=m.age*.04+i*Math.PI/2;ctx.beginPath();ctx.moveTo(0,8);for(let j=1;j<=6;j++){const t=j/6;ctx.lineTo(Math.cos(a+t*1.5)*t*39,8+Math.sin(a+t*1.5)*t*35+j*3);}ctx.stroke();}
-  if(m.alive){ctx.beginPath();ctx.ellipse(0,0,40,34,Math.sin(m.age*.02)*.1,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#062006';ctx.fillRect(-14,-7,7,7);ctx.fillRect(8,-7,7,7);}else{ctx.globalAlpha=Math.max(0,m.melt/100);ctx.beginPath();ctx.ellipse(0,12,48,10,0,0,Math.PI*2);ctx.fill();}ctx.restore();}
+ const m=s.monster;if(m.alive||m.melt>0){ctx.save();ctx.translate(m.x,m.y);ctx.fillStyle='#36c84e';ctx.strokeStyle='#70ff72';ctx.lineWidth=3;
+  // Four long, independently writhing tentacles around an irregular alien body.
+  for(let i=0;i<4;i++){const a=m.age*.018+i*Math.PI/2;ctx.beginPath();ctx.moveTo(Math.cos(a)*22,Math.sin(a)*18);for(let j=1;j<=12;j++){const t=j/12,wiggle=Math.sin(m.age*.055+j*.82+i*2.1)*9;const reach=28+t*(Math.min(W,H)*.15);const px=Math.cos(a+t*1.0)*reach+Math.cos(a+Math.PI/2)*wiggle;const py=Math.sin(a+t*1.0)*reach+Math.sin(a+Math.PI/2)*wiggle;ctx.lineTo(px,py);}ctx.stroke();}
+  if(m.alive){ctx.beginPath();for(let j=0;j<=24;j++){const a=j/24*Math.PI*2,r=37+Math.sin(a*3+m.age*.035)*5+Math.sin(a*5-m.age*.024)*3;const x=Math.cos(a)*r,y=Math.sin(a)*r*.86;j?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#062006';ctx.beginPath();ctx.arc(-12,-4,5,0,Math.PI*2);ctx.arc(12,-4,5,0,Math.PI*2);ctx.fill();}else{ctx.globalAlpha=Math.max(0,m.melt/100);ctx.beginPath();ctx.ellipse(0,12,48,10,0,0,Math.PI*2);ctx.fill();}ctx.restore();}
  for(const b of s.bombs){ctx.fillStyle='#ff6bd6';ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fill();}
+ // Player shots were being updated but not rendered in this room; draw them brightly here.
+ for(const b of bullets){if(b.enemy)continue;ctx.fillStyle=ship.laser>=4?'#ff3030':ship.laser===3?'#ff8c24':ship.laser===2?'#ffe34d':'#fff';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=8;ctx.fillRect(b.x-1,b.y-1,14,4);ctx.shadowBlur=0;}
  for(const g of s.gems)drawGem(g.x,g.y,ORE);
  if(s.rocket.active){ctx.save();ctx.translate(s.rocket.x,s.rocket.y);ctx.strokeStyle=ORE;ctx.fillStyle='#111';ctx.beginPath();ctx.moveTo(0,-17);ctx.lineTo(8,8);ctx.lineTo(0,5);ctx.lineTo(-8,8);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#ff8c24';ctx.fillRect(-3,9,6,8);ctx.restore();}
  if(s.launch){
