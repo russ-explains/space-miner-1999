@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.96';
+const VERSION='v1.9.97';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1524,12 +1524,12 @@ function updateMiningCavern(){
   m.y=clamp((m.y??homeY)+(homeY-(m.y??homeY))*.045+targetY*chargeSpeed*.04,H*.28,H*.65);
   // Touching the body or any animated tentacle costs one hull, with normal hit invulnerability.
   let tentacleHit=Math.hypot(ship.x-m.x,(ship.y+18)-m.y)<47;
-  if(!tentacleHit){for(let i=0;i<4&&!tentacleHit;i++){const a=m.age*.018+i*Math.PI/2;let px=Math.cos(a)*22,py=Math.sin(a)*18;for(let j=1;j<=12;j++){const t=j/12,wiggle=Math.sin(m.age*.055+j*.82+i*2.1)*9,reach=28+t*(Math.min(W,H)*.15);const nx=Math.cos(a+t)*reach+Math.cos(a+Math.PI/2)*wiggle,ny=Math.sin(a+t)*reach+Math.sin(a+Math.PI/2)*wiggle;const vx=nx-px,vy=ny-py,den=vx*vx+vy*vy||1,q=clamp(((ship.x-px)*vx+((ship.y+18)-py)*vy)/den,0,1);if(Math.hypot(ship.x-(px+q*vx),(ship.y+18)-(py+q*vy))<15){tentacleHit=true;break;}px=nx;py=ny;}}}
+  if(!tentacleHit){for(let i=0;i<4&&!tentacleHit;i++){const a=m.age*.018+i*Math.PI/2;let px=Math.cos(a)*22,py=Math.sin(a)*18;for(let j=1;j<=12;j++){const t=j/12,wiggle=Math.sin(m.age*.055+j*.82+i*2.1)*9,reach=28+t*(Math.min(W,H)*.15),pivot1=Math.sin(m.age*.04+i*2.3)*.22*t,pivot2=Math.sin(m.age*.065+j*.7+i*1.7)*.14*t,angle=a+t+pivot1+pivot2,nx=Math.cos(angle)*reach+Math.cos(a+Math.PI/2)*wiggle,ny=Math.sin(angle)*reach+Math.sin(a+Math.PI/2)*wiggle;const vx=nx-px,vy=ny-py,den=vx*vx+vy*vy||1,q=clamp(((ship.x-px)*vx+((ship.y+18)-py)*vy)/den,0,1);if(Math.hypot(ship.x-(px+q*vx),(ship.y+18)-(py+q*vy))<20){tentacleHit=true;break;}px=nx;py=ny;}}}
   if(tentacleHit&&ship.inv===0){damage('ALIEN TENTACLE','THE BEAST GRABBED YOU',false,true);if(state!=='surface')return;}
   if(--m.fire<=0){const dx=ship.x-m.x,dy=ship.y-m.y,d=Math.hypot(dx,dy)||1,sp=1.7+planetIndex*.15;s.bombs.push({x:m.x,y:m.y+20,vx:dx/d*sp,vy:dy/d*sp,life:240});m.fire=Math.max(18,65-planetIndex*8);if(Math.random()<.4){s.bombs.push({x:m.x,y:m.y+20,vx:(ship.x-m.x)/Math.max(1,Math.abs(ship.x-m.x))*sp*.7,vy:sp*.7,life:240});}}
   for(const b of bullets){if(!b.enemy&&b.life>0&&Math.hypot(b.x-m.x,b.y-m.y)<48){b.life=0;m.hp--;burst(b.x,b.y,5);if(m.hp<=0){m.alive=false;m.melt=100;for(let i=0;i<5;i++)s.gems.push({x:m.x,y:m.y,vx:(i-2)*1.5,vy:-4-i*.3,landed:false});msg='BEAST DEFEATED — FIVE GEMS!';msgT=120;sfx('boom');}}}
  }
- for(const b of s.bombs){b.x+=b.vx;b.y+=b.vy;b.vy+=.015;b.life--;if(Math.hypot(ship.x-b.x,ship.y-b.y)<18&&ship.inv===0){b.life=0;damage('CAVERN BEAST','BEAST BOMB HIT',false,true);if(state!=='surface')return;}}
+ for(const b of s.bombs){b.x+=b.vx;b.y+=b.vy;b.vy+=.015;b.life--;if(Math.hypot(ship.x-b.x,(ship.y+18)-b.y)<24&&ship.inv===0){b.life=0;damage('CAVERN BEAST','BEAST BOMB HIT',false,true);if(state!=='surface')return;}}
  s.bombs=s.bombs.filter(b=>b.life>0&&b.y<s.floorY+30&&b.x>-20&&b.x<W+20);
  if(!m.alive&&m.melt>0)m.melt--;
  for(const p of s.pickups){if(!p.taken&&Math.hypot(ship.x-p.x,ship.y-p.y)<28){p.taken=true;if(p.type==='oxygen'){mineOxygen=Math.min(mineOxygenMax,mineOxygen+35);o2=mineOxygen;}else backpackFuel=Math.min(maxBackpackFuel,backpackFuel+40);sfx('fuel');}}
@@ -2266,7 +2266,8 @@ function drawSurface(){
   mineHoles.forEach(h=>{const x=h.x-cameraX;if(x>-120&&x<W+120){if(h.special){const gy=surfaceGroundY(h.x),w=Math.max(16,Math.min(24,W*.03)),cx=x+h.w/2;ctx.fillStyle='#050505';ctx.fillRect(x-2,gy-2,h.w+4,Math.max(0,H-gy+4));
  // The entrance is a downward shaft: no ladder or rails project above the ground line.
  // Keep the rocky walls only around the actual ladder opening; no tall vertical lines above it.
- ctx.strokeStyle='#168dff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cx-w/2,gy+3);ctx.lineTo(cx-w/2,H-6);ctx.moveTo(cx+w/2,gy+3);ctx.lineTo(cx+w/2,H-6);for(let yy=gy+10;yy<H-5;yy+=18){ctx.moveTo(cx-w/2,yy);ctx.lineTo(cx+w/2,yy);}ctx.stroke();}else drawLavaPit(h);}});
+ // A bare, dark hole in the surface with only short jagged rock edges — no ladder.
+ ctx.strokeStyle=p.tint;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x-5,gy);for(let yy=gy;yy<Math.min(H,gy+55);yy+=7)ctx.lineTo(x-5+Math.sin(yy*.17)*3,yy);ctx.moveTo(x+h.w+5,gy);for(let yy=gy;yy<Math.min(H,gy+55);yy+=7)ctx.lineTo(x+h.w+5+Math.sin(yy*.14+1)*3,yy);ctx.stroke();}else drawLavaPit(h);}});
   drawLavaFx(false);
   minePlatforms.forEach((pl,i)=>{
     const x=pl.x-cameraX;
