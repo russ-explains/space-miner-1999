@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.98';
+const VERSION='v1.9.99';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1547,8 +1547,7 @@ function drawMiningCavern(){
  ctx.strokeStyle='#777';ctx.lineWidth=3;ctx.strokeRect(2,2,W-4,H-4);
  // Jagged rocky roof across the top, matching the cavern's floor and floating ledges.
  const ceilingY=H*.10;ctx.beginPath();ctx.moveTo(0,ceilingY);for(let x=0;x<=W;x+=7){const y=ceilingY+Math.sin(x*.031)*3+Math.sin(x*.087)*2;x?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.strokeStyle='#ddd';ctx.lineWidth=1.5;ctx.stroke();
- // A narrow descending ladder in a rough, rocky shaft; its top begins at the ground, not above it.
- const lx=W-28,ladderTop=H*.68;ctx.strokeStyle='#777';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(lx-14,ladderTop);for(let yy=ladderTop;yy<H;yy+=8){ctx.lineTo(lx-14+Math.sin(yy*.11)*3,yy);ctx.lineTo(lx-10+Math.sin(yy*.07)*2,yy+4);}ctx.moveTo(lx+12,ladderTop);for(let yy=ladderTop;yy<H;yy+=8){ctx.lineTo(lx+12+Math.sin(yy*.09+1)*3,yy);ctx.lineTo(lx+8+Math.sin(yy*.06)*2,yy+4);}ctx.stroke();ctx.strokeStyle='#168dff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(lx-5,ladderTop);ctx.lineTo(lx-5,H-8);ctx.moveTo(lx+5,ladderTop);ctx.lineTo(lx+5,H-8);for(let yy=ladderTop+8;yy<H-8;yy+=20){ctx.moveTo(lx-5,yy);ctx.lineTo(lx+5,yy);}ctx.stroke();
+ // No ladder or shaft walls are drawn in the lower cavern; the surface entrance is a simple drop hole.
  // Reuse the same thin top edge and jagged, rocky underside style as the surface platforms.
  s.platforms.forEach((p,i)=>{const x=p.x,y=p.y,depth=8+(i%3)*3,step=10,seed=i*7+Math.floor(p.x*.03);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+p.w,y);for(let k=Math.ceil(p.w/step);k>=0;k--){const px=x+Math.min(p.w,k*step);const jag=3+((Math.sin(seed+k*2.17)+1)*.5)*depth;ctx.lineTo(px,y+jag);}ctx.closePath();ctx.fillStyle='rgba(115,115,115,.22)';ctx.fill();ctx.strokeStyle='#ddd';ctx.lineWidth=1.2;ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+p.w,y);ctx.stroke();});
  // Wobbly white ground contour, matching the hand-drawn reference.
