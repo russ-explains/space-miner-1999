@@ -1,3 +1,9 @@
+## v1.9.93 — Rocket exits screen and reactive, articulated boss
+### Changed
+- Extended the escape rocket ascent so it travels straight up and fully off the top of the screen before returning to the surface state.
+- Made the boss react to nearby player shots by accelerating towards the astronaut while under fire.
+- Added several animated angular pivots along each tentacle for a more jointed, wobbling motion.
+
 ## v1.9.92 — Straighter escape rocket ascent
 ### Changed
 - Made the escape rocket travel almost straight upwards, allowing only a slight drift to the right and a much gentler arc.
