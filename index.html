@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.90';
+const VERSION='v1.9.91';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1514,6 +1514,10 @@ function updateMiningCavern(){
  if(actionPressed&&bullets.filter(b=>!b.enemy).length<4+ship.laser){bullets.push({x:ship.x+ship.face*16,y:ship.y+3,vx:ship.face*(7+ship.laser*.8),vy:0,life:130});sfx('shoot');}
  bullets.forEach(b=>{b.x+=b.vx;b.y+=b.vy||0;b.life--;});bullets=bullets.filter(b=>b.life>0&&b.x>-30&&b.x<W+30);
  const m=s.monster;if(m.alive){m.age++;m.x=W*.5+Math.sin(m.age*.006)*W*.22;m.y=H*.48+Math.sin(m.age*.012)*H*.06;
+  // Touching the body or any animated tentacle costs one hull, with normal hit invulnerability.
+  let tentacleHit=Math.hypot(ship.x-m.x,(ship.y+18)-m.y)<47;
+  if(!tentacleHit){for(let i=0;i<4&&!tentacleHit;i++){const a=m.age*.018+i*Math.PI/2;let px=Math.cos(a)*22,py=Math.sin(a)*18;for(let j=1;j<=12;j++){const t=j/12,wiggle=Math.sin(m.age*.055+j*.82+i*2.1)*9,reach=28+t*(Math.min(W,H)*.15);const nx=Math.cos(a+t)*reach+Math.cos(a+Math.PI/2)*wiggle,ny=Math.sin(a+t)*reach+Math.sin(a+Math.PI/2)*wiggle;const vx=nx-px,vy=ny-py,den=vx*vx+vy*vy||1,q=clamp(((ship.x-px)*vx+((ship.y+18)-py)*vy)/den,0,1);if(Math.hypot(ship.x-(px+q*vx),(ship.y+18)-(py+q*vy))<15){tentacleHit=true;break;}px=nx;py=ny;}}}
+  if(tentacleHit&&ship.inv===0){damage('ALIEN TENTACLE','THE BEAST GRABBED YOU',false,true);if(state!=='surface')return;}
   if(--m.fire<=0){const dx=ship.x-m.x,dy=ship.y-m.y,d=Math.hypot(dx,dy)||1,sp=1.7+planetIndex*.15;s.bombs.push({x:m.x,y:m.y+20,vx:dx/d*sp,vy:dy/d*sp,life:240});m.fire=Math.max(18,65-planetIndex*8);if(Math.random()<.4){s.bombs.push({x:m.x,y:m.y+20,vx:(ship.x-m.x)/Math.max(1,Math.abs(ship.x-m.x))*sp*.7,vy:sp*.7,life:240});}}
   for(const b of bullets){if(!b.enemy&&b.life>0&&Math.hypot(b.x-m.x,b.y-m.y)<48){b.life=0;m.hp--;burst(b.x,b.y,5);if(m.hp<=0){m.alive=false;m.melt=100;for(let i=0;i<5;i++)s.gems.push({x:m.x,y:m.y,vx:(i-2)*1.5,vy:-4-i*.3,landed:false});msg='BEAST DEFEATED — FIVE GEMS!';msgT=120;sfx('boom');}}}
  }
@@ -1548,11 +1552,11 @@ function drawMiningCavern(){
  // Player shots were being updated but not rendered in this room; draw them brightly here.
  for(const b of bullets){if(b.enemy)continue;ctx.fillStyle=ship.laser>=4?'#ff3030':ship.laser===3?'#ff8c24':ship.laser===2?'#ffe34d':'#fff';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=8;ctx.fillRect(b.x-1,b.y-1,14,4);ctx.shadowBlur=0;}
  for(const g of s.gems)drawGem(g.x,g.y,ORE);
- if(s.rocket.active){ctx.save();ctx.translate(s.rocket.x,s.rocket.y);ctx.strokeStyle=ORE;ctx.fillStyle='#111';ctx.beginPath();ctx.moveTo(0,-17);ctx.lineTo(8,8);ctx.lineTo(0,5);ctx.lineTo(-8,8);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#ff8c24';ctx.fillRect(-3,9,6,8);ctx.restore();}
+ if(s.rocket.active){ctx.save();ctx.translate(s.rocket.x,s.rocket.y);ctx.scale(2,2);ctx.strokeStyle=ORE;ctx.fillStyle='#111';ctx.beginPath();ctx.moveTo(0,-17);ctx.lineTo(8,8);ctx.lineTo(0,5);ctx.lineTo(-8,8);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#ff8c24';ctx.fillRect(-3,9,6,8);ctx.restore();}
  if(s.launch){
    // Draw the rocket around the astronaut throughout the full, slower curved ride.
    const rx=ship.x+10,ry=ship.y+16;
-   ctx.save();ctx.translate(rx,ry);ctx.rotate(-.18);
+   ctx.save();ctx.translate(rx,ry);ctx.scale(2,2);ctx.rotate(-.18);
    ctx.strokeStyle=ORE;ctx.fillStyle='#151515';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-31);ctx.lineTo(12,8);ctx.lineTo(0,3);ctx.lineTo(-12,8);ctx.closePath();ctx.fill();ctx.stroke();
    ctx.fillStyle='#ff8c24';ctx.beginPath();ctx.moveTo(-5,8);ctx.lineTo(0,24+rnd(0,5));ctx.lineTo(5,8);ctx.closePath();ctx.fill();
    ctx.fillStyle='#d8d8d8';ctx.fillRect(-7,-4,14,14);ctx.strokeStyle='#fff';ctx.strokeRect(-7,-4,14,14);
@@ -1618,7 +1622,10 @@ function updateSurface(){
   } else if(ship.y>=ground && !(mineHoles.some(h=>h.special&&ship.x>h.x+8&&ship.x<h.x+h.w-8&&ship.y>ground-3))){
     ship.y=ground;ship.vy=0;ship.grounded=true;
   } else ship.grounded=false;
-  const ladder=mineHoles.find(h=>h.special);if(ladder&&ship.x>ladder.x+10&&ship.x<ladder.x+ladder.w-10&&ship.y>surfaceGroundY(ship.x)+12){enterMiningCavern();return;}
+  const ladder=mineHoles.find(h=>h.special);if(ladder&&ship.x>ladder.x-12&&ship.x<ladder.x+ladder.w+12&&ship.y+32>surfaceGroundY(ship.x)+3){
+    // Let the astronaut fall down through the opening before transitioning into the lower cavern.
+    if(ship.y+32>surfaceGroundY(ship.x)+22){enterMiningCavern();return;}
+  }
   cameraX=clamp(ship.x-W*.35,0,Math.max(0,surfaceWidth-W));
   updateLavaFx();
   const oxygenDrainMultiplier=planetIndex===0?.70:planetIndex===1?.80:.90;
