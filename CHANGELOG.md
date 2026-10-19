@@ -1,3 +1,7 @@
+## v1.9.98 — Clean open drop hole
+### Changed
+- Removed all drawn side-wall strokes from the surface drop hole, leaving only the dark opening cut into the ground contour. No vertical lines or ladder artwork remain above or beside the entrance.
+
 ## v1.9.97 — Drop-through hole and reliable boss damage
 ### Changed
 - Removed the ladder artwork from the mining-planet entrance; the player drops through a dark hole, with only short jagged rocky edges visible.
