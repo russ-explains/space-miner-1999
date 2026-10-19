@@ -1,3 +1,9 @@
+## v1.9.91 — Larger escape rocket and cavern contact damage
+### Changed
+- Doubled the size of the lower-cavern escape rocket, both while waiting at the floor and during launch.
+- Added hull damage when the astronaut touches the boss's body or moving tentacles, using the game's normal hit/invulnerability handling.
+- Adjusted the surface ladder trigger so the astronaut can enter the narrow opening and drop down below ground level before transitioning to the lower cavern.
+
 ## v1.9.90 — Reliable boss gem collection
 ### Changed
 - Made gems dropped by the cavern boss collect reliably using the astronaut's visible centre, with a more forgiving pickup radius.
