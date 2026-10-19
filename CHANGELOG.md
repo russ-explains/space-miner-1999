@@ -1,3 +1,8 @@
+## v1.9.84 — Make the ladder entrance descendable
+### Changed
+- Prevented the surface ground collision from snapping the player back onto the ground while they step into the special ladder opening.
+- Reset the lower-cavern state when a new mining surface is created.
+
 ## v1.9.83 — Hidden lower mining cavern
 ### Changed
 - Converted one surface pit into a ladder entrance to a scrolling lower cavern with multiple platforms.
