@@ -1,3 +1,9 @@
+## v1.9.72 — Larger cavern crawler legs
+### Changed
+- Made the three legs on each hollow orange cavern crawler substantially bigger, with thicker strokes and longer reaches towards the cavern wall.
+- Increased the back-and-forth leg swing slightly to make the crawling motion easier to see.
+- Kept the body outline, eyes, patrol movement, collision damage, and floating asteroids unchanged.
+
 ## v1.9.71 — Hollow three-legged cavern crawlers
 ### Changed
 - Changed the orange cavern spiders to hollow, slightly lumpy outlined bodies so their little eyes remain clearly visible.
