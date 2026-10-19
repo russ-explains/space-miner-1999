@@ -1,3 +1,9 @@
+## v1.9.89 — Rocky downward ladder shaft
+### Changed
+- Redrew the surface entrance as a ladder descending from the ground line, with no ladder above the opening.
+- Added irregular, jagged rock walls on both sides of the shaft to match the reference sketch.
+- Applied the same downward-shaft look to the ladder shown inside the lower cavern.
+
 ## v1.9.88 — Hand-drawn cavern platforms and visible blaster shots
 ### Changed
 - Replaced the lower chamber's regular platform layout with scattered floating ledges based on the supplied sketch.
