@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.79';
+const VERSION='v1.9.80';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -779,23 +779,22 @@ function drawVerticalLander(){
     const wallDir=h.side==='left'?-1:1;
     const wall=verticalCaveBounds(h.y);
     const edgeX=h.side==='left'?wall.left:wall.right;
-    // Three articulated, animated limbs: each grows from the body, bends at visible knuckles,
-    // and reaches toward the wall without letting its joints disappear behind the cavern edge.
+    // Stretch the three jointed legs from the lower/outward body edge back to the cavern wall.
     ctx.strokeStyle='#ff8a24';ctx.fillStyle='#ff8a24';ctx.lineWidth=2.7;ctx.lineCap='round';ctx.lineJoin='round';
     for(let i=0;i<3;i++){
-      const along=i-1,step=legSwing*(i===1?-1:1)*.72;
-      const attachX=wallDir*5,attachY=along*5+7;
-      const knuckleX=wallDir*(6.5+step*.22),knuckleY=along*6+8+step*.55;
-      const kneeX=wallDir*(8+step*.25),kneeY=along*7+12-step*.35;
+      const along=i-1,step=legSwing*(i===1?-1:1)*.85;
+      const attachX=-wallDir*(12+step*.25),attachY=along*4+11;
+      const knuckleX=-wallDir*(19+step*.65),knuckleY=along*7+17+step*.65;
+      const kneeX=wallDir*(1+step*.35),kneeY=along*9+23-step*.45;
       const footX=edgeX-x;
-      const footY=along*9+13+step;
+      const footY=along*12+28+step*1.15;
       ctx.beginPath();
       ctx.moveTo(attachX,attachY);
       ctx.lineTo(knuckleX,knuckleY);
       ctx.lineTo(kneeX,kneeY);
       ctx.lineTo(footX,footY);
       ctx.stroke();
-      // Small rounded joints give each leg a squid-like, knuckled silhouette.
+      // Rounded orange knuckles make the joints visible while the limbs flex.
       ctx.beginPath();ctx.arc(knuckleX,knuckleY,1.8,0,Math.PI*2);ctx.fill();
       ctx.beginPath();ctx.arc(kneeX,kneeY,1.6,0,Math.PI*2);ctx.fill();
     }
