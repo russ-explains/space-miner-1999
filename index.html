@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.58';
+const VERSION='v1.9.61';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -93,6 +93,8 @@ function noise(dur=.3,vol=.12,freq=1200){
   src.start(now,Math.random()*.5);src.stop(now+dur+.02);
 }
 function sfx(name){
+  if(name==='sizzle'){initAudio();noise(.7,.13,4200);return;}
+  if(name==='chomp'){initAudio();beep(160,.06,'square',.06,-90);beep(120,.08,'square',.05,-60,.07);noise(.12,.08,1800);return;}
   initAudio();
   if(!audioCtx)return;
   if(name==='shoot') beep(880,.06,'square',.03,-500);
@@ -186,6 +188,10 @@ let landerVerticalMode=false, landerWorldHeight=0, landerCameraY=0, landerCaveNo
 let minePlatforms=[], mineHoles=[], mineUfo=null, backpackFuel=100, maxBackpackFuel=100;
 let mineOxygen=100, mineOxygenMax=100, minePlatformScroll=0, minePitHit=false, pitFlashT=0;
 let mineShipFuel=0, mineShipFuelRequired=3, mineIntroT=0;
+let lavaFx=[];
+let landerWorms=[], hook=null;
+const HOOK_LEN=270, HOOK_SPEED=9, HOOK_REEL=11;
+const LAVA_PIT_DEPTH=30, PIT_BANK=6, PIT_FLOOR=18;
 let dist=0,tripDist=1,scroll=FLY_BASE,nextRock=0,nextRing=0,section=0,beatT=0,beat=0,ufo=null,saucerBombs=[];
 let readyT=0,readyA='',readyB='';
 let entry=null,endWin=false;
@@ -275,7 +281,7 @@ document.querySelectorAll('[data-k]').forEach(b=>{
 
 /* ---------------------------------------------------------------- RUN */
 function resetRun(){
-  planetIndex=0;score=0;gems=0;banked=0;upSel=0;lives=4;nextLife=EXTRA_LIFE_EVERY;lifeUpgradeBought=false;
+  planetIndex=0;score=0;gems=0;banked=0;upSel=0;lives=4;nextLife=EXTRA_LIFE_EVERY;lifeUpgradeBought=false;shieldCharges=0;shieldT=0;hook=null;
   runSeed=(Math.random()*1e9)|0;
   ship={fuel:61.4,maxFuel:100,hull:3,maxHull:3,laser:1,thrust:1,x:W*.22,y:H*.5,vx:0,vy:0,angle:0,av:0,grounded:false,inv:0,face:1};
   setupFlight();
@@ -323,7 +329,7 @@ function setupLander(){
   ship.vx=rnd(-.18,.18);ship.vy=.03;ship.angle=rnd(-.06,.06);ship.av=0;
 
   // Planet 1 keeps the classic horizontal lander. Later planets use a vertical cavern descent.
-  if(planetIndex>=1){setupVerticalLander();ready(planets[planetIndex].name,'VERTICAL CAVERN DESCENT');return;}
+  if(planetIndex>=1){setupVerticalLander();ready(planets[planetIndex].name,'CAVERN DESCENT  •  BEWARE SPACE WORMS');return;}
   landerVerticalMode=false;
 
   // Each planet gets a distinct, progressively harder landing landscape.
@@ -424,8 +430,133 @@ function setupVerticalLander(){
   const padHalf=Math.max(44,58-difficulty*2);
   const bonusPadHalf=Math.max(22,Math.round(padHalf*.58)); // Keep the x3 pad as small as Planet 1's bonus pad.
   pads=[{x:W*.31,half:padHalf,mult:1,y:landerWorldHeight-112},{x:W*.82,half:bonusPadHalf,mult:3,y:landerWorldHeight-128,gemTaken:false}];
+  // Space worms burrow in the cavern walls and lunge out to bite passing ships.
+  landerWorms=[];
+  const wormCount=3+difficulty*2;
+  for(let i=0;i<wormCount;i++){
+    const y=H*.75+(landerWorldHeight-H*1.9)*(i+.5)/wormCount+rnd(-40,40);
+    landerWorms.push({y,side:i%2===0?'right':'left',t:rnd(0,400),period:Math.round(rnd(200,260)-difficulty*12),len:Math.max(280,W*.24)+difficulty*15,ext:0,cool:0,harvested:false,biteT:0});
+  }
+  hook=null;
   asteroids=[];bullets=[];ebullets=[];drops=[];particles=[];pickups=[];ufo=null;
   ship.x=W*.5;ship.y=90;ship.vx=rnd(-.08,.08);ship.vy=.02;ship.angle=0;ship.av=0;
+}
+function wormBase(w){const b=verticalCaveBounds(w.y);return {x:w.side==='left'?b.left:b.right,dir:w.side==='left'?1:-1,reach:Math.min(w.len,(b.right-b.left)*.46)};}
+// Worm head position in world coordinates.
+function wormHead(w){
+  const base=wormBase(w), aim=clamp(ship.y-w.y,-34,34);
+  return {x:base.x+base.dir*base.reach*w.ext, y:w.y+Math.sin(stageTimer*.11+w.t)*5*w.ext+aim*w.ext*.6, dir:base.dir};
+}
+function updateWorms(){
+  for(const w of landerWorms){
+    if(w.cool>0){w.cool--;w.ext=Math.max(0,w.ext-.05);continue;}
+    w.t++;
+    // Hidden → emerge → lunge (biting) → retreat, on a loop. Worms near the ship come out faster.
+    const near=Math.abs(ship.y-w.y)<H*.6;
+    const ph=(w.t%w.period)/w.period;
+    let target=ph<.42?0:ph<.55?(ph-.42)/.13:ph<.82?1:ph<.95?1-(ph-.82)/.13:0;
+    if(!near) target=0;
+    w.ext+=(target-w.ext)*.25;
+    if(w.ext>.6){
+      const h=wormHead(w);
+      if(Math.hypot(ship.x-h.x,ship.y-h.y)<22 && ship.inv===0 && shieldT<=0){
+        w.biteT=12;sfx('chomp');
+        ship.vx+=h.dir*.35;ship.vy-=.05;
+        if(damage('HULL DESTROYED — SPACE WORM','WORM BITE',true,true)&&state!=='lander')return;
+      }
+    }
+    if(w.biteT>0)w.biteT--;
+  }
+}
+// Grappling hook: SPACE fires a claw at the nearest worm burrow. If it reaches a worm
+// while the worm is out, it grabs a gem; if it reaches full length or a wall, it clamps shut.
+function fireHook(){
+  if(!ship.hook||hook)return;
+  let best=null,bd=1e9;
+  for(const w of landerWorms){
+    if(w.harvested)continue;
+    const b=wormBase(w),tx=b.x+b.dir*24,d=Math.hypot(tx-ship.x,w.y-ship.y);
+    if(d<HOOK_LEN+40&&d<bd){bd=d;best={x:tx,y:w.y};}
+  }
+  if(!best){const b=verticalCaveBounds(ship.y);best=ship.x-b.left<b.right-ship.x?{x:b.left,y:ship.y}:{x:b.right,y:ship.y};}
+  const ang=Math.atan2(best.y-ship.y,best.x-ship.x);
+  hook={x:ship.x,y:ship.y,vx:Math.cos(ang)*HOOK_SPEED,vy:Math.sin(ang)*HOOK_SPEED,ang,len:0,state:'out',clampT:0,caught:null};
+  beep(520,.16,'sawtooth',.03,-320);
+}
+function updateHook(){
+  if(!hook)return;
+  if(hook.state==='out'){
+    hook.x+=hook.vx;hook.y+=hook.vy;hook.len=Math.hypot(hook.x-ship.x,hook.y-ship.y);
+    for(const w of landerWorms){
+      if(w.harvested||w.ext<.35)continue;
+      const h=wormHead(w);
+      if(Math.hypot(hook.x-h.x,hook.y-h.y)<20){
+        hook.caught=w;w.harvested=true;w.cool=99999;hook.state='clamp';hook.clampT=10;
+        burst(h.x,h.y-landerCameraY,10);sfx('crack');msg='GOT IT! REELING IN A WORM GEM';msgT=70;break;
+      }
+    }
+    const b=verticalCaveBounds(hook.y);
+    if(hook.state==='out'&&(hook.len>=HOOK_LEN||hook.x<=b.left+2||hook.x>=b.right-2)){
+      hook.x=clamp(hook.x,b.left+2,b.right-2);hook.state='clamp';hook.clampT=10;beep(210,.05,'square',.03);
+    }
+  } else if(hook.state==='clamp'){
+    if(--hook.clampT<=0)hook.state='reel';
+  } else {
+    const dx=ship.x-hook.x,dy=ship.y-hook.y,d=Math.hypot(dx,dy);
+    if(stageTimer%4===0)beep(900,.02,'square',.012);
+    if(d<=HOOK_REEL+2){
+      if(hook.caught){gems++;addScore(300,ship.x,ship.y-40-landerCameraY);sfx('gem');msg='WORM GEM HARVESTED!';msgT=70;}
+      hook=null;return;
+    }
+    hook.x+=dx/d*HOOK_REEL;hook.y+=dy/d*HOOK_REEL;hook.ang=Math.atan2(-dy,-dx);
+  }
+}
+function drawWorms(top){
+  const p=planets[planetIndex];
+  for(const w of landerWorms){
+    if(w.y<top-80||w.y>top+H+80)continue;
+    const base=wormBase(w),by=w.y-top;
+    // Burrow mouth in the wall.
+    ctx.fillStyle='#000';ctx.strokeStyle=p.tint;ctx.lineWidth=2;
+    ctx.beginPath();ctx.ellipse(base.x,by,7,15,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    if(w.ext<.04||w.harvested&&w.ext<.04)continue;
+    const h=wormHead(w),hy=h.y-top,segs=9;
+    // Segmented body wriggling out of the wall.
+    for(let i=segs;i>=1;i--){
+      const t=i/segs,x=base.x+(h.x-base.x)*t,y=by+(hy-by)*t+Math.sin(stageTimer*.2+i*.9)*4*w.ext*(1-t*.6);
+      const r=6+4*Math.sin(t*Math.PI*.9);
+      ctx.fillStyle=i%2?'#c46aa8':'#a24e8c';ctx.strokeStyle='#ffb3e6';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.stroke();
+    }
+    // Head with snapping jaws.
+    const open=w.biteT>0?.15:(.25+.35*(.5+.5*Math.sin(stageTimer*.35+w.t)))*w.ext;
+    const a=h.dir>0?0:Math.PI;
+    ctx.save();ctx.translate(h.x,hy);ctx.rotate(a);
+    ctx.fillStyle='#d77ab9';ctx.strokeStyle='#ffd1f0';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.strokeStyle='#fff';ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.moveTo(4,-4);ctx.quadraticCurveTo(16,-6-open*14,20,-2-open*10);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(4,4);ctx.quadraticCurveTo(16,6+open*14,20,2+open*10);ctx.stroke();
+    ctx.fillStyle='#ff3030';ctx.fillRect(-2,-5,3,3);
+    if(!w.harvested){ctx.fillStyle=ORE;ctx.save();ctx.rotate(-a);drawGem(0,-16,ORE);ctx.restore();}
+    ctx.restore();
+  }
+}
+function drawHook(top){
+  if(!hook)return;
+  const sy=ship.y-top,hy=hook.y-top;
+  ctx.strokeStyle='#bbb';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.moveTo(ship.x,sy+6);ctx.lineTo(hook.x,hy);ctx.stroke();ctx.setLineDash([]);
+  const open=hook.state==='out'?.75:hook.state==='clamp'?.75*hook.clampT/10:0;
+  ctx.save();ctx.translate(hook.x,hy);ctx.rotate(hook.ang);
+  ctx.strokeStyle='#eee';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.arc(0,0,4,0,Math.PI*2);ctx.stroke();
+  for(const sgn of [-1,0,1]){
+    const a=sgn*open;
+    ctx.beginPath();ctx.moveTo(2,0);ctx.lineTo(2+Math.cos(a)*9,Math.sin(a)*9);ctx.lineTo(2+Math.cos(a*.3)*15,Math.sin(a*.3)*12+sgn*(open?2:1));ctx.stroke();
+  }
+  ctx.restore();
+  if(hook.caught&&hook.state!=='out')drawGem(hook.x,hy-14,ORE);
 }
 function verticalCaveBounds(y){
   const nodes=landerCaveNodes;
@@ -497,6 +628,10 @@ function updateVerticalLander(){
       if(state!=='lander')return;
     }
   }
+  updateWorms();
+  if(state!=='lander')return;
+  if(actionPressed)fireHook();
+  updateHook();
   landerCameraY=clamp(ship.y-H*.32,0,Math.max(0,landerWorldHeight-H));
   const lowestPadY=Math.min(...pads.map(p=>p.y));
   if(ship.y+22>=lowestPadY){
@@ -549,9 +684,13 @@ function drawVerticalLander(){
     if((stageTimer>>4)%2){ctx.fillStyle=pd.mult>1?ORE:p.tint;ctx.fillRect(pd.x-pd.half-2,py-6,4,4);ctx.fillRect(pd.x+pd.half-2,py-6,4,4);}
     if(pd.mult>1){drawGem(pd.x,py-12,ORE);ctx.fillStyle=ORE;text('x'+pd.mult,pd.x,py+34,13,'center');}
   }
+  drawWorms(top);
+  drawHook(top);
   drawShip(ship.x,ship.y-top,1.1,ship.angle,keys.ArrowUp&&ship.fuel>0&&state==='lander',keys.ArrowLeft,keys.ArrowRight,true);
   drawShieldEffect(ship.x,ship.y-top);
   drawHUD();
+  ctx.fillStyle=ship.hook?'#7fffe6':'rgba(255,255,255,.45)';
+  text(ship.hook?'SPACE: GRAPPLING HOOK — GRAB A WORM GEM':'BEWARE SPACE WORMS — BUY A GRAPPLING HOOK TO HARVEST THEIR GEMS',W/2,H-34,11,'center');
   const ang=Math.abs(Math.atan2(Math.sin(ship.angle),Math.cos(ship.angle)));
   const col=ok=>ctx.fillStyle=ok?'#7dff9a':'#ff6b6b';
   col(Math.abs(ship.vy)<Math.max(.62,.9-planetIndex*.055));text('V '+ship.vy.toFixed(2),W/2-100,104,13,'center');
@@ -583,14 +722,16 @@ function padY(){return GROUND()-8}
 function surfaceTerrainY(worldX){
   return GROUND() + Math.sin(worldX*.012+planetIndex)*20 + Math.sin(worldX*.028)*10;
 }
+// Lava pits: steep rock banks dropping to a pool of lava. The solid floor sits
+// under the lava, so anyone who walks or falls in sinks into it.
+function pitLavaY(h){return Math.max(surfaceTerrainY(h.x),surfaceTerrainY(h.x+h.w))+LAVA_PIT_DEPTH}
 function surfaceGroundY(worldX){
-  let y=surfaceTerrainY(worldX);
+  const y=surfaceTerrainY(worldX);
   for(const h of mineHoles){
-    const centre=h.x+h.w*.5, half=h.w*.5;
-    const d=Math.abs(worldX-centre);
-    if(d<half){
-      const t=1-d/half;
-      y += 72*t*t*(3-2*t);
+    if(worldX>h.x && worldX<h.x+h.w){
+      const floor=(h.lavaY||pitLavaY(h))+PIT_FLOOR;
+      const d=Math.min(worldX-h.x,h.x+h.w-worldX);
+      return d>=PIT_BANK?floor:y+(floor-y)*(d/PIT_BANK);
     }
   }
   return y;
@@ -602,7 +743,7 @@ function setupSurface(){
   mineOxygenMax=100; mineOxygen=100; maxBackpackFuel=100; backpackFuel=45;
   mineShipFuel=0; mineShipFuelRequired=3;
   minePlatformScroll=0; mineUfo={x:W*.78,y:90,vx:-1.15,t:0,fire:90,hp:12};
-  mineHoles=[]; minePlatforms=[]; minePitHit=false; pitFlashT=0;
+  mineHoles=[]; minePlatforms=[]; minePitHit=false; pitFlashT=0; lavaFx=[];
   const gap=260;
   // Keep level 1 familiar, then raise the mining platforms progressively on later planets.
   const levelRise=Math.max(0,planetIndex)*28;
@@ -610,7 +751,7 @@ function setupSurface(){
     const w=130+(i%3)*22;
     minePlatforms.push({x:x,w,y:surfaceTerrainY(x)-105-(i%2)*55-levelRise,h:10,upper:true});
     if(i%3!==1) minePlatforms.push({x:x+90,w:80,y:surfaceTerrainY(x+90)-205-levelRise,h:10,upper:true});
-    mineHoles.push({x:x+150,w:(i%4===0?92:i%2===0?72:58)});
+    const hole={x:x+150,w:(i%4===0?92:i%2===0?72:58),seed:i*1.7};hole.lavaY=pitLavaY(hole);mineHoles.push(hole);
   }
   aliens=Array.from({length:p.aliens},(_,i)=>{
     const pl=minePlatforms[i%minePlatforms.length];
@@ -641,7 +782,7 @@ function setupSurface(){
   respawnSurface();
 }
 function respawnSurface(){
-  state='surface';bullets=[];particles=[];cameraX=0;o2=100;mineOxygen=100;backpackFuel=100;
+  state='surface';bullets=[];particles=[];lavaFx=[];cameraX=0;o2=100;mineOxygen=100;backpackFuel=100;
   ship.x=190;ship.y=surfaceGroundY(190)-32;ship.vx=0;ship.vy=0;ship.grounded=true;ship.face=1;
   if(planetIndex===0){readyT=0;readyA='';readyB='';}
   else ready(planets[planetIndex].name,'OXYGEN LIMITED  •  JET TO UPPER PLATFORMS');
@@ -1201,36 +1342,30 @@ function updateSurface(){
   const ground=surfaceGroundY(ship.x)-32;
   let platform=null;
   for(const pl of minePlatforms){if(ship.x>pl.x&&ship.x<pl.x+pl.w&&Math.abs((ship.y+32)-pl.y)<28&&ship.vy>=0){platform=pl;break}}
-  // Treat the visible black pit openings as hazards: contact with the opening
-  // costs one hull point, then places the astronaut safely beside the pit.
-  const pit=mineHoles.find(h=>ship.x+14>h.x&&ship.x-14<h.x+h.w);
-  // Detect contact with the rim or any fall into the opening, not just the
-  // original terrain height; the pit floor is deliberately much lower.
-  const pitContact=pit && ship.y+32>=surfaceTerrainY(ship.x)-3 && ship.y<=surfaceTerrainY(ship.x)+100;
-  if(pitContact && !platform){
-    ship.grounded=false;
-    if(!minePitHit){
-      minePitHit=true;
-      // Pit collision bypasses ordinary hit-invulnerability so every actual
-      // impact costs a hull point. Only an active collision shield blocks it.
-      if(shieldT<=0){
-        ship.hull--;ship.inv=75;shake=9;flash=.35;pitFlashT=60;sfx('hit');
-        if(ship.hull<=0){lose('MINING PIT IMPACT',false);return;}
-        msg='PIT HIT — HULL '+ship.hull;msgT=70;
-      }
-      if(state!=='surface')return;
-      // Knock the astronaut clear so one pit cannot drain all hull in a single fall.
-      const leftEdge=pit.x-42,rightEdge=pit.x+pit.w+42;
-      ship.x=clamp(ship.x<pit.x+pit.w*.5?leftEdge:rightEdge,80,surfaceWidth-80);
-      ship.y=surfaceGroundY(ship.x)-32;ship.vy=0;ship.grounded=true;
-      minePitHit=false;
-    }
+  // Lava pits only hurt if you actually fall in: walking up to the rim, standing
+  // on the bank or jumping across is safe. Your boots have to reach the lava.
+  const pit=mineHoles.find(h=>ship.x>h.x+PIT_BANK*.5&&ship.x<h.x+h.w-PIT_BANK*.5);
+  if(pit && !platform && ship.y+32>=pit.lavaY+3 && !minePitHit){
+    minePitHit=true;
+    lavaSplash(ship.x,pit.lavaY);
+    if(shieldT<=0){
+      // Lava ignores ordinary hit-invulnerability: every fall in costs one hull point.
+      ship.hull--;ship.inv=75;shake=10;flash=.45;pitFlashT=60;sfx('hit');sfx('sizzle');
+      if(ship.hull<=0){lose('FELL INTO A LAVA PIT',false);return;}
+      msg='LAVA BURN — HULL '+ship.hull;msgT=70;
+    } else {sfx('sizzle');msg='SHIELD SAVED YOU FROM THE LAVA';msgT=70;}
+    // Throw the astronaut back out onto the nearest bank.
+    const toLeft=ship.x<pit.x+pit.w*.5;
+    ship.x=clamp(toLeft?pit.x-26:pit.x+pit.w+26,40,surfaceWidth-40);
+    ship.y=surfaceGroundY(ship.x)-34;ship.vy=-3.2;ship.vx=toLeft?-1.2:1.2;ship.grounded=false;jetpackActive=false;
+    minePitHit=false;
   } else if(platform){
     ship.y=platform.y-32;ship.vy=0;ship.grounded=true;
   } else if(ship.y>=ground){
     ship.y=ground;ship.vy=0;ship.grounded=true;
   } else ship.grounded=false;
   cameraX=clamp(ship.x-W*.35,0,Math.max(0,surfaceWidth-W));
+  updateLavaFx();
   const oxygenDrainMultiplier=planetIndex===0?.70:planetIndex===1?.80:.90;
   mineOxygen=Math.max(0,mineOxygen-.060*oxygenDrainMultiplier); o2=mineOxygen;
   if(mineOxygen<=0){lose('OXYGEN DEPLETED — SUIT BREACHED',true);return;}
@@ -1266,9 +1401,9 @@ function updateSurface(){
       if(Math.abs(b.x-ship.x)<10&&Math.abs(b.y-ship.y)<18&&ship.inv===0){b.life=0;burst(ship.x,ship.y,15);if(damage('SUIT BREACHED — ENEMY FIRE','HIT',false))return;}
     }else{
       let used=false;
-      for(const a of aliens){if(a.hp>0&&Math.abs(b.x-a.x)<18&&Math.abs(b.y-a.y)<22){a.hp-=ship.laser;b.life=0;sfx('pop');used=true;if(a.hp<=0){burst(a.x-cameraX,a.y,12);addScore(250,a.x-cameraX,a.y-30,true)}break;}}
+      for(const a of aliens){if(a.hp>0&&Math.abs(b.x-a.x)<18&&Math.abs(b.y-a.y)<22){a.hp-=ship.laser;b.life=0;sfx('pop');used=true;if(a.hp<=0){burst(a.x,a.y,12);addScore(250,a.x,a.y-30,true)}break;}}
       if(used)continue;
-      for(const d of drops){if(d.type!=='ore'||d.taken)continue;if(Math.abs(b.x-d.x)<18){b.life=0;d.hp-=ship.laser;sfx('crack');burst(d.x-cameraX,d.y,6);if(d.hp<=0){d.taken=true;burst(d.x-cameraX,d.y,14);drops.push({type:'gem',x:d.x,y:d.y,taken:false,pop:20})}break;}}
+      for(const d of drops){if(d.type!=='ore'||d.taken)continue;if(Math.abs(b.x-d.x)<18){b.life=0;d.hp-=ship.laser;sfx('crack');const oy=surfaceGroundY(d.x)-12;burst(d.x,oy,6);if(d.hp<=0){d.taken=true;burst(d.x,oy,14);drops.push({type:'gem',x:d.x,y:d.y,taken:false,pop:20})}break;}}
     }
   }
   aliens=aliens.filter(a=>a.hp>0);
@@ -1278,10 +1413,10 @@ function updateSurface(){
     if(d.type==='gem'&&d.y===0)d.y=surfaceTerrainY(d.x)-30;
     if(Math.abs(d.x-ship.x)<28&&Math.abs(d.y-ship.y)<45){
       d.taken=true;
-      if(d.type==='gem'){gems++;addScore(200,d.x-cameraX,d.y-30,true);sfx('gem');msg='+ GEM ('+gems+' THIS PLANET)';msgT=45;}
-      if(d.type==='backpack'){backpackFuel=maxBackpackFuel;addScore(80,d.x-cameraX,d.y-30,true);sfx('fuel');msg='+ BACKPACK FUEL';msgT=55;}
-      if(d.type==='oxygen'){mineOxygen=Math.min(mineOxygenMax,mineOxygen+45);o2=mineOxygen;addScore(100,d.x-cameraX,d.y-30,true);sfx('fuel');msg='+ OXYGEN';msgT=55;}
-      if(d.type==='shipfuel'){mineShipFuel=Math.min(mineShipFuelRequired,mineShipFuel+1);addScore(300,d.x-cameraX,d.y-30,true);sfx('fuel');msg='SHIP FUEL '+mineShipFuel+'/'+mineShipFuelRequired;msgT=70;if(mineShipFuel>=mineShipFuelRequired){backpackFuel=maxBackpackFuel;msg='ALL SHIP FUEL FOUND — JETPACK FULL';msgT=100;sfx('jingle');}}
+      if(d.type==='gem'){gems++;addScore(200,d.x,d.y-30,true);sfx('gem');msg='+ GEM ('+gems+' THIS PLANET)';msgT=45;}
+      if(d.type==='backpack'){backpackFuel=maxBackpackFuel;addScore(80,d.x,d.y-30,true);sfx('fuel');msg='+ BACKPACK FUEL';msgT=55;}
+      if(d.type==='oxygen'){mineOxygen=Math.min(mineOxygenMax,mineOxygen+45);o2=mineOxygen;addScore(100,d.x,d.y-30,true);sfx('fuel');msg='+ OXYGEN';msgT=55;}
+      if(d.type==='shipfuel'){mineShipFuel=Math.min(mineShipFuelRequired,mineShipFuel+1);addScore(300,d.x,d.y-30,true);sfx('fuel');msg='SHIP FUEL '+mineShipFuel+'/'+mineShipFuelRequired;msgT=70;if(mineShipFuel>=mineShipFuelRequired){backpackFuel=maxBackpackFuel;msg='ALL SHIP FUEL FOUND — JETPACK FULL';msgT=100;sfx('jingle');}}
     }
   }
   // A fall that reaches the bottom outside the defined holes is also a one-hull impact.
@@ -1298,6 +1433,81 @@ function updateSurface(){
     else if(msgT<=0&&stageTimer>60){msg='NEED '+(mineShipFuelRequired-mineShipFuel)+' MORE SHIP FUEL — FIND THE F CANISTERS';msgT=90;}
   }
 }
+function lavaSplash(x,y){
+  for(let i=0;i<22;i++) lavaFx.push({type:'drop',x:x+rnd(-8,8),y,vx:rnd(-2.2,2.2),vy:rnd(-4.5,-1.5),life:rnd(25,45)});
+  for(let i=0;i<10;i++) lavaFx.push({type:'steam',x:x+rnd(-14,14),y:y-4,vx:rnd(-.4,.4),vy:rnd(-1.4,-.6),r:rnd(6,11),life:rnd(60,100),max:100});
+}
+function updateLavaFx(){
+  for(const h of mineHoles){
+    const sx=h.x-cameraX; if(sx<-150||sx>W+150) continue;
+    // Steam wisps rising from the pool.
+    if(Math.random()<.07+h.w*.0006) lavaFx.push({type:'steam',x:rnd(h.x+8,h.x+h.w-8),y:h.lavaY-2,vx:rnd(-.15,.15),vy:rnd(-.9,-.45),r:rnd(3,6),life:rnd(80,130),max:130});
+    // Bubbles that swell and pop on the surface.
+    if(Math.random()<.035) lavaFx.push({type:'bubble',x:rnd(h.x+10,h.x+h.w-10),y:h.lavaY+2,r:0,rmax:rnd(3,6),life:rnd(26,40),max:40});
+  }
+  for(const f of lavaFx){
+    f.life--;
+    if(f.type==='steam'){f.x+=f.vx+Math.sin((f.life+f.y)*.05)*.25;f.y+=f.vy;f.vy*=.995;f.r+=.07;}
+    else if(f.type==='drop'){f.x+=f.vx;f.y+=f.vy;f.vy+=.22;}
+    else if(f.type==='bubble'){f.r=Math.min(f.rmax,f.r+.25);
+      if(f.life===1){for(let i=0;i<3;i++)lavaFx.push({type:'drop',x:f.x,y:f.y-f.r,vx:rnd(-.8,.8),vy:rnd(-1.8,-.8),life:rnd(10,18)});
+        lavaFx.push({type:'steam',x:f.x,y:f.y-4,vx:0,vy:-.6,r:3,life:60,max:60});
+        if(Math.random()<.25&&audioCtx)beep(rnd(70,110),.06,'sine',.012,-30);}}
+  }
+  lavaFx=lavaFx.filter(f=>f.life>0);
+  if(lavaFx.length>400) lavaFx.splice(0,lavaFx.length-400);
+}
+function drawLavaPit(h){
+  const x=h.x-cameraX, w=h.w, ly=h.lavaY, t=stageTimer, bot=ly+PIT_FLOOR+2;
+  // Heat glow spilling out of the pit.
+  const glow=ctx.createLinearGradient(0,ly-46,0,ly);
+  glow.addColorStop(0,'rgba(255,90,20,0)');glow.addColorStop(1,'rgba(255,110,30,.28)');
+  ctx.fillStyle=glow;ctx.fillRect(x-6,ly-46,w+12,46);
+  ctx.save();
+  ctx.beginPath();ctx.rect(x+1,ly-8,w-2,bot-ly+8);ctx.clip();
+  // Molten pool.
+  const surf=k=>ly+Math.sin(k*.16+t*.07+h.seed)*1.8+Math.sin(k*.05-t*.045)*1.4;
+  const g=ctx.createLinearGradient(0,ly-3,0,bot);
+  g.addColorStop(0,'#ffd23f');g.addColorStop(.25,'#ff8a1c');g.addColorStop(.7,'#d6340b');g.addColorStop(1,'#5a0c02');
+  ctx.beginPath();ctx.moveTo(x,bot);
+  for(let k=0;k<=w;k+=3) ctx.lineTo(x+k,surf(k));
+  ctx.lineTo(x+w,bot);ctx.closePath();ctx.fillStyle=g;ctx.fill();
+  // Swirling currents: counter-rotating spiral arcs.
+  const n=Math.max(2,Math.round(w/24));
+  for(let i=0;i<n;i++){
+    const cx=x+(i+.5)*w/n+Math.sin(t*.02+i*1.3+h.seed)*4, cy=ly+9+Math.cos(t*.025+i)*1.5;
+    const dir=i%2?1:-1, a0=t*.05*dir+i*1.7+h.seed;
+    for(let r=3;r<=10;r+=3.5){
+      ctx.strokeStyle=r<5?'rgba(255,245,170,.85)':'rgba(255,200,80,.55)';ctx.lineWidth=1.6;
+      ctx.beginPath();ctx.arc(cx,cy,r,a0+r*.35,a0+r*.35+Math.PI*1.15);ctx.stroke();
+    }
+  }
+  // Dark cooling crust drifting on the surface.
+  ctx.fillStyle='rgba(70,10,0,.65)';
+  for(let i=0;i<3;i++){const cx=x+((t*.25*(i%2?1:-1)+i*w/3+h.seed*20)%w+w)%w;ctx.beginPath();ctx.ellipse(cx,ly+2,5+i*2,1.6,0,0,Math.PI*2);ctx.fill();}
+  // Bright shimmering surface line.
+  ctx.strokeStyle='#fff1a8';ctx.lineWidth=2;ctx.globalAlpha=.75+Math.sin(t*.12+h.seed)*.2;
+  ctx.beginPath();for(let k=0;k<=w;k+=3)k?ctx.lineTo(x+k,surf(k)):ctx.moveTo(x,surf(0));ctx.stroke();
+  ctx.restore();
+  // Rock banks lit orange from below.
+  ctx.strokeStyle='rgba(255,120,40,.75)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(x,surfaceTerrainY(h.x));ctx.lineTo(x+PIT_BANK,surfaceGroundY(h.x+PIT_BANK));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x+w,surfaceTerrainY(h.x+w));ctx.lineTo(x+w-PIT_BANK,surfaceGroundY(h.x+w-PIT_BANK));ctx.stroke();
+}
+function drawLavaFx(front){
+  for(const f of lavaFx){
+    const x=f.x-cameraX; if(x<-30||x>W+30) continue;
+    if(f.type==='steam'&&front){
+      const a=Math.min(1,f.life/f.max)*Math.min(1,(f.max-f.life)/12+.2);
+      ctx.fillStyle='rgba(225,225,235,'+(a*.28)+')';ctx.beginPath();ctx.arc(x,f.y,f.r,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,'+(a*.18)+')';ctx.beginPath();ctx.arc(x-f.r*.3,f.y-f.r*.3,f.r*.5,0,Math.PI*2);ctx.fill();
+    } else if(f.type==='bubble'&&!front){
+      ctx.strokeStyle='#fff1a8';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,f.y,f.r,Math.PI,0);ctx.stroke();
+    } else if(f.type==='drop'&&front){
+      ctx.fillStyle=f.life>15?'#ffb030':'#ff5a14';ctx.fillRect(x-1.5,f.y-1.5,3,3);
+    }
+  }
+}
 function upgradeLayout(){
   const bw=Math.min(380,W*.86),bx=(W-bw)/2,rh=Math.min(46,H*.064),rowGap=6,startY=H*.30;
   const rows=[
@@ -1306,8 +1516,9 @@ function upgradeLayout(){
     {type:'hull',  label:'REPAIR HULL +1',cost:2},
     {type:'laser', label:'LASER +1',cost:2},
     {type:'thrust',label:'THRUST +',cost:2},
-    {type:'shield',label:'3 SEC COLLISION SHIELD (PRESS ↓)',cost:2},
-    {type:'life',label:'EXTRA LIFE +1',cost:6}
+    {type:'shield',label:'3 SEC SHIELD (↓ KEY)',cost:2},
+    {type:'hook',label:'GRAPPLING HOOK',cost:3},
+    {type:'life',label:'EXTRA LIFE +1',cost:5}
   ].map((r,i)=>({...r,y:startY+i*(rh+rowGap)}));
   const launchY=startY+rows.length*(rh+rowGap)+8;
   return {bw,bx,rh,rows,launch:{x:bx,y:launchY,w:bw,h:rh}};
@@ -1319,7 +1530,8 @@ function canBuy(type){
   if(type==='laser') return banked>=2 && ship.laser<4;
   if(type==='thrust') return banked>=2 && ship.thrust<2.4;
   if(type==='shield') return banked>=2 && shieldCharges<3;
-  if(type==='life') return banked>=6 && !lifeUpgradeBought;
+  if(type==='hook') return banked>=3 && !ship.hook;
+  if(type==='life') return banked>=5 && !lifeUpgradeBought;
   return false;
 }
 function buy(type){
@@ -1330,7 +1542,8 @@ function buy(type){
   if(type==='laser'){banked-=2;ship.laser++}
   if(type==='thrust'){banked-=2;ship.thrust=Math.min(2.4,ship.thrust+.35)}
   if(type==='shield'){banked-=2;shieldCharges++}
-  if(type==='life'){banked-=6;lives++;lifeUpgradeBought=true;sfx('extra');msg='EXTRA LIFE!';msgT=90;}
+  if(type==='hook'){banked-=3;ship.hook=true;msg='GRAPPLING HOOK FITTED';msgT=90;}
+  if(type==='life'){banked-=5;lives++;lifeUpgradeBought=true;sfx('extra');msg='EXTRA LIFE!';msgT=90;}
   sfx('gem');
 }
 
@@ -1629,6 +1842,13 @@ function drawPopups(){
   ctx.globalAlpha=1;
 }
 
+function updateStars(){
+  const sp=state==='flight'&&readyT<=0?scroll:FLY_BASE*.6;
+  for(const s of stars){
+    s.x-=sp*s.d;
+    if(s.x<-12){s.x+=W+24;s.y=rnd(0,H);}
+  }
+}
 function drawStars(){
   for(const s of stars){
     const len=Math.max(s.s,scroll*s.d*2.5);
@@ -1768,21 +1988,11 @@ const SURF_DRAW_OFF=17;
 function drawSurface(){
   ctx.fillStyle='#060606';ctx.fillRect(0,0,W,H); const p=planets[planetIndex];
   for(let i=0;i<50;i++){ctx.globalAlpha=.15+(i%4)*.08;mono();ctx.fillRect(((i*137-cameraX*.1)%W+W+260)%(W+260)-120,(i*71)%(H*.5),1.5,1.5)}ctx.globalAlpha=1;
-  ctx.beginPath();ctx.moveTo(0,H);for(let x=0;x<=W+12;x+=12)ctx.lineTo(x,surfaceGroundY(cameraX+x));ctx.lineTo(W,H);ctx.closePath();ctx.fillStyle='#0b0b0b';ctx.fill();
-  ctx.strokeStyle=p.tint;ctx.lineWidth=2;ctx.beginPath();for(let x=0;x<=W+12;x+=12)x?ctx.lineTo(x,surfaceGroundY(cameraX+x)):ctx.moveTo(x,surfaceGroundY(cameraX));ctx.stroke();
-  mineHoles.forEach(h=>{const x=h.x-cameraX;if(x>-100&&x<W+100){
-    const rimY=surfaceTerrainY(h.x);
-    const depth=82;
-    ctx.fillStyle='#020202';ctx.globalAlpha=.95;
-    ctx.beginPath();ctx.moveTo(x,rimY);ctx.quadraticCurveTo(x+h.w*.5,rimY+depth,x+h.w,rimY);ctx.lineTo(x+h.w,rimY+8);ctx.lineTo(x,rimY+8);ctx.closePath();ctx.fill();
-    ctx.strokeStyle='#ff3030';ctx.globalAlpha=1;ctx.lineWidth=3;
-    ctx.beginPath();ctx.moveTo(x,rimY);ctx.quadraticCurveTo(x+h.w*.5,rimY+depth,x+h.w,rimY);ctx.stroke();
-    ctx.globalAlpha=.9;ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(x+6,rimY+3);ctx.quadraticCurveTo(x+h.w*.5,rimY+depth-10,x+h.w-6,rimY+3);ctx.stroke();
-    ctx.globalAlpha=.35;ctx.fillStyle='#ff2020';
-    ctx.fillRect(x,rimY-2,h.w,3);
-    ctx.globalAlpha=1;
-  }});
+  // Fine sampling so the steep lava-pit banks are drawn exactly where the collision is.
+  ctx.beginPath();ctx.moveTo(0,H);for(let x=0;x<=W+4;x+=3)ctx.lineTo(x,surfaceGroundY(cameraX+x));ctx.lineTo(W,H);ctx.closePath();ctx.fillStyle='#0b0b0b';ctx.fill();
+  ctx.strokeStyle=p.tint;ctx.lineWidth=2;ctx.beginPath();for(let x=0;x<=W+4;x+=3)x?ctx.lineTo(x,surfaceGroundY(cameraX+x)):ctx.moveTo(x,surfaceGroundY(cameraX));ctx.stroke();
+  mineHoles.forEach(h=>{const x=h.x-cameraX;if(x>-120&&x<W+120)drawLavaPit(h);});
+  drawLavaFx(false);
   minePlatforms.forEach((pl,i)=>{
     const x=pl.x-cameraX;
     if(x<-160||x>W+160)return;
@@ -1817,6 +2027,7 @@ function drawSurface(){
   bullets.forEach(b=>{if(b.enemy)ctx.fillStyle='#ff6bd6';else ctx.fillStyle=ship.laser>=4?'#ff3030':ship.laser===3?'#ff8c24':ship.laser===2?'#ffe34d':'#fff';ctx.fillRect(b.x-cameraX,b.y,b.enemy?5:9,2)});
   drawAstronaut(ship.x-cameraX,ship.y+18,ship.face);
   drawShieldEffect(ship.x-cameraX,ship.y+18);
+  drawLavaFx(true);
   // Show collected fuel crates stacked beside the parked ship, plus the live count in the HUD.
   const shipScreenX=110-cameraX,shipScreenY=surfaceGroundY(110)-38;
   for(let i=0;i<mineShipFuel;i++)drawCrateIcon('shipfuel',shipScreenX+34+(i%2)*13,shipScreenY-7-Math.floor(i/2)*13,12);
@@ -1858,6 +2069,7 @@ function drawUpgrade(){
     if(r.type==='shield') info=shieldCharges>=3?'MAX 3':shieldCharges+' / 3';
     if(r.type==='shield'&&shieldT>0) info='ACTIVE';
     if(r.type==='life'&&lifeUpgradeBought) info='USED';
+    if(r.type==='hook'&&ship.hook) info='FITTED';
     text(info,L.bx+L.bw-14,r.y+L.rh/2+6,13,'right');
     ctx.globalAlpha=1;
   });
@@ -1936,7 +2148,7 @@ function drawInfo(){
   section('CONTROLS',[
     'LEFT / RIGHT ARROWS: rotate in space; move on foot.',
     'UP ARROW: thrust, lander thrust, jump and jetpack.',
-    'SPACE: fire. DOWN ARROW: activate a shield charge. P: pause.',
+    'SPACE: fire (or grappling hook in caverns). DOWN ARROW: shield. P: pause.',
     'C: toggle the retro CRT screen effect. ENTER: close this briefing.'
   ]);
   section('ARCADE EXTRAS',[
@@ -2047,6 +2259,7 @@ function update(){
   if(state!=='upgrade')setWorkshopSound(false);
   else if(audioCtx && stageTimer%52===0)workshopHammer();
   if(pitFlashT>0)pitFlashT--;
+  if(state==='flight'||(state==='exploding'&&explosionScene==='flight'))updateStars();
   if(readyT>0){readyT--;}
   else if(state==='flight')updateFlight();
   else if(state==='lander')updateLander();
