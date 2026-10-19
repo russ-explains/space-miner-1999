@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.95';
+const VERSION='v1.9.96';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1508,6 +1508,8 @@ function updateMiningCavern(){
  if(upPressed){if(ship.grounded){ship.vy=-5.7;ship.grounded=false;jetpackActive=false;}else jetpackActive=true;}
  if(jetpackActive&&keys.ArrowUp&&backpackFuel>0){ship.vy-=.42;backpackFuel=Math.max(0,backpackFuel-.4);}else if(!keys.ArrowUp)backpackFuel=Math.min(maxBackpackFuel,backpackFuel+.03);
  ship.vy+=.22;ship.x=clamp(ship.x+ship.vx,20,W-20);ship.y+=ship.vy;
+ // Jagged cavern ceiling: jetpack thrust cannot carry the astronaut above this boundary.
+ const ceilingY=H*.10;if(ship.y<ceilingY){ship.y=ceilingY;ship.vy=Math.max(0,ship.vy);}
  let floor=s.floorY;for(const p of s.platforms){if(ship.x>p.x&&ship.x<p.x+p.w&&ship.y+32>=p.y&&ship.y+32<=p.y+20&&ship.vy>=0){floor=p.y;break;}}
  if(ship.y+32>=floor){ship.y=floor-32;ship.vy=0;ship.grounded=true;}else ship.grounded=false;
  s.camY=0;mineOxygen=Math.max(0,mineOxygen-.045);o2=mineOxygen;if(mineOxygen<=0){lose('OXYGEN DEPLETED IN LOWER CAVERN',true);return;}
@@ -1543,6 +1545,8 @@ function drawMiningCavern(){
  const s=mineSublevel,cam=0;ctx.fillStyle='#050505';ctx.fillRect(0,0,W,H);
  for(let i=0;i<50;i++){ctx.globalAlpha=.18;ctx.fillStyle='#aaa';ctx.fillRect((i*137)%W,(i*71)%H,2,2);}ctx.globalAlpha=1;
  ctx.strokeStyle='#777';ctx.lineWidth=3;ctx.strokeRect(2,2,W-4,H-4);
+ // Jagged rocky roof across the top, matching the cavern's floor and floating ledges.
+ const ceilingY=H*.10;ctx.beginPath();ctx.moveTo(0,ceilingY);for(let x=0;x<=W;x+=7){const y=ceilingY+Math.sin(x*.031)*3+Math.sin(x*.087)*2;x?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.strokeStyle='#ddd';ctx.lineWidth=1.5;ctx.stroke();
  // A narrow descending ladder in a rough, rocky shaft; its top begins at the ground, not above it.
  const lx=W-28,ladderTop=H*.68;ctx.strokeStyle='#777';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(lx-14,ladderTop);for(let yy=ladderTop;yy<H;yy+=8){ctx.lineTo(lx-14+Math.sin(yy*.11)*3,yy);ctx.lineTo(lx-10+Math.sin(yy*.07)*2,yy+4);}ctx.moveTo(lx+12,ladderTop);for(let yy=ladderTop;yy<H;yy+=8){ctx.lineTo(lx+12+Math.sin(yy*.09+1)*3,yy);ctx.lineTo(lx+8+Math.sin(yy*.06)*2,yy+4);}ctx.stroke();ctx.strokeStyle='#168dff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(lx-5,ladderTop);ctx.lineTo(lx-5,H-8);ctx.moveTo(lx+5,ladderTop);ctx.lineTo(lx+5,H-8);for(let yy=ladderTop+8;yy<H-8;yy+=20){ctx.moveTo(lx-5,yy);ctx.lineTo(lx+5,yy);}ctx.stroke();
  // Reuse the same thin top edge and jagged, rocky underside style as the surface platforms.
@@ -1628,9 +1632,11 @@ function updateSurface(){
   } else if(ship.y>=ground && !(mineHoles.some(h=>h.special&&ship.x>h.x+8&&ship.x<h.x+h.w-8&&ship.y>ground-3))){
     ship.y=ground;ship.vy=0;ship.grounded=true;
   } else ship.grounded=false;
-  const ladder=mineHoles.find(h=>h.special);if(ladder&&ship.x>ladder.x-12&&ship.x<ladder.x+ladder.w+12&&ship.y+32>surfaceGroundY(ship.x)+3){
-    // Let the astronaut fall down through the opening before transitioning into the lower cavern.
-    if(ship.y+32>surfaceGroundY(ship.x)+22){enterMiningCavern();return;}
+  const ladder=mineHoles.find(h=>h.special);if(ladder&&ship.x>ladder.x-20&&ship.x<ladder.x+ladder.w+20){
+    const ladderGround=surfaceGroundY(ship.x);
+    // Inside the shaft, bypass ground snapping so gravity carries the astronaut down into it.
+    if(ship.y+32>=ladderGround-2){ship.grounded=false;ship.vy=Math.max(1.4,ship.vy);}
+    if(ship.y+32>ladderGround+18){enterMiningCavern();return;}
   }
   cameraX=clamp(ship.x-W*.35,0,Math.max(0,surfaceWidth-W));
   updateLavaFx();
