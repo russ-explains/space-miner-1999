@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.61';
+const VERSION='v1.9.62';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -262,6 +262,17 @@ addEventListener('keydown',e=>{
     paused=!paused;
     if(paused)setThrustSound(false);
     sfx(paused?'buzz':'land');
+    return;
+  }
+  // TEST CHEAT: grant every upgrade, including the cavern grappling hook.
+  if(e.code==='KeyU'&&!e.repeat&&!isMenu()&&state!=='exploding'){
+    ship.maxFuel=200;ship.fuel=ship.maxFuel;
+    ship.maxHull=3;ship.hull=3;ship.laser=4;ship.thrust=2.4;
+    shieldCharges=3;ship.hook=true;
+    maxBackpackFuel=100;backpackFuel=100;
+    mineOxygenMax=100;mineOxygen=100;o2=100;
+    banked=99;lives=Math.max(lives,5);lifeUpgradeBought=true;
+    msg='CHEAT: ALL UPGRADES + GRAPPLING HOOK';msgT=110;flash=.35;sfx('extra');
     return;
   }
   if(isMenu()){ if(!e.repeat) menuKey(e.code); return; }
