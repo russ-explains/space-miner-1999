@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.69';
+const VERSION='v1.9.70';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -773,23 +773,26 @@ function drawVerticalLander(){
   }
   for(const h of landerCaveHazards){
     if(h.y<top-40||h.y>bottom+40)continue;
-    const x=h.x,y=h.y-top,legSwing=Math.sin(h.phase)*3;
-    // Small orange spider: four articulated legs, two on each side, stepping as it crawls.
+    const x=h.x,y=h.y-top,legSwing=Math.sin(h.phase)*2.5;
+    // Bigger orange body with four short, bent legs reaching down to the cavern wall.
     ctx.save();ctx.translate(x,y);
-    ctx.strokeStyle='#ff8a24';ctx.lineWidth=2.5;ctx.lineCap='round';
+    ctx.strokeStyle='#ff8a24';ctx.lineWidth=3;ctx.lineCap='round';ctx.lineJoin='round';
     for(const side of [-1,1]){
       for(let i=0;i<2;i++){
-        const ly=(i-.5)*7,step=legSwing*(i===0?1:-1);
+        const along=(i===0?-1:1),step=legSwing*(i===0?1:-1);
+        const attachY=along*4;
+        const kneeX=side*(10+step),kneeY=attachY+along*3;
+        const footX=side*(15+step),footY=attachY+along*10;
         ctx.beginPath();
-        ctx.moveTo(side*3,ly);
-        ctx.lineTo(side*(9+step),ly-5);
-        ctx.lineTo(side*(13+step),ly+((i===0)?-10:10));
+        ctx.moveTo(side*5,attachY);
+        ctx.lineTo(kneeX,kneeY);
+        ctx.lineTo(footX,footY);
         ctx.stroke();
       }
     }
     ctx.fillStyle='#ff8a24';ctx.strokeStyle='#ffc078';ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.ellipse(0,0,7,5,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-    ctx.fillStyle='#ffdf9a';ctx.fillRect(-3,-2,2,2);ctx.fillRect(2,-2,2,2);
+    ctx.beginPath();ctx.ellipse(0,0,14,10,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#ffdf9a';ctx.fillRect(-5,-3,3,3);ctx.fillRect(3,-3,3,3);
     ctx.restore();
   }
   for(const a of landerCaveAsteroids){
