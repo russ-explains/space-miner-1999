@@ -1,3 +1,8 @@
+## v1.9.100 — Fix terrain spikes beside drop hole
+### Fixed
+- Excluded the special drop-through hole from lava-pit terrain shaping. Its fake `lavaY` was making the ground profile jump vertically, creating the two long lines leading up towards the saucer.
+- Removed the artificial high-offset `lavaY` from the drop-hole setup; the opening remains a simple hole with normal terrain on both sides.
+
 ## v1.9.99 — Remove remaining ladder/shaft lines
 ### Changed
 - Removed the remaining lower-cavern ladder and its two tall rocky side strokes. The surface entrance and lower cavern no longer draw ladder rails or vertical shaft lines.
