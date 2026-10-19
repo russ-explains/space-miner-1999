@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.83';
+const VERSION='v1.9.84';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -896,6 +896,7 @@ function setupSurface(){
   mineShipFuel=0; mineShipFuelRequired=3;
   minePlatformScroll=0; mineUfo={x:W*.78,y:90,vx:-1.15,t:0,fire:90,hp:12};
   mineHoles=[]; minePlatforms=[]; minePitHit=false; pitFlashT=0; lavaFx=[];
+  mineSublevel.active=false;
   const gap=260;
   // Keep level 1 familiar, then raise the mining platforms progressively on later planets.
   const levelRise=Math.max(0,planetIndex)*28;
@@ -1573,7 +1574,7 @@ function updateSurface(){
     minePitHit=false;
   } else if(platform){
     ship.y=platform.y-32;ship.vy=0;ship.grounded=true;
-  } else if(ship.y>=ground){
+  } else if(ship.y>=ground && !(mineHoles.some(h=>h.special&&ship.x>h.x+8&&ship.x<h.x+h.w-8&&ship.y>ground-3))){
     ship.y=ground;ship.vy=0;ship.grounded=true;
   } else ship.grounded=false;
   const ladder=mineHoles.find(h=>h.special);if(ladder&&ship.x>ladder.x+10&&ship.x<ladder.x+ladder.w-10&&ship.y>surfaceGroundY(ship.x)+12){enterMiningCavern();return;}
