@@ -1,3 +1,6 @@
+## v1.9.62 — 2026-10-19
+- Restored the **U** gameplay test cheat: fully refuels the ship, grants maximum hull, laser and thrust upgrades, three shields, full jetpack fuel and oxygen, 99 banked gems, extra lives, and the grappling hook.
+
 ## v1.9.61 — 2026-10-19
 - Integrated Tim's updated game script, including bubbling/steaming lava pools on the mining surface and the space-worm hazards in the cavern descent.
 - Extended the cavern worms much farther into the passage, leaving only a narrow gap to manoeuvre through.
