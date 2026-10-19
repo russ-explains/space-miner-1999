@@ -1,3 +1,9 @@
+## v1.9.80 — Extended squid crawler legs
+### Changed
+- Stretched all three animated legs so they reach from the lower, outward part of the squid body back towards the cavern wall.
+- Repositioned the upper attachments to meet the underside of the elongated body, avoiding the compressed, detached look.
+- Preserved the visible knuckle joints and stepping animation, along with the body shape and crawler behaviour.
+
 ## v1.9.79 — Elongated wall-climbing squid body
 ### Changed
 - Replaced the squashed rotated outline with a long horizontal squid mantle extending outward from the vertical cavern wall.
