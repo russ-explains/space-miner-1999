@@ -1,3 +1,7 @@
+## v1.9.99 — Remove remaining ladder/shaft lines
+### Changed
+- Removed the remaining lower-cavern ladder and its two tall rocky side strokes. The surface entrance and lower cavern no longer draw ladder rails or vertical shaft lines.
+
 ## v1.9.98 — Clean open drop hole
 ### Changed
 - Removed all drawn side-wall strokes from the surface drop hole, leaving only the dark opening cut into the ground contour. No vertical lines or ladder artwork remain above or beside the entrance.
