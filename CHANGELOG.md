@@ -1,3 +1,7 @@
+## v1.9.65 — 2026-10-19
+- The grappling hook can now strike floating asteroids during cavern descent, splitting larger rocks into smaller moving chunks that can be broken apart again.
+- Hook targeting now considers both reachable worms and cavern asteroids.
+
 ## v1.9.64 — 2026-10-19
 - Players now start each new run with **one shield charge**; the **U** testing cheat still grants three.
 
