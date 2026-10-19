@@ -1,3 +1,7 @@
+## v1.9.66 — 2026-10-19
+- All gameplay test cheats are now locked by default. Type **BEAR** within about 2.2 seconds during Planet 1's asteroid flight to enable the **1–4** section/planet shortcuts and the **U** all-upgrades cheat.
+- Cheats relock at the start of each new run.
+
 ## v1.9.65 — 2026-10-19
 - The grappling hook can now strike floating asteroids during cavern descent, splitting larger rocks into smaller moving chunks that can be broken apart again.
 - Hook targeting now considers both reachable worms and cavern asteroids.
