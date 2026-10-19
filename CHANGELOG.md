@@ -1,3 +1,6 @@
+## v1.9.63 — 2026-10-19
+- Restored the **1–4** gameplay test shortcuts: each key jumps to its corresponding section, and pressing the same key again advances to that section on the next planet, through the fifth planet.
+
 ## v1.9.62 — 2026-10-19
 - Restored the **U** gameplay test cheat: fully refuels the ship, grants maximum hull, laser and thrust upgrades, three shields, full jetpack fuel and oxygen, 99 banked gems, extra lives, and the grappling hook.
 
