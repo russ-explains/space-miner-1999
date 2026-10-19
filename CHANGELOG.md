@@ -1,3 +1,9 @@
+## v1.9.81 — Free starting grappling hook
+### Changed
+- Removed the grappling hook from the workshop upgrades menu.
+- Granted the grappling hook automatically when a new run starts.
+- Confirmed squid contact in the cavern descent uses the standard one-hull damage path, with normal invulnerability after a hit.
+
 ## v1.9.80 — Extended squid crawler legs
 ### Changed
 - Stretched all three animated legs so they reach from the lower, outward part of the squid body back towards the cavern wall.
