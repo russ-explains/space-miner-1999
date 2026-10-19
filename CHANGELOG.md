@@ -1,3 +1,8 @@
+## v1.9.95 — Wobbling central boss hover
+### Changed
+- Added a subtle wobble and tilt to the boss's body, with an irregular breathing/pulsing outline and slightly moving eyes.
+- Kept the monster hovering closer to the centre of the cavern, with gentler movement and a smaller, slower lunge towards the player while being shot.
+
 ## v1.9.94 — Remove stray vertical lines at ladder entrance
 ### Changed
 - Removed the two tall, wobbly vertical rock-wall strokes beside the surface ladder shaft that extended far up the screen. The ladder and short rocky edges around the opening remain.
