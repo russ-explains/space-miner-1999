@@ -1,3 +1,6 @@
+## v1.9.64 — 2026-10-19
+- Players now start each new run with **one shield charge**; the **U** testing cheat still grants three.
+
 ## v1.9.63 — 2026-10-19
 - Restored the **1–4** gameplay test shortcuts: each key jumps to its corresponding section, and pressing the same key again advances to that section on the next planet, through the fifth planet.
 
