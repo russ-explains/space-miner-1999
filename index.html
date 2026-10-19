@@ -546,7 +546,7 @@ function updateHook(){
   if(hook.state==='out'){
     hook.x+=hook.vx;hook.y+=hook.vy;hook.len=Math.hypot(hook.x-ship.x,hook.y-ship.y);
     let hitRock=false;
-    for(const a of landerCaveAsteroids){
+    for(const a of [...landerCaveAsteroids]){
       if(a.dead)continue;
       if(Math.hypot(hook.x-a.x,hook.y-a.y)<a.r+8){
         splitCaveAsteroid(a);hook.rockHit=true;hook.state='clamp';hook.clampT=10;
