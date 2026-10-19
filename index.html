@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.99';
+const VERSION='v1.9.100';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -880,6 +880,8 @@ function pitLavaY(h){return Math.max(surfaceTerrainY(h.x),surfaceTerrainY(h.x+h.
 function surfaceGroundY(worldX){
   const y=surfaceTerrainY(worldX);
   for(const h of mineHoles){
+    // The drop-through entrance is not a lava pit: never bend the terrain down/up to its fake lavaY.
+    if(h.special)continue;
     if(worldX>h.x && worldX<h.x+h.w){
       const floor=(h.lavaY||pitLavaY(h))+PIT_FLOOR;
       const d=Math.min(worldX-h.x,h.x+h.w-worldX);
@@ -907,7 +909,7 @@ function setupSurface(){
     const hole={x:x+150,w:(i%4===0?92:i%2===0?72:58),seed:i*1.7};hole.lavaY=pitLavaY(hole);mineHoles.push(hole);
   }
   // Keep every lava pit; put the narrow ladder shaft after the final pit at the far right.
-  const ladderHole={x:surfaceWidth-190,w:Math.max(16,Math.min(24,W*.03)),seed:99,special:true};ladderHole.lavaY=surfaceGroundY(ladderHole.x)-900;mineHoles.push(ladderHole);mineSublevel.entryX=ladderHole.x+ladderHole.w/2;
+  const ladderHole={x:surfaceWidth-190,w:Math.max(16,Math.min(24,W*.03)),seed:99,special:true};mineHoles.push(ladderHole);mineSublevel.entryX=ladderHole.x+ladderHole.w/2;
   aliens=Array.from({length:p.aliens},(_,i)=>{
     const pl=minePlatforms[i%minePlatforms.length];
     const tough=planetIndex>=2&&i%2===0; return {x:pl.x+pl.w*.5,y:pl.y-13,w:26,h:32,hp:tough?2:1,dir:i%2?-1:1,t:rnd(0,200),platform:pl,tough};
