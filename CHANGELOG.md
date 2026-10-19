@@ -1,3 +1,9 @@
+## v1.9.76 — Smaller, connected crawler legs
+### Changed
+- Reduced the cavern crawler legs by about 40%, including their stroke thickness and stepping spread.
+- Moved all three leg roots onto the smaller rotated body outline so they no longer look detached.
+- Kept the body size, clockwise rotation, orange eyes, crawler movement, and collision behaviour unchanged.
+
 ## v1.9.75 — Smaller rotated cavern crawler bodies
 ### Changed
 - Halved the hollow crawler body size and rotated the entire body 90 degrees clockwise.
