@@ -1,3 +1,10 @@
+## v1.9.78 — Articulated squid crawlers
+### Changed
+- Refined the orange hollow crawler into a long, narrow squid-like silhouette, keeping the existing arcade art style.
+- Reworked all three animated legs into connected, bent segments with small visible knuckle joints.
+- Kept the feet directed towards the cavern wall and animated the limbs so they lift and flex rather than appearing as straight spokes.
+- Preserved the crawler's movement, collision behaviour, and overall body/eye colour.
+
 ## v1.9.77 — Taller squid-like cavern crawlers
 ### Changed
 - Made the hollow crawler body taller without widening it, with a narrower, tapered top for a squid-like silhouette.
