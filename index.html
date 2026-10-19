@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.67';
+const VERSION='v1.9.68';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -504,12 +504,21 @@ function updateWorms(){
     let target=ph<.42?0:ph<.55?(ph-.42)/.13:ph<.82?1:ph<.95?1-(ph-.82)/.13:0;
     if(!near) target=0;
     w.ext+=(target-w.ext)*.25;
-    if(w.ext>.6){
-      const h=wormHead(w);
-      if(Math.hypot(ship.x-h.x,ship.y-h.y)<22 && ship.inv===0 && shieldT<=0){
+    if(w.ext>.35&&!w.harvested&&ship.inv===0&&shieldT<=0){
+      const base=wormBase(w),h=wormHead(w),segs=9;
+      let bodyHit=false;
+      // Check the visible body segments as well as the head, using the same
+      // wriggling path as the drawing code.
+      for(let i=1;i<=segs;i++){
+        const t=i/segs;
+        const bx=base.x+(h.x-base.x)*t;
+        const by=w.y+(h.y-w.y)*t+Math.sin(stageTimer*.2+i*.9)*4*w.ext*(1-t*.6);
+        if(Math.hypot(ship.x-bx,ship.y-by)<17){bodyHit=true;break;}
+      }
+      if(bodyHit||Math.hypot(ship.x-h.x,ship.y-h.y)<22){
         w.biteT=12;sfx('chomp');
         ship.vx+=h.dir*.35;ship.vy-=.05;
-        if(damage('HULL DESTROYED — SPACE WORM','WORM BITE',true,true)&&state!=='lander')return;
+        if(damage('HULL DESTROYED — SPACE WORM','WORM CONTACT',true,true)&&state!=='lander')return;
       }
     }
     if(w.biteT>0)w.biteT--;
