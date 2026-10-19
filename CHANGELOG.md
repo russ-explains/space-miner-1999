@@ -1,3 +1,7 @@
+## v1.9.61 — 2026-10-19
+- Integrated Tim's updated game script, including bubbling/steaming lava pools on the mining surface and the space-worm hazards in the cavern descent.
+- Extended the cavern worms much farther into the passage, leaving only a narrow gap to manoeuvre through.
+
 ## v1.9.58 — 2026-10-11
 - Reduced the score threshold for earning a free extra ship from **50,000 points to 25,000 points**.
 - Updated the on-screen mission briefing and the displayed extra-ship rule to match the new threshold.
