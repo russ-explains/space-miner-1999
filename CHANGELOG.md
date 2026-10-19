@@ -1,3 +1,7 @@
+## v1.9.92 — Straighter escape rocket ascent
+### Changed
+- Made the escape rocket travel almost straight upwards, allowing only a slight drift to the right and a much gentler arc.
+
 ## v1.9.91 — Larger escape rocket and cavern contact damage
 ### Changed
 - Doubled the size of the lower-cavern escape rocket, both while waiting at the floor and during launch.
