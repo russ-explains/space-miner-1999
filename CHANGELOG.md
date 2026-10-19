@@ -1,3 +1,8 @@
+## v1.9.103 — Boss defeat persists for the whole planet
+### Changed
+- Recorded the planet index when the cavern boss is defeated.
+- If the player returns to the lower cavern during the same planet, the boss remains defeated and does not respawn. A different planet can still have its own boss.
+
 ## v1.9.102 — Four boss gems and reliable tentacle damage
 ### Changed
 - The green cavern boss now drops exactly four gems when defeated, with the defeat message updated to match.
