@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.82';
+const VERSION='v1.9.83';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -905,6 +905,7 @@ function setupSurface(){
     if(i%3!==1) minePlatforms.push({x:x+90,w:80,y:surfaceTerrainY(x+90)-205-levelRise,h:10,upper:true});
     const hole={x:x+150,w:(i%4===0?92:i%2===0?72:58),seed:i*1.7};hole.lavaY=pitLavaY(hole);mineHoles.push(hole);
   }
+  const ladderHole=mineHoles[Math.min(2,mineHoles.length-1)];if(ladderHole){ladderHole.special=true;mineSublevel.entryX=ladderHole.x+ladderHole.w/2;}
   aliens=Array.from({length:p.aliens},(_,i)=>{
     const pl=minePlatforms[i%minePlatforms.length];
     const tough=planetIndex>=2&&i%2===0; return {x:pl.x+pl.w*.5,y:pl.y-13,w:26,h:32,hp:tough?2:1,dir:i%2?-1:1,t:rnd(0,200),platform:pl,tough};
@@ -1464,8 +1465,61 @@ function updateLander(){
 }
 
 /* -------------------------------------------------------------- SURFACE */
+
+// Hidden lower mining cavern.
+let mineSublevel={active:false,camY:0,platforms:[],pickups:[],monster:null,bombs:[],gems:[],rocket:null,floorY:1400};
+function enterMiningCavern(){
+ const s=mineSublevel;s.active=true;s.camY=0;s.floorY=1400;
+ s.platforms=[{x:W*.12,y:270,w:W*.42},{x:W*.46,y:410,w:W*.38},{x:W*.18,y:570,w:W*.4},{x:W*.48,y:730,w:W*.38},{x:W*.22,y:890,w:W*.4},{x:W*.08,y:1050,w:W*.38}];
+ s.pickups=[];for(let i=0;i<10;i++)s.pickups.push({type:i%2?'backpack':'oxygen',x:W*(.18+(i%3)*.31),y:210+i*112,taken:false});
+ s.monster={x:W*.57,y:1080,hp:7,age:0,alive:true,melt:0,fire:55};s.bombs=[];s.gems=[];s.rocket={x:W*.12,y:s.floorY-24,active:true};
+ ship.x=W*.5;ship.y=100;ship.vx=0;ship.vy=0;ship.grounded=false;jetpackActive=false;
+ msg='LOWER CAVERN — DEFEAT THE BEAST';msgT=120;sfx('jingle');
+}
+function updateMiningCavern(){
+ const s=mineSublevel;stageTimer++;
+ const move=(keys.ArrowRight?1:0)-(keys.ArrowLeft?1:0);if(move)ship.face=move;
+ ship.vx=clamp((ship.vx||0)+move*.3,-2.8,2.8);ship.vx*=ship.grounded?.8:.95;
+ if(upPressed){if(ship.grounded){ship.vy=-5.7;ship.grounded=false;jetpackActive=false;}else jetpackActive=true;}
+ if(jetpackActive&&keys.ArrowUp&&backpackFuel>0){ship.vy-=.42;backpackFuel=Math.max(0,backpackFuel-.4);}else if(!keys.ArrowUp)backpackFuel=Math.min(maxBackpackFuel,backpackFuel+.03);
+ ship.vy+=.22;ship.x=clamp(ship.x+ship.vx,20,W-20);ship.y+=ship.vy;
+ let floor=s.floorY;for(const p of s.platforms){if(ship.x>p.x&&ship.x<p.x+p.w&&ship.y+32>=p.y&&ship.y+32<=p.y+20&&ship.vy>=0){floor=p.y;break;}}
+ if(ship.y+32>=floor){ship.y=floor-32;ship.vy=0;ship.grounded=true;}else ship.grounded=false;
+ s.camY=clamp(ship.y-H*.38,0,s.floorY-H*.5);mineOxygen=Math.max(0,mineOxygen-.045);o2=mineOxygen;
+ if(mineOxygen<=0){lose('OXYGEN DEPLETED IN LOWER CAVERN',true);return;}
+ if(actionPressed&&bullets.filter(b=>!b.enemy).length<4+ship.laser){bullets.push({x:ship.x+ship.face*16,y:ship.y+3,vx:ship.face*(7+ship.laser*.8),vy:0,life:130});sfx('shoot');}
+ bullets.forEach(b=>{b.x+=b.vx;b.y+=b.vy||0;b.life--;});
+ const m=s.monster;if(m.alive){m.age++;m.x=W*.55+Math.sin(m.age*.009)*W*.07;m.y=1080+Math.sin(m.age*.018)*12;
+  if(--m.fire<=0){const dx=ship.x-m.x,dy=ship.y-m.y,d=Math.hypot(dx,dy)||1;s.bombs.push({x:m.x,y:m.y+20,vx:dx/d*2.2,vy:dy/d*2.2,life:240});m.fire=72;}
+  for(const b of bullets){if(!b.enemy&&b.life>0&&Math.hypot(b.x-m.x,b.y-m.y)<55){b.life=0;m.hp--;burst(b.x,b.y,5);if(m.hp<=0){m.alive=false;m.melt=100;for(let i=0;i<5;i++)s.gems.push({x:m.x,y:m.y,vx:(i-2)*1.5,vy:-4-i*.3,landed:false});msg='BEAST DEFEATED — FIVE GEMS!';msgT=120;sfx('boom');}}}
+ }
+ for(const b of s.bombs){b.x+=b.vx;b.y+=b.vy;b.vy+=.015;b.life--;if(Math.hypot(ship.x-b.x,ship.y-b.y)<18&&ship.inv===0){b.life=0;damage('CAVERN BEAST','BEAST BOMB HIT',false,true);if(state!=='surface')return;}}
+ s.bombs=s.bombs.filter(b=>b.life>0&&b.y<s.floorY+30);
+ if(!m.alive&&m.melt>0)m.melt--;
+ for(const p of s.pickups){if(!p.taken&&Math.hypot(ship.x-p.x,ship.y-p.y)<28){p.taken=true;if(p.type==='oxygen'){mineOxygen=Math.min(mineOxygenMax,mineOxygen+35);o2=mineOxygen;}else backpackFuel=Math.min(maxBackpackFuel,backpackFuel+40);sfx('fuel');}}
+ for(const g of s.gems){if(!g.landed){g.x+=g.vx;g.y+=g.vy;g.vy+=.18;if(g.y>=s.floorY-8){g.y=s.floorY-8;g.vx*=.5;g.vy=0;g.landed=true;}}else if(Math.hypot(ship.x-g.x,ship.y-g.y)<24){g.taken=true;gems++;addScore(200,g.x,g.y);sfx('gem');}}
+ s.gems=s.gems.filter(g=>!g.taken);
+ if(s.rocket.active&&Math.hypot(ship.x-s.rocket.x,ship.y-s.rocket.y)<34){s.rocket.active=false;s.active=false;cameraX=clamp(mineUfo.x+W*.05-W*.35,0,Math.max(0,surfaceWidth-W));ship.x=clamp(cameraX+mineUfo.x+20,80,surfaceWidth-80);ship.y=mineUfo.y+100;ship.vy=-6;ship.vx=0;ship.grounded=false;mineOxygen=Math.max(mineOxygen,60);backpackFuel=Math.max(backpackFuel,60);msg='ROCKET BOOST — BACK TO THE SURFACE';msgT=100;sfx('extra');}
+}
+function drawMiningCavern(){
+ const s=mineSublevel,cam=s.camY;ctx.fillStyle='#050505';ctx.fillRect(0,0,W,H);
+ for(let i=0;i<60;i++){ctx.globalAlpha=.2;ctx.fillStyle='#aaa';ctx.fillRect((i*137)%W,(i*71)%H,2,2);}ctx.globalAlpha=1;
+ ctx.strokeStyle='#777';ctx.lineWidth=3;ctx.strokeRect(2,2,W-4,H-4);
+ for(const p of s.platforms){const y=p.y-cam;if(y>-20&&y<H+20){ctx.fillStyle='#17191b';ctx.fillRect(p.x,y,p.w,12);ctx.strokeStyle=planets[planetIndex].tint;ctx.strokeRect(p.x,y,p.w,12);}}
+ ctx.strokeStyle='#aaa';ctx.lineWidth=3;for(let y=-cam%35;y<H;y+=35){ctx.beginPath();ctx.moveTo(18,y);ctx.lineTo(18,y+32);ctx.moveTo(40,y);ctx.lineTo(40,y+32);ctx.moveTo(18,y+12);ctx.lineTo(40,y+12);ctx.stroke();}
+ for(const p of s.pickups){if(!p.taken){const y=p.y-cam;if(y>-25&&y<H+25)drawCrateIcon(p.type,p.x,y,21);}}
+ const m=s.monster;if(m.alive||m.melt>0){ctx.save();ctx.translate(m.x,m.y-cam);ctx.fillStyle='#36c84e';ctx.strokeStyle='#70ff72';ctx.lineWidth=2;
+  for(let i=0;i<4;i++){const a=m.age*.04+i*Math.PI/2;ctx.beginPath();ctx.moveTo(0,6);for(let j=1;j<=6;j++){const t=j/6;ctx.lineTo(Math.cos(a+t*1.5)*t*42,6+Math.sin(a+t*1.5)*t*40+j*3);}ctx.stroke();}
+  if(m.alive){ctx.beginPath();ctx.ellipse(0,0,43,37,Math.sin(m.age*.02)*.1,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#062006';ctx.fillRect(-15,-8,8,8);ctx.fillRect(9,-8,8,8);}else{ctx.globalAlpha=Math.max(0,m.melt/100);ctx.beginPath();ctx.ellipse(0,12,50,10,0,0,Math.PI*2);ctx.fill();}ctx.restore();}
+ for(const b of s.bombs){ctx.fillStyle='#ff6bd6';ctx.beginPath();ctx.arc(b.x,b.y-cam,5,0,Math.PI*2);ctx.fill();}
+ for(const g of s.gems)drawGem(g.x,g.y-cam,ORE);
+ if(s.rocket.active){ctx.save();ctx.translate(s.rocket.x,s.rocket.y-cam);ctx.strokeStyle=ORE;ctx.fillStyle='#111';ctx.beginPath();ctx.moveTo(0,-17);ctx.lineTo(8,8);ctx.lineTo(0,5);ctx.lineTo(-8,8);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#ff8c24';ctx.fillRect(-3,9,6,8);ctx.restore();}
+ drawAstronaut(ship.x,ship.y-cam+18,ship.face);drawShieldEffect(ship.x,ship.y-cam+18);drawHUD();mono();ctx.fillStyle=ORE;text('LOWER CAVERN • SHOOT THE BEAST • FIND THE ROCKET',W/2,H-34,11,'center');
+}
+
 function updateSurface(){
   stageTimer++;
+  if(mineSublevel.active){updateMiningCavern();return;}
   if(mineIntroT>0){
     mineIntroT--;
     if(mineIntroT===0 && planetIndex!==0){readyT=105;readyA='';readyB='';sfx('jingle');}
@@ -1502,7 +1556,7 @@ function updateSurface(){
   for(const pl of minePlatforms){if(ship.x>pl.x&&ship.x<pl.x+pl.w&&Math.abs((ship.y+32)-pl.y)<28&&ship.vy>=0){platform=pl;break}}
   // Lava pits only hurt if you actually fall in: walking up to the rim, standing
   // on the bank or jumping across is safe. Your boots have to reach the lava.
-  const pit=mineHoles.find(h=>ship.x>h.x+PIT_BANK*.5&&ship.x<h.x+h.w-PIT_BANK*.5);
+  const pit=mineHoles.find(h=>!h.special&&ship.x>h.x+PIT_BANK*.5&&ship.x<h.x+h.w-PIT_BANK*.5);
   if(pit && !platform && ship.y+32>=pit.lavaY+3 && !minePitHit){
     minePitHit=true;
     lavaSplash(ship.x,pit.lavaY);
@@ -1522,6 +1576,7 @@ function updateSurface(){
   } else if(ship.y>=ground){
     ship.y=ground;ship.vy=0;ship.grounded=true;
   } else ship.grounded=false;
+  const ladder=mineHoles.find(h=>h.special);if(ladder&&ship.x>ladder.x+10&&ship.x<ladder.x+ladder.w-10&&ship.y>surfaceGroundY(ship.x)+12){enterMiningCavern();return;}
   cameraX=clamp(ship.x-W*.35,0,Math.max(0,surfaceWidth-W));
   updateLavaFx();
   const oxygenDrainMultiplier=planetIndex===0?.70:planetIndex===1?.80:.90;
@@ -2141,12 +2196,13 @@ function drawLander(){
 
 const SURF_DRAW_OFF=17;
 function drawSurface(){
+  if(mineSublevel.active){drawMiningCavern();return;}
   ctx.fillStyle='#060606';ctx.fillRect(0,0,W,H); const p=planets[planetIndex];
   for(let i=0;i<50;i++){ctx.globalAlpha=.15+(i%4)*.08;mono();ctx.fillRect(((i*137-cameraX*.1)%W+W+260)%(W+260)-120,(i*71)%(H*.5),1.5,1.5)}ctx.globalAlpha=1;
   // Fine sampling so the steep lava-pit banks are drawn exactly where the collision is.
   ctx.beginPath();ctx.moveTo(0,H);for(let x=0;x<=W+4;x+=3)ctx.lineTo(x,surfaceGroundY(cameraX+x));ctx.lineTo(W,H);ctx.closePath();ctx.fillStyle='#0b0b0b';ctx.fill();
   ctx.strokeStyle=p.tint;ctx.lineWidth=2;ctx.beginPath();for(let x=0;x<=W+4;x+=3)x?ctx.lineTo(x,surfaceGroundY(cameraX+x)):ctx.moveTo(x,surfaceGroundY(cameraX));ctx.stroke();
-  mineHoles.forEach(h=>{const x=h.x-cameraX;if(x>-120&&x<W+120)drawLavaPit(h);});
+  mineHoles.forEach(h=>{const x=h.x-cameraX;if(x>-120&&x<W+120){if(h.special){const gy=surfaceGroundY(h.x);ctx.fillStyle='#050505';ctx.fillRect(x,gy-2,h.w,58);ctx.strokeStyle=p.tint;ctx.lineWidth=2;ctx.strokeRect(x,gy,h.w,52);ctx.strokeStyle='#aaa';for(let yy=gy+5;yy<gy+50;yy+=9){ctx.beginPath();ctx.moveTo(x+8,yy);ctx.lineTo(x+h.w-8,yy);ctx.stroke();}}else drawLavaPit(h);}});
   drawLavaFx(false);
   minePlatforms.forEach((pl,i)=>{
     const x=pl.x-cameraX;
