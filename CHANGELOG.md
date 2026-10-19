@@ -1,3 +1,7 @@
+## v1.9.87 — Keep the cavern ladder tucked to the side
+### Changed
+- Removed the two full-height ladder rails; only a short, narrow ladder remains beside the lower-right wall.
+
 ## v1.9.86 — Thinner cavern platforms and slower rocket ascent
 ### Changed
 - Removed the tall ladder rails that read as stray lines, and narrowed the lower-room ladder to a slim wall-side ladder.
