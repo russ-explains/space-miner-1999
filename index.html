@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.91';
+const VERSION='v1.9.92';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1498,8 +1498,8 @@ function updateMiningCavern(){
  const s=mineSublevel;stageTimer++;
  if(s.launch){
    const l=s.launch;l.t++;const t=Math.min(1,l.t/220),ease=t*t*(3-2*t);
-   ship.x=l.x0+(l.x1-l.x0)*ease;
-   ship.y=l.y0+(l.y1-l.y0)*ease-Math.sin(t*Math.PI)*Math.min(110,H*.16);
+   ship.x=l.x0+(l.x1-l.x0)*t*.12;
+   ship.y=l.y0+(l.y1-l.y0)*ease-Math.sin(t*Math.PI)*Math.min(45,H*.07);
    if(l.t>=220){s.launch=null;s.active=false;ship.x=clamp(cameraX+mineUfo.x+20,80,surfaceWidth-80);ship.y=mineUfo.y+115;ship.vx=0;ship.vy=-2;ship.grounded=false;mineOxygen=Math.max(mineOxygen,60);backpackFuel=Math.max(backpackFuel,60);msg='ROCKET BOOST — BACK TO THE SURFACE';msgT=100;}
    return;
  }
