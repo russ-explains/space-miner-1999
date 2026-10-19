@@ -1,3 +1,8 @@
+## v1.9.102 — Four boss gems and reliable tentacle damage
+### Changed
+- The green cavern boss now drops exactly four gems when defeated, with the defeat message updated to match.
+- Increased the tentacle segment collision tolerance slightly so contact with the moving arms more reliably triggers the normal one-hull damage and invulnerability handling.
+
 ## v1.9.101 — Wider slime-marked drop opening
 ### Changed
 - Doubled the drop-hole width while preserving its position and gravity-driven descent.
