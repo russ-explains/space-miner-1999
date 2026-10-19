@@ -1,3 +1,8 @@
+## v1.9.101 — Wider slime-marked drop opening
+### Changed
+- Doubled the drop-hole width while preserving its position and gravity-driven descent.
+- Added a small, uneven green slime rim and a couple of slime glints at ground level to make the downward opening easier to spot, without drawing vertical walls or lines into the sky.
+
 ## v1.9.100 — Fix terrain spikes beside drop hole
 ### Fixed
 - Excluded the special drop-through hole from lava-pit terrain shaping. Its fake `lavaY` was making the ground profile jump vertically, creating the two long lines leading up towards the saucer.
