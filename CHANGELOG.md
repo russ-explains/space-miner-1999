@@ -1,3 +1,11 @@
+## v1.9.88 — Hand-drawn cavern platforms and visible blaster shots
+### Changed
+- Replaced the lower chamber's regular platform layout with scattered floating ledges based on the supplied sketch.
+- Reused the surface platforms' thin top edge and jagged underside style.
+- Scattered oxygen and jetpack-fuel crates around the room while guaranteeing a fuel pack at floor level.
+- Made the bottom ground contour more visibly wobbly and the green alien's body and four tentacles more irregular and animated.
+- Fixed lower-cavern firing visibility by rendering the player's bullets clearly, with a bright glow.
+
 ## v1.9.87 — Keep the cavern ladder tucked to the side
 ### Changed
 - Removed the two full-height ladder rails; only a short, narrow ladder remains beside the lower-right wall.
