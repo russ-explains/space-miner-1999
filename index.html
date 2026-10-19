@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.81';
+const VERSION='v1.9.82';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1059,12 +1059,18 @@ function afterDeath(){
   lives--;
   if(lives<=0){endRun(false);return}
   ship.maxHull=Math.min(3,Math.max(1,ship.maxHull||3));
-  ship.hull=Math.min(3,ship.maxHull); ship.fuel=Math.max(ship.fuel,ship.maxFuel*.6); ship.inv=150;
+  ship.hull=Math.min(3,ship.maxHull);
+  // A death after completely running out of ship fuel grants a half tank; otherwise retain the usual 60% floor.
+  ship.fuel=ship.fuel<=0?ship.maxFuel*.5:Math.max(ship.fuel,ship.maxFuel*.6); ship.inv=150;
   const sc=explosionScene;
   if(sc==='flight') setupFlight(true);
   else if(sc==='lander') setupLander();
   else if(sc==='takeoff') setupTakeoff();
-  else respawnSurface();
+  else {
+    respawnSurface();
+    // Surface/mining deaths restart with partial supplies rather than a full refill.
+    backpackFuel=maxBackpackFuel*.6; mineOxygen=mineOxygenMax*.6; o2=60;
+  }
   msg=deathReason+' — '+lives+' SHIP'+(lives>1?'S':'')+' LEFT';msgT=150;
 }
 
