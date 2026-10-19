@@ -1,3 +1,10 @@
+## v1.9.86 — Thinner cavern platforms and slower rocket ascent
+### Changed
+- Removed the tall ladder rails that read as stray lines, and narrowed the lower-room ladder to a slim wall-side ladder.
+- Reworked lower-cavern platforms into thinner, shorter, staggered ledges like those on the surface.
+- Added a clearly visible wobbly white floor line and an extra jetpack-fuel pack at floor level.
+- Slowed the rocket ride from 100 to 220 frames and draw the rocket carrying the astronaut throughout the curved ascent.
+
 ## v1.9.85 — Full-screen mirrored boss cavern and animated rocket return
 ### Changed
 - Restored the removed lava pit and moved the narrow ladder shaft to the far right, after the lava-pit run.
