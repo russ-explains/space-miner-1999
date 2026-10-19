@@ -1,3 +1,8 @@
+## v1.9.90 — Reliable boss gem collection
+### Changed
+- Made gems dropped by the cavern boss collect reliably using the astronaut's visible centre, with a more forgiving pickup radius.
+- Gems can now be collected while they're still bouncing or after they settle on the cavern floor, and collection gives the usual score and sound feedback.
+
 ## v1.9.89 — Rocky downward ladder shaft
 ### Changed
 - Redrew the surface entrance as a ladder descending from the ground line, with no ladder above the opening.
