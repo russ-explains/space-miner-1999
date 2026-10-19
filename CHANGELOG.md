@@ -1,3 +1,9 @@
+## v1.9.75 — Smaller rotated cavern crawler bodies
+### Changed
+- Halved the hollow crawler body size and rotated the entire body 90 degrees clockwise.
+- Rotated the eyes with the body and changed their colour to match its orange outline.
+- Kept all three legs, their size, attachment positions, and stepping animation unchanged.
+
 ## v1.9.74 — Sideways eyes and body-to-leg alignment
 ### Changed
 - Rotated the crawler eyes 90 degrees to better match the creature's orientation on the cavern wall.
