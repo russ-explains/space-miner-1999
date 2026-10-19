@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.85';
+const VERSION='v1.9.86';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -907,7 +907,7 @@ function setupSurface(){
     const hole={x:x+150,w:(i%4===0?92:i%2===0?72:58),seed:i*1.7};hole.lavaY=pitLavaY(hole);mineHoles.push(hole);
   }
   // Keep every lava pit; put the narrow ladder shaft after the final pit at the far right.
-  const ladderHole={x:surfaceWidth-270,w:Math.max(70,Math.min(110,W*.16)),seed:99,special:true};ladderHole.lavaY=surfaceGroundY(ladderHole.x)-900;mineHoles.push(ladderHole);mineSublevel.entryX=ladderHole.x+ladderHole.w/2;
+  const ladderHole={x:surfaceWidth-190,w:Math.max(16,Math.min(24,W*.03)),seed:99,special:true};ladderHole.lavaY=surfaceGroundY(ladderHole.x)-900;mineHoles.push(ladderHole);mineSublevel.entryX=ladderHole.x+ladderHole.w/2;
   aliens=Array.from({length:p.aliens},(_,i)=>{
     const pl=minePlatforms[i%minePlatforms.length];
     const tough=planetIndex>=2&&i%2===0; return {x:pl.x+pl.w*.5,y:pl.y-13,w:26,h:32,hp:tough?2:1,dir:i%2?-1:1,t:rnd(0,200),platform:pl,tough};
@@ -1472,15 +1472,16 @@ function updateLander(){
 let mineSublevel={active:false,camY:0,platforms:[],pickups:[],monster:null,bombs:[],gems:[],rocket:null,floorY:1400};
 function enterMiningCavern(){
  const s=mineSublevel;s.active=true;s.camY=0;s.floorY=H-46;
- const shaftW=Math.max(70,Math.min(110,W*.16)),left=24,right=W-24;
- // A compact, single-screen chamber with a clear floor and platforms mirrored around the centre.
+ const shaftW=Math.max(12,Math.min(20,W*.025)),left=18,right=W-18;
+ // Thin, staggered ledges echo the surface platforms rather than forming broad shelves.
  s.platforms=[
-  {x:left+12,y:H*.22,w:W*.30},{x:right-W*.30-12,y:H*.22,w:W*.30},
-  {x:right-W*.34-12,y:H*.39,w:W*.34},{x:left+12,y:H*.39,w:W*.34},
-  {x:left+12,y:H*.56,w:W*.34},{x:right-W*.34-12,y:H*.56,w:W*.34},
-  {x:right-W*.30-12,y:H*.72,w:W*.30},{x:left+12,y:H*.72,w:W*.30}
+  {x:left+8,y:H*.19,w:W*.22},{x:right-W*.24-8,y:H*.25,w:W*.24},
+  {x:right-W*.18-8,y:H*.37,w:W*.18},{x:left+8,y:H*.43,w:W*.20},
+  {x:left+8,y:H*.56,w:W*.18},{x:right-W*.23-8,y:H*.61,w:W*.23},
+  {x:right-W*.20-8,y:H*.74,w:W*.20},{x:left+8,y:H*.79,w:W*.23}
  ];
- s.pickups=[];for(let i=0;i<8;i++)s.pickups.push({type:i%2?'backpack':'oxygen',x:i%2?W*.76:W*.24,y:H*(.2+Math.floor(i/2)*.18),taken:false});
+ s.pickups=[];for(let i=0;i<7;i++)s.pickups.push({type:i%2?'backpack':'oxygen',x:i%2?W*.76:W*.24,y:H*(.2+Math.floor(i/2)*.18),taken:false});
+ s.pickups.push({type:'backpack',x:W*.52,y:s.floorY-32,taken:false});
  s.monster={x:W*.5,y:H*.49,hp:7+planetIndex*5,maxHp:7+planetIndex*5,age:0,alive:true,melt:0,fire:Math.max(24,65-planetIndex*8)};
  s.bombs=[];s.gems=[];s.rocket={x:W*.12,y:s.floorY-22,active:true};s.launch=null;
  ship.x=W*.5;ship.y=70;ship.vx=0;ship.vy=0;ship.grounded=false;jetpackActive=false;
@@ -1489,9 +1490,10 @@ function enterMiningCavern(){
 function updateMiningCavern(){
  const s=mineSublevel;stageTimer++;
  if(s.launch){
-   const l=s.launch;l.t++;const t=Math.min(1,l.t/100);
-   ship.x=l.x0+(l.x1-l.x0)*(t*t*(3-2*t));ship.y=l.y0-(l.y0-l.y1)*t- Math.sin(t*Math.PI)*45;
-   if(l.t>=100){s.launch=null;s.active=false;ship.x=clamp(cameraX+mineUfo.x+20,80,surfaceWidth-80);ship.y=mineUfo.y+115;ship.vx=0;ship.vy=-2;ship.grounded=false;mineOxygen=Math.max(mineOxygen,60);backpackFuel=Math.max(backpackFuel,60);msg='ROCKET BOOST — BACK TO THE SURFACE';msgT=100;}
+   const l=s.launch;l.t++;const t=Math.min(1,l.t/220),ease=t*t*(3-2*t);
+   ship.x=l.x0+(l.x1-l.x0)*ease;
+   ship.y=l.y0+(l.y1-l.y0)*ease-Math.sin(t*Math.PI)*Math.min(110,H*.16);
+   if(l.t>=220){s.launch=null;s.active=false;ship.x=clamp(cameraX+mineUfo.x+20,80,surfaceWidth-80);ship.y=mineUfo.y+115;ship.vx=0;ship.vy=-2;ship.grounded=false;mineOxygen=Math.max(mineOxygen,60);backpackFuel=Math.max(backpackFuel,60);msg='ROCKET BOOST — BACK TO THE SURFACE';msgT=100;}
    return;
  }
  const move=(keys.ArrowRight?1:0)-(keys.ArrowLeft?1:0);if(move)ship.face=move;
@@ -1514,24 +1516,33 @@ function updateMiningCavern(){
  for(const p of s.pickups){if(!p.taken&&Math.hypot(ship.x-p.x,ship.y-p.y)<28){p.taken=true;if(p.type==='oxygen'){mineOxygen=Math.min(mineOxygenMax,mineOxygen+35);o2=mineOxygen;}else backpackFuel=Math.min(maxBackpackFuel,backpackFuel+40);sfx('fuel');}}
  for(const g of s.gems){if(!g.landed){g.x+=g.vx;g.y+=g.vy;g.vy+=.18;if(g.y>=s.floorY-8){g.y=s.floorY-8;g.vx*=.5;g.vy=0;g.landed=true;}}else if(Math.hypot(ship.x-g.x,ship.y-g.y)<24){g.taken=true;gems++;addScore(200,g.x,g.y);sfx('gem');}}
  s.gems=s.gems.filter(g=>!g.taken);
- if(s.rocket.active&&Math.hypot(ship.x-s.rocket.x,ship.y-s.rocket.y)<34){s.rocket.active=false;s.launch={t:0,x0:ship.x,y0:ship.y,x1:clamp(cameraX+mineUfo.x+20,80,surfaceWidth-80),y1:mineUfo.y+115};ship.vx=0;ship.vy=0;msg='ROCKET LAUNCH!';msgT=100;sfx('extra');}
+ if(s.rocket.active&&Math.hypot(ship.x-s.rocket.x,ship.y-s.rocket.y)<34){s.rocket.active=false;s.launch={t:0,x0:ship.x,y0:ship.y,x1:clamp(cameraX+mineUfo.x+20,80,surfaceWidth-80),y1:Math.max(34,mineUfo.y+115)};ship.vx=0;ship.vy=0;msg='ROCKET LAUNCH!';msgT=100;sfx('extra');}
 }
 function drawMiningCavern(){
  const s=mineSublevel,cam=0;ctx.fillStyle='#050505';ctx.fillRect(0,0,W,H);
  for(let i=0;i<50;i++){ctx.globalAlpha=.18;ctx.fillStyle='#aaa';ctx.fillRect((i*137)%W,(i*71)%H,2,2);}ctx.globalAlpha=1;
  ctx.strokeStyle='#777';ctx.lineWidth=3;ctx.strokeRect(2,2,W-4,H-4);
- // Ladder shaft at the right; the whole room, floor and boss remain visible at once.
- ctx.strokeStyle='#aaa';ctx.lineWidth=3;for(let y=0;y<H;y+=30){ctx.beginPath();ctx.moveTo(W-30,y);ctx.lineTo(W-30,y+28);ctx.moveTo(W-13,y);ctx.lineTo(W-13,y+28);ctx.moveTo(W-30,y+10);ctx.lineTo(W-13,y+10);ctx.stroke();}
- for(const p of s.platforms){const y=p.y;if(y>-20&&y<H+20){ctx.fillStyle='#17191b';ctx.fillRect(p.x,y,p.w,12);ctx.strokeStyle=planets[planetIndex].tint;ctx.strokeRect(p.x,y,p.w,12);}}
- for(const p of s.pickups){if(!p.taken)drawCrateIcon(p.type,p.x,p.y,20);}
+ // A very narrow ladder hugs the right wall; no long rails extend into the sky.
+ ctx.strokeStyle='#aaa';ctx.lineWidth=2;const lx=W-shaftW-8;ctx.beginPath();ctx.moveTo(lx,8);ctx.lineTo(lx,H-8);ctx.moveTo(lx+shaftW,8);ctx.lineTo(lx+shaftW,H-8);for(let y=14;y<H-8;y+=24){ctx.moveTo(lx,y);ctx.lineTo(lx+shaftW,y);}ctx.stroke();
+ for(const p of s.platforms){const y=p.y;if(y>-20&&y<H+20){ctx.fillStyle='#17191b';ctx.fillRect(p.x,y,p.w,4);ctx.strokeStyle=planets[planetIndex].tint;ctx.lineWidth=1.5;ctx.strokeRect(p.x,y,p.w,4);}}
+ // Wobbly white cavern floor, with the lower fuel pack kept clearly visible.
+ ctx.strokeStyle='#f2f2f2';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,s.floorY);for(let x=0;x<=W;x+=8)ctx.lineTo(x,s.floorY+Math.sin(x*.045)*2+Math.sin(x*.013)*1.5);ctx.stroke();
+ for(const p of s.pickups){if(!p.taken)drawCrateIcon(p.type,p.x,p.y,p.y>s.floorY-70?24:20);}
  const m=s.monster;if(m.alive||m.melt>0){ctx.save();ctx.translate(m.x,m.y);ctx.fillStyle='#36c84e';ctx.strokeStyle='#70ff72';ctx.lineWidth=2;
   for(let i=0;i<4;i++){const a=m.age*.04+i*Math.PI/2;ctx.beginPath();ctx.moveTo(0,8);for(let j=1;j<=6;j++){const t=j/6;ctx.lineTo(Math.cos(a+t*1.5)*t*39,8+Math.sin(a+t*1.5)*t*35+j*3);}ctx.stroke();}
   if(m.alive){ctx.beginPath();ctx.ellipse(0,0,40,34,Math.sin(m.age*.02)*.1,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#062006';ctx.fillRect(-14,-7,7,7);ctx.fillRect(8,-7,7,7);}else{ctx.globalAlpha=Math.max(0,m.melt/100);ctx.beginPath();ctx.ellipse(0,12,48,10,0,0,Math.PI*2);ctx.fill();}ctx.restore();}
  for(const b of s.bombs){ctx.fillStyle='#ff6bd6';ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fill();}
  for(const g of s.gems)drawGem(g.x,g.y,ORE);
  if(s.rocket.active){ctx.save();ctx.translate(s.rocket.x,s.rocket.y);ctx.strokeStyle=ORE;ctx.fillStyle='#111';ctx.beginPath();ctx.moveTo(0,-17);ctx.lineTo(8,8);ctx.lineTo(0,5);ctx.lineTo(-8,8);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#ff8c24';ctx.fillRect(-3,9,6,8);ctx.restore();}
- if(s.launch){ctx.strokeStyle='#ff8c24';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ship.x,ship.y+25);ctx.quadraticCurveTo(ship.x+55,ship.y-40,ship.x+18,ship.y-80);ctx.stroke();}
- drawAstronaut(ship.x,ship.y+18,ship.face);drawShieldEffect(ship.x,ship.y+18);drawHUD();mono();ctx.fillStyle=ORE;text('LOWER CAVERN • SHOOT THE BEAST • FIND THE ROCKET',W/2,H-30,11,'center');
+ if(s.launch){
+   // Draw the rocket around the astronaut throughout the full, slower curved ride.
+   const rx=ship.x+10,ry=ship.y+16;
+   ctx.save();ctx.translate(rx,ry);ctx.rotate(-.18);
+   ctx.strokeStyle=ORE;ctx.fillStyle='#151515';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-31);ctx.lineTo(12,8);ctx.lineTo(0,3);ctx.lineTo(-12,8);ctx.closePath();ctx.fill();ctx.stroke();
+   ctx.fillStyle='#ff8c24';ctx.beginPath();ctx.moveTo(-5,8);ctx.lineTo(0,24+rnd(0,5));ctx.lineTo(5,8);ctx.closePath();ctx.fill();
+   ctx.fillStyle='#d8d8d8';ctx.fillRect(-7,-4,14,14);ctx.strokeStyle='#fff';ctx.strokeRect(-7,-4,14,14);
+   ctx.restore();
+ }else{drawAstronaut(ship.x,ship.y+18,ship.face);drawShieldEffect(ship.x,ship.y+18);}drawHUD();mono();ctx.fillStyle=ORE;text('LOWER CAVERN • SHOOT THE BEAST • FIND THE ROCKET',W/2,H-30,11,'center');
 }
 function updateSurface(){
   stageTimer++;
