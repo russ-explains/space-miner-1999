@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.78';
+const VERSION='v1.9.79';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -799,19 +799,21 @@ function drawVerticalLander(){
       ctx.beginPath();ctx.arc(knuckleX,knuckleY,1.8,0,Math.PI*2);ctx.fill();
       ctx.beginPath();ctx.arc(kneeX,kneeY,1.6,0,Math.PI*2);ctx.fill();
     }
-    // Smaller hollow body rotated clockwise; legs remain at their original size and positions.
-    ctx.save();ctx.rotate(Math.PI/2);ctx.scale(.62,.5);
-    ctx.strokeStyle='#ff8a24';ctx.lineWidth=2.5;ctx.beginPath();
-    ctx.moveTo(-24,-2);ctx.lineTo(-20,-9);ctx.lineTo(-10,-13);
-    ctx.lineTo(2,-15);ctx.lineTo(12,-18);ctx.lineTo(22,-12);
-    ctx.lineTo(26,-2);ctx.lineTo(22,10);ctx.lineTo(12,18);
-    ctx.lineTo(0,16);ctx.lineTo(-12,20);ctx.lineTo(-22,12);
-    ctx.closePath();ctx.stroke();
-    // Eyes rotate with the body and use the same orange as its outline.
-    ctx.save();ctx.rotate(Math.PI/2);
-    ctx.fillStyle='#ff8a24';ctx.fillRect(-6,-10,6,6);ctx.fillRect(-6,6,6,6);
+    // Elongated squid mantle: narrow at the wall-side neck and fuller toward its outward-facing head.
+    // Flip horizontally for the opposite cavern wall; do not rotate/squash the body.
+    ctx.save();ctx.scale(-wallDir,1);
+    ctx.strokeStyle='#ff8a24';ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';
+    ctx.beginPath();
+    ctx.moveTo(3,-4);ctx.lineTo(9,-10);ctx.lineTo(20,-12);
+    ctx.lineTo(33,-10);ctx.lineTo(44,-6);ctx.lineTo(51,1);
+    ctx.lineTo(53,7);ctx.lineTo(49,13);ctx.lineTo(40,16);
+    ctx.lineTo(27,14);ctx.lineTo(17,10);ctx.lineTo(9,7);
+    ctx.lineTo(4,5);ctx.closePath();ctx.stroke();
+    // Eyes sit near the rounded outer end of the squid-like body.
+    ctx.fillStyle='#ff8a24';
+    ctx.beginPath();ctx.arc(40,-2,3.1,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(42,6,3.1,0,Math.PI*2);ctx.fill();
     ctx.restore();
-    ctx.restore(); // Body rotation and half-size scale.
     ctx.restore();
   }
   for(const a of landerCaveAsteroids){
