@@ -1,3 +1,10 @@
+## v1.9.73 — Larger wall-edge crawlers
+### Changed
+- Doubled the hollow orange crawler body size and enlarged its little eyes proportionally.
+- Shifted the crawler bodies slightly into the cavern so they look like they are walking along its edges.
+- Extended each of the three legs to meet the actual cavern wall edge, keeping the back-and-forth stepping motion.
+- Kept crawler patrol and damage behaviour, and floating asteroids, unchanged.
+
 ## v1.9.72 — Larger cavern crawler legs
 ### Changed
 - Made the three legs on each hollow orange cavern crawler substantially bigger, with thicker strokes and longer reaches towards the cavern wall.
