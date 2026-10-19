@@ -1,3 +1,9 @@
+## v1.9.77 — Taller squid-like cavern crawlers
+### Changed
+- Made the hollow crawler body taller without widening it, with a narrower, tapered top for a squid-like silhouette.
+- Nudged the three leg attachment points slightly towards the body's centre; kept leg lengths, thickness, feet, and stepping motion unchanged.
+- Preserved the orange outline and eyes, body rotation, and crawler behaviour.
+
 ## v1.9.76 — Smaller, connected crawler legs
 ### Changed
 - Reduced the cavern crawler legs by about 40%, including their stroke thickness and stepping spread.
