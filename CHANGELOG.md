@@ -1,4 +1,4 @@
-## v1.9.66 — 2026-10-19
+## v1.9.67 — Small cavern rocks provide fuel\n### Changed\n- Grappling a small asteroid fragment (after breaking a larger cavern rock) now lets the player reel it in for a small **+5 ship-fuel** boost.\n- Fuel is capped at the ship's maximum; if already full, the player gets a clear message instead.\n\n## v1.9.66 — 2026-10-19
 - All gameplay test cheats are now locked by default. Type **BEAR** within about 2.2 seconds during Planet 1's asteroid flight to enable the **1–4** section/planet shortcuts and the **U** all-upgrades cheat.
 - Cheats relock at the start of each new run.
 
