@@ -1,3 +1,8 @@
+## v1.9.82 — Fairer respawn supplies
+### Changed
+- If the ship runs out of fuel and then dies, respawn fuel is set to 50% of the tank; other ship deaths keep the existing 60% minimum fuel rule.
+- After dying on the surface/mining level, respawn with 60% jetpack fuel and 60% oxygen instead of a full refill.
+
 ## v1.9.81 — Free starting grappling hook
 ### Changed
 - Removed the grappling hook from the workshop upgrades menu.
