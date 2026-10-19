@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.64';
+const VERSION='v1.9.65';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -507,21 +507,53 @@ function updateWorms(){
 function fireHook(){
   if(!ship.hook||hook)return;
   let best=null,bd=1e9;
+  // Target the nearest reachable worm or cavern asteroid.
   for(const w of landerWorms){
     if(w.harvested)continue;
     const b=wormBase(w),tx=b.x+b.dir*24,d=Math.hypot(tx-ship.x,w.y-ship.y);
     if(d<HOOK_LEN+40&&d<bd){bd=d;best={x:tx,y:w.y};}
   }
+  for(const a of landerCaveAsteroids){
+    if(a.dead)continue;
+    const d=Math.hypot(a.x-ship.x,a.y-ship.y);
+    if(d<HOOK_LEN+40&&d<bd){bd=d;best={x:a.x,y:a.y};}
+  }
   if(!best){const b=verticalCaveBounds(ship.y);best=ship.x-b.left<b.right-ship.x?{x:b.left,y:ship.y}:{x:b.right,y:ship.y};}
   const ang=Math.atan2(best.y-ship.y,best.x-ship.x);
-  hook={x:ship.x,y:ship.y,vx:Math.cos(ang)*HOOK_SPEED,vy:Math.sin(ang)*HOOK_SPEED,ang,len:0,state:'out',clampT:0,caught:null};
+  hook={x:ship.x,y:ship.y,vx:Math.cos(ang)*HOOK_SPEED,vy:Math.sin(ang)*HOOK_SPEED,ang,len:0,state:'out',clampT:0,caught:null,rockHit:false};
   beep(520,.16,'sawtooth',.03,-320);
+}
+function splitCaveAsteroid(a){
+  if(!a||a.dead)return;
+  a.dead=true;
+  burst(a.x,a.y,12);
+  // Small fragments break apart and eventually disperse when hit again.
+  if(a.r<13){sfx('crack');return;}
+  const nr=a.r*.56;
+  for(let i=0;i<2;i++){
+    const ang=rnd(0,Math.PI*2),speed=rnd(.25,.8);
+    landerCaveAsteroids.push({
+      x:a.x+Math.cos(ang)*nr*.6,y:a.y+Math.sin(ang)*nr*.6,r:nr,
+      vx:a.vx+Math.cos(ang)*speed,vy:a.vy+Math.sin(ang)*speed,
+      rot:rnd(0,Math.PI*2),spin:rnd(-.05,.05),mass:nr*nr,
+      shape:Array.from({length:8},()=>rnd(.72,1.18)),phase:rnd(0,Math.PI*2),dead:false
+    });
+  }
+  sfx('crack');msg='ASTEROID SHATTERED!';msgT=65;
 }
 function updateHook(){
   if(!hook)return;
   if(hook.state==='out'){
     hook.x+=hook.vx;hook.y+=hook.vy;hook.len=Math.hypot(hook.x-ship.x,hook.y-ship.y);
-    for(const w of landerWorms){
+    let hitRock=false;
+    for(const a of landerCaveAsteroids){
+      if(a.dead)continue;
+      if(Math.hypot(hook.x-a.x,hook.y-a.y)<a.r+8){
+        splitCaveAsteroid(a);hook.rockHit=true;hook.state='clamp';hook.clampT=10;
+        hitRock=true;break;
+      }
+    }
+    if(!hitRock)for(const w of landerWorms){
       if(w.harvested||w.ext<.35)continue;
       const h=wormHead(w);
       if(Math.hypot(hook.x-h.x,hook.y-h.y)<20){
@@ -648,6 +680,7 @@ function updateVerticalLander(){
       ship.vx+=dx/dist*.035;ship.vy+=dy/dist*.025;
     }
   }
+  landerCaveAsteroids=landerCaveAsteroids.filter(a=>!a.dead);
   // Solid mountain faces in the bottom cavern: touching one removes exactly one HULL
   // and bounces the lander back above the ridge. Invulnerability prevents repeat damage.
   const mountainFloor=landerWorldHeight-72;
@@ -724,7 +757,7 @@ function drawVerticalLander(){
   drawShieldEffect(ship.x,ship.y-top);
   drawHUD();
   ctx.fillStyle=ship.hook?'#7fffe6':'rgba(255,255,255,.45)';
-  text(ship.hook?'SPACE: GRAPPLING HOOK — GRAB A WORM GEM':'BEWARE SPACE WORMS — BUY A GRAPPLING HOOK TO HARVEST THEIR GEMS',W/2,H-34,11,'center');
+  text(ship.hook?'SPACE: HOOK WORMS FOR GEMS OR SHATTER CAVE ASTEROIDS':'BEWARE SPACE WORMS — BUY A GRAPPLING HOOK TO HARVEST GEMS AND BREAK ASTEROIDS',W/2,H-34,11,'center');
   const ang=Math.abs(Math.atan2(Math.sin(ship.angle),Math.cos(ship.angle)));
   const col=ok=>ctx.fillStyle=ok?'#7dff9a':'#ff6b6b';
   col(Math.abs(ship.vy)<Math.max(.62,.9-planetIndex*.055));text('V '+ship.vy.toFixed(2),W/2-100,104,13,'center');
