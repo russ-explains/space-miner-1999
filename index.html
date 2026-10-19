@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.65';
+const VERSION='v1.9.66';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -204,6 +204,7 @@ const keys={};
 const GAME_KEYS=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','Enter','KeyW','KeyS'];
 const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.- ';
 let actionPressed=false, upPressed=false, jetpackActive=false, endAt=-1e9, upSel=0, paused=false, shieldCharges=0, shieldT=0;
+let cheatsEnabled=false, cheatSequence='', cheatSequenceAt=0;
 function canRestart(){return performance.now()-endAt>700}
 function isMenu(){return ['title','info','gameover','win','upgrade','initials'].includes(state)}
 
@@ -251,7 +252,7 @@ function menuKey(code){
 
 
 function activateTestShortcut(code){
-  if(isMenu()||state==='exploding')return false;
+  if(!cheatsEnabled||isMenu()||state==='exploding')return false;
   const sectionMap={'Digit1':'flight','Digit2':'lander','Digit3':'surface','Digit4':'takeoff'};
   const target=sectionMap[code];
   if(target){
@@ -274,6 +275,17 @@ function activateTestShortcut(code){
 addEventListener('keydown',e=>{
   initAudio();
   if(GAME_KEYS.includes(e.code)) e.preventDefault();
+  // Unlock all testing cheats by typing BEAR quickly during Planet 1's asteroid flight.
+  if(!e.repeat&&state==='flight'&&planetIndex===0&&!cheatsEnabled&&/^[a-z]$/i.test(e.key)){
+    const now=performance.now();
+    if(now-cheatSequenceAt>2200)cheatSequence='';
+    cheatSequenceAt=now;
+    cheatSequence=(cheatSequence+e.key.toUpperCase()).slice(-4);
+    if(cheatSequence==='BEAR'){
+      cheatsEnabled=true;cheatSequence='';msg='CHEATS ENABLED';msgT=110;flash=.35;sfx('extra');
+      return;
+    }
+  }
   if(!e.repeat&&activateTestShortcut(e.code))return;
   if(e.code==='KeyC'&&!e.repeat){crtOn=!crtOn;crtEl.classList.toggle('off',!crtOn);store('SM4000_NOCRT',crtOn?0:1);return}
   if(e.code==='ArrowDown'&&!e.repeat&&!isMenu()&&state!=='exploding'){
@@ -288,7 +300,7 @@ addEventListener('keydown',e=>{
     return;
   }
   // TEST CHEAT: grant every upgrade, including the cavern grappling hook.
-  if(e.code==='KeyU'&&!e.repeat&&!isMenu()&&state!=='exploding'){
+  if(e.code==='KeyU'&&!e.repeat&&cheatsEnabled&&!isMenu()&&state!=='exploding'){
     ship.maxFuel=200;ship.fuel=ship.maxFuel;
     ship.maxHull=3;ship.hull=3;ship.laser=4;ship.thrust=2.4;
     shieldCharges=3;ship.hook=true;
@@ -316,6 +328,7 @@ document.querySelectorAll('[data-k]').forEach(b=>{
 /* ---------------------------------------------------------------- RUN */
 function resetRun(){
   planetIndex=0;score=0;gems=0;banked=0;upSel=0;lives=4;nextLife=EXTRA_LIFE_EVERY;lifeUpgradeBought=false;shieldCharges=1;shieldT=0;hook=null;
+  cheatsEnabled=false;cheatSequence='';cheatSequenceAt=0;
   runSeed=(Math.random()*1e9)|0;
   ship={fuel:61.4,maxFuel:100,hull:3,maxHull:3,laser:1,thrust:1,x:W*.22,y:H*.5,vx:0,vy:0,angle:0,av:0,grounded:false,inv:0,face:1};
   setupFlight();
