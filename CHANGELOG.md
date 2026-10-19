@@ -1,3 +1,9 @@
+## v1.9.79 — Elongated wall-climbing squid body
+### Changed
+- Replaced the squashed rotated outline with a long horizontal squid mantle extending outward from the vertical cavern wall.
+- Tapered the wall-side neck and rounded the outer head, with two orange eyes near the outward end.
+- Mirrored the body for left and right walls while preserving the existing three animated, jointed legs and crawler behaviour.
+
 ## v1.9.78 — Articulated squid crawlers
 ### Changed
 - Refined the orange hollow crawler into a long, narrow squid-like silhouette, keeping the existing arcade art style.
