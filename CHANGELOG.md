@@ -1,3 +1,7 @@
+## v1.9.94 — Remove stray vertical lines at ladder entrance
+### Changed
+- Removed the two tall, wobbly vertical rock-wall strokes beside the surface ladder shaft that extended far up the screen. The ladder and short rocky edges around the opening remain.
+
 ## v1.9.93 — Rocket exits screen and reactive, articulated boss
 ### Changed
 - Extended the escape rocket ascent so it travels straight up and fully off the top of the screen before returning to the surface state.
