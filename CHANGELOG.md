@@ -1,3 +1,10 @@
+## v1.9.85 — Full-screen mirrored boss cavern and animated rocket return
+### Changed
+- Restored the removed lava pit and moved the narrow ladder shaft to the far right, after the lava-pit run.
+- Rebuilt the lower chamber as a clear single-screen room with mirrored platform tiers, visible floor, oxygen and jetpack-fuel pickups.
+- Made the green tentacle boss move slowly around the room and fire aimed bombs; later planets increase its required hits by five each and shorten its firing interval.
+- Added a curved, animated rocket ride that carries the astronaut back up before returning to the surface near the saucer.
+
 ## v1.9.84 — Make the ladder entrance descendable
 ### Changed
 - Prevented the surface ground collision from snapping the player back onto the ground while they step into the special ladder opening.
