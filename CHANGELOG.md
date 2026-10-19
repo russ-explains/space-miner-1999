@@ -1,3 +1,10 @@
+## v1.9.74 — Sideways eyes and body-to-leg alignment
+### Changed
+- Rotated the crawler eyes 90 degrees to better match the creature's orientation on the cavern wall.
+- Shifted the hollow body further inward so it sits clear of the cavern edge.
+- Moved the three leg attachment points to the lower edge of the body, with the legs extending out to meet the cavern boundary.
+- Preserved the existing leg shape and stepping animation.
+
 ## v1.9.73 — Larger wall-edge crawlers
 ### Changed
 - Doubled the hollow orange crawler body size and enlarged its little eyes proportionally.
