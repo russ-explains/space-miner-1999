@@ -1,3 +1,10 @@
+## v1.9.97 — Drop-through hole and reliable boss damage
+### Changed
+- Removed the ladder artwork from the mining-planet entrance; the player drops through a dark hole, with only short jagged rocky edges visible.
+- Matched tentacle collision checks more closely to the animated, multi-pivot tentacles and widened the contact area slightly.
+- Made boss bomb collisions check against the astronaut's visible centre with a more reliable hit radius.
+- Confirmed body contact, tentacle contact and bomb hits all use the game's normal hull-damage/invulnerability path.
+
 ## v1.9.96 — Cavern ceiling and reliable ladder descent
 ### Changed
 - Added a jagged rocky ceiling across the top of the lower cavern.
