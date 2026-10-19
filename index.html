@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.73';
+const VERSION='v1.9.74';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -774,34 +774,36 @@ function drawVerticalLander(){
   for(const h of landerCaveHazards){
     if(h.y<top-40||h.y>bottom+40)continue;
     const x=h.x,y=h.y-top,legSwing=Math.sin(h.phase)*6;
-    // Larger hollow crawler bodies sit partly inside the cavern, with leg tips touching the wall edge.
+    // Keep the body fully inside the cavern, with its lower edge meeting three legs that touch the wall.
     ctx.save();ctx.translate(x,y);
     const wallDir=h.side==='left'?-1:1;
+    const wall=verticalCaveBounds(h.y);
+    const edgeX=h.side==='left'?wall.left:wall.right;
+    // Legs attach at the lower edge of the body, then reach outward to the cavern boundary.
     ctx.strokeStyle='#ff8a24';ctx.lineWidth=4.5;ctx.lineCap='round';ctx.lineJoin='round';
     for(let i=0;i<3;i++){
       const along=i-1,step=legSwing*(i===1?-1:1);
-      const attachX=wallDir*12,attachY=along*6;
-      const kneeX=wallDir*(22+step),kneeY=along*13+step*.5;
-      // Keep the outer tips aligned to the actual cavern edge.
-      const wall=verticalCaveBounds(h.y);
-      const edgeX=h.side==='left'?wall.left:wall.right;
+      const attachX=wallDir*14,attachY=along*14+13;
+      const kneeX=wallDir*(23+step),kneeY=along*18+18+step*.5;
       const footX=edgeX-x;
-      const footY=along*17+step*1.4;
+      const footY=along*22+22+step*1.4;
       ctx.beginPath();
       ctx.moveTo(attachX,attachY);
       ctx.lineTo(kneeX,kneeY);
       ctx.lineTo(footX,footY);
       ctx.stroke();
     }
-    // Twice-sized irregular outline, still hollow so the little eyes stay visible.
+    // Hollow, irregular body shifted inward from the wall; leave a clear gap to the cavern edge.
     ctx.strokeStyle='#ff8a24';ctx.lineWidth=2.5;ctx.beginPath();
     ctx.moveTo(-24,-4);ctx.lineTo(-20,-14);ctx.lineTo(-10,-20);
     ctx.lineTo(2,-18);ctx.lineTo(12,-22);ctx.lineTo(22,-12);
     ctx.lineTo(26,-2);ctx.lineTo(22,10);ctx.lineTo(12,18);
     ctx.lineTo(0,16);ctx.lineTo(-12,20);ctx.lineTo(-22,12);
     ctx.closePath();ctx.stroke();
-    // Eyes scale up with the body but remain small and bright.
-    ctx.fillStyle='#ffdf9a';ctx.fillRect(-10,-6,6,6);ctx.fillRect(6,-6,6,6);
+    // Eyes rotated sideways (90 degrees) to suit the creature's orientation on the cavern wall.
+    ctx.save();ctx.rotate(Math.PI/2);
+    ctx.fillStyle='#ffdf9a';ctx.fillRect(-6,-10,6,6);ctx.fillRect(-6,6,6,6);
+    ctx.restore();
     ctx.restore();
   }
   for(const a of landerCaveAsteroids){
