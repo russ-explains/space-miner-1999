@@ -1,3 +1,9 @@
+## v1.9.96 — Cavern ceiling and reliable ladder descent
+### Changed
+- Added a jagged rocky ceiling across the top of the lower cavern.
+- Capped upward movement at the ceiling so jetpack thrust cannot carry the astronaut through it.
+- Adjusted the surface ladder handling to bypass ground snapping inside the opening, allowing the astronaut to fall down into the shaft.
+
 ## v1.9.95 — Wobbling central boss hover
 ### Changed
 - Added a subtle wobble and tilt to the boss's body, with an irregular breathing/pulsing outline and slightly moving eyes.
