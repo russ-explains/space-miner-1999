@@ -1,3 +1,10 @@
+## v1.9.83 — Hidden lower mining cavern
+### Changed
+- Converted one surface pit into a ladder entrance to a scrolling lower cavern with multiple platforms.
+- Added oxygen and jetpack-fuel pickups along the descent.
+- Added a large green, four-tentacled monster that writhes, fires bombs, takes seven hits, melts away and releases five collectible gems.
+- Added a small rocket at the bottom left that boosts the player back into the air near the alien saucer to continue the mining mission.
+
 ## v1.9.82 — Fairer respawn supplies
 ### Changed
 - If the ship runs out of fuel and then dies, respawn fuel is set to 50% of the tank; other ship deaths keep the existing 60% minimum fuel rule.
