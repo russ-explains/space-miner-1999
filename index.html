@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.92';
+const VERSION='v1.9.93';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -1499,7 +1499,7 @@ function updateMiningCavern(){
  if(s.launch){
    const l=s.launch;l.t++;const t=Math.min(1,l.t/220),ease=t*t*(3-2*t);
    ship.x=l.x0+(l.x1-l.x0)*t*.12;
-   ship.y=l.y0+(l.y1-l.y0)*ease-Math.sin(t*Math.PI)*Math.min(45,H*.07);
+   ship.y=l.y0-(l.y0+H+90)*ease-Math.sin(t*Math.PI)*Math.min(28,H*.04);
    if(l.t>=220){s.launch=null;s.active=false;ship.x=clamp(cameraX+mineUfo.x+20,80,surfaceWidth-80);ship.y=mineUfo.y+115;ship.vx=0;ship.vy=-2;ship.grounded=false;mineOxygen=Math.max(mineOxygen,60);backpackFuel=Math.max(backpackFuel,60);msg='ROCKET BOOST — BACK TO THE SURFACE';msgT=100;}
    return;
  }
@@ -1513,7 +1513,11 @@ function updateMiningCavern(){
  s.camY=0;mineOxygen=Math.max(0,mineOxygen-.045);o2=mineOxygen;if(mineOxygen<=0){lose('OXYGEN DEPLETED IN LOWER CAVERN',true);return;}
  if(actionPressed&&bullets.filter(b=>!b.enemy).length<4+ship.laser){bullets.push({x:ship.x+ship.face*16,y:ship.y+3,vx:ship.face*(7+ship.laser*.8),vy:0,life:130});sfx('shoot');}
  bullets.forEach(b=>{b.x+=b.vx;b.y+=b.vy||0;b.life--;});bullets=bullets.filter(b=>b.life>0&&b.x>-30&&b.x<W+30);
- const m=s.monster;if(m.alive){m.age++;m.x=W*.5+Math.sin(m.age*.006)*W*.22;m.y=H*.48+Math.sin(m.age*.012)*H*.06;
+ const m=s.monster;if(m.alive){m.age++;
+  const playerFiring=bullets.some(b=>!b.enemy&&b.life>0&&Math.hypot(b.x-m.x,b.y-m.y)<Math.min(W,H)*.28);
+  const targetX=ship.x-W*.5,targetY=(ship.y+18)-H*.48,chargeSpeed=playerFiring?.045:.006;
+  m.x=clamp((m.x??W*.5)+Math.sin(m.age*.006)*W*chargeSpeed+targetX*chargeSpeed*.12,45,W-45);
+  m.y=clamp((m.y??H*.48)+Math.sin(m.age*.012)*H*.006+targetY*chargeSpeed*.08,H*.18,H*.78);
   // Touching the body or any animated tentacle costs one hull, with normal hit invulnerability.
   let tentacleHit=Math.hypot(ship.x-m.x,(ship.y+18)-m.y)<47;
   if(!tentacleHit){for(let i=0;i<4&&!tentacleHit;i++){const a=m.age*.018+i*Math.PI/2;let px=Math.cos(a)*22,py=Math.sin(a)*18;for(let j=1;j<=12;j++){const t=j/12,wiggle=Math.sin(m.age*.055+j*.82+i*2.1)*9,reach=28+t*(Math.min(W,H)*.15);const nx=Math.cos(a+t)*reach+Math.cos(a+Math.PI/2)*wiggle,ny=Math.sin(a+t)*reach+Math.sin(a+Math.PI/2)*wiggle;const vx=nx-px,vy=ny-py,den=vx*vx+vy*vy||1,q=clamp(((ship.x-px)*vx+((ship.y+18)-py)*vy)/den,0,1);if(Math.hypot(ship.x-(px+q*vx),(ship.y+18)-(py+q*vy))<15){tentacleHit=true;break;}px=nx;py=ny;}}}
@@ -1546,7 +1550,7 @@ function drawMiningCavern(){
  for(const p of s.pickups){if(!p.taken)drawCrateIcon(p.type,p.x,p.y,p.y>s.floorY-70?24:20);}
  const m=s.monster;if(m.alive||m.melt>0){ctx.save();ctx.translate(m.x,m.y);ctx.fillStyle='#36c84e';ctx.strokeStyle='#70ff72';ctx.lineWidth=3;
   // Four long, independently writhing tentacles around an irregular alien body.
-  for(let i=0;i<4;i++){const a=m.age*.018+i*Math.PI/2;ctx.beginPath();ctx.moveTo(Math.cos(a)*22,Math.sin(a)*18);for(let j=1;j<=12;j++){const t=j/12,wiggle=Math.sin(m.age*.055+j*.82+i*2.1)*9;const reach=28+t*(Math.min(W,H)*.15);const px=Math.cos(a+t*1.0)*reach+Math.cos(a+Math.PI/2)*wiggle;const py=Math.sin(a+t*1.0)*reach+Math.sin(a+Math.PI/2)*wiggle;ctx.lineTo(px,py);}ctx.stroke();}
+  for(let i=0;i<4;i++){const a=m.age*.018+i*Math.PI/2;ctx.beginPath();ctx.moveTo(Math.cos(a)*22,Math.sin(a)*18);for(let j=1;j<=12;j++){const t=j/12,wiggle=Math.sin(m.age*.055+j*.82+i*2.1)*9;const reach=28+t*(Math.min(W,H)*.15);const pivot1=Math.sin(m.age*.04+i*2.3)*.22*t,pivot2=Math.sin(m.age*.065+j*.7+i*1.7)*.14*t;const angle=a+t*1.0+pivot1+pivot2;const px=Math.cos(angle)*reach+Math.cos(a+Math.PI/2)*wiggle;const py=Math.sin(angle)*reach+Math.sin(a+Math.PI/2)*wiggle;ctx.lineTo(px,py);}ctx.stroke();}
   if(m.alive){ctx.beginPath();for(let j=0;j<=24;j++){const a=j/24*Math.PI*2,r=37+Math.sin(a*3+m.age*.035)*5+Math.sin(a*5-m.age*.024)*3;const x=Math.cos(a)*r,y=Math.sin(a)*r*.86;j?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#062006';ctx.beginPath();ctx.arc(-12,-4,5,0,Math.PI*2);ctx.arc(12,-4,5,0,Math.PI*2);ctx.fill();}else{ctx.globalAlpha=Math.max(0,m.melt/100);ctx.beginPath();ctx.ellipse(0,12,48,10,0,0,Math.PI*2);ctx.fill();}ctx.restore();}
  for(const b of s.bombs){ctx.fillStyle='#ff6bd6';ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fill();}
  // Player shots were being updated but not rendered in this room; draw them brightly here.
