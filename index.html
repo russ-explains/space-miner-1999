@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.70';
+const VERSION='v1.9.71';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -773,25 +773,30 @@ function drawVerticalLander(){
   }
   for(const h of landerCaveHazards){
     if(h.y<top-40||h.y>bottom+40)continue;
-    const x=h.x,y=h.y-top,legSwing=Math.sin(h.phase)*2.5;
-    // Bigger orange body with four short, bent legs reaching down to the cavern wall.
+    const x=h.x,y=h.y-top,legSwing=Math.sin(h.phase)*4;
+    // Hollow, slightly lumpy wall-crawler with three animated legs reaching towards the wall.
     ctx.save();ctx.translate(x,y);
+    const wallDir=h.side==='left'?-1:1;
     ctx.strokeStyle='#ff8a24';ctx.lineWidth=3;ctx.lineCap='round';ctx.lineJoin='round';
-    for(const side of [-1,1]){
-      for(let i=0;i<2;i++){
-        const along=(i===0?-1:1),step=legSwing*(i===0?1:-1);
-        const attachY=along*4;
-        const kneeX=side*(10+step),kneeY=attachY+along*3;
-        const footX=side*(15+step),footY=attachY+along*10;
-        ctx.beginPath();
-        ctx.moveTo(side*5,attachY);
-        ctx.lineTo(kneeX,kneeY);
-        ctx.lineTo(footX,footY);
-        ctx.stroke();
-      }
+    for(let i=0;i<3;i++){
+      const along=i-1,step=legSwing*(i===1?-1:1);
+      const attachX=wallDir*7,attachY=along*3;
+      const kneeX=wallDir*(13+step),kneeY=along*5+step*.35;
+      const footX=wallDir*(19+step),footY=along*7+step;
+      ctx.beginPath();
+      ctx.moveTo(attachX,attachY);
+      ctx.lineTo(kneeX,kneeY);
+      ctx.lineTo(footX,footY);
+      ctx.stroke();
     }
-    ctx.fillStyle='#ff8a24';ctx.strokeStyle='#ffc078';ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.ellipse(0,0,14,10,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    // Irregular outline only: leave the body unfilled so the eyes stand out.
+    ctx.strokeStyle='#ff8a24';ctx.lineWidth=2.5;ctx.beginPath();
+    ctx.moveTo(-12,-2);ctx.lineTo(-10,-7);ctx.lineTo(-5,-10);
+    ctx.lineTo(1,-9);ctx.lineTo(6,-11);ctx.lineTo(11,-6);
+    ctx.lineTo(13,-1);ctx.lineTo(11,5);ctx.lineTo(6,9);
+    ctx.lineTo(0,8);ctx.lineTo(-6,10);ctx.lineTo(-11,6);
+    ctx.closePath();ctx.stroke();
+    // Tiny bright eyes, similar to the miners/characters on the surface.
     ctx.fillStyle='#ffdf9a';ctx.fillRect(-5,-3,3,3);ctx.fillRect(3,-3,3,3);
     ctx.restore();
   }
