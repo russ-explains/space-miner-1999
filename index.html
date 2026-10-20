@@ -25,7 +25,7 @@
 <script>
 'use strict';
 
-const VERSION='v1.9.103';
+const VERSION='v1.9.104';
 const c = document.getElementById('game');
 const ctx = c.getContext('2d');
 const crtEl=document.getElementById('crt');
@@ -702,8 +702,31 @@ function updateVerticalLander(){
     const wall=verticalCaveBounds(h.y);
     h.x=h.side==='left'?wall.left+9:wall.right-9;
     h.phase+=.18;
-    if(Math.hypot(ship.x-h.x,ship.y-h.y)<h.r+13){
-      damage('HULL DESTROYED — WALL SPIDER','SPIDER CONTACT',true,true);
+    // The squid-like crawler is drawn much wider than its old 26px centre hit circle.
+    // Check its mantle and the visible legs so touching any part of the creature hurts.
+    const wallDir=h.side==='left'?-1:1;
+    const bodyX=h.x+wallDir*29, bodyY=h.y+2;
+    let squidHit=Math.abs(ship.x-bodyX)<31&&Math.abs(ship.y-bodyY)<19;
+    if(!squidHit){
+      const legSwing=Math.sin(h.phase)*6;
+      const wallX=h.side==='left'?wall.left:wall.right;
+      for(let leg=0;leg<3&&!squidHit;leg++){
+        const along=leg-1,step=legSwing*(leg===1?-1:1)*.85;
+        const points=[
+          {x:h.x-wallDir*(12+step*.25),y:h.y+along*4+11},
+          {x:h.x-wallDir*(19+step*.65),y:h.y+along*7+17+step*.65},
+          {x:h.x+wallDir*(1+step*.35),y:h.y+along*9+23-step*.45},
+          {x:wallX,y:h.y+along*12+28+step*1.15}
+        ];
+        for(let j=0;j<points.length-1;j++){
+          const a=points[j],b=points[j+1],dx=b.x-a.x,dy=b.y-a.y;
+          const t=clamp(((ship.x-a.x)*dx+(ship.y-a.y)*dy)/(dx*dx+dy*dy||1),0,1);
+          if(Math.hypot(ship.x-(a.x+t*dx),ship.y-(a.y+t*dy))<17){squidHit=true;break;}
+        }
+      }
+    }
+    if(squidHit&&ship.inv===0&&shieldT<=0){
+      damage('HULL DESTROYED — WALL SQUID','SQUID CONTACT',true,true);
       if(state!=='lander')return;
     }
   }
