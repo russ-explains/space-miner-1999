@@ -1,3 +1,8 @@
+## v1.9.104 — Squid crawler contact damage
+### Fixed
+- Expanded lander-cavern squid collision detection to cover the visible body and legs, not just a small circle at the wall.
+- Touching the squid's body or legs now costs one hull through the normal damage and invulnerability system; shields still protect the player.
+
 ## v1.9.103 — Boss defeat persists for the whole planet
 ### Changed
 - Recorded the planet index when the cavern boss is defeated.
